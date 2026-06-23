@@ -469,3 +469,104 @@ pnpm dev
 * Hacer Pull Request hacia `develop`.
 * Probar backend y frontend antes de abrir un Pull Request.
 * Mantener actualizado el `README.md` cuando cambie el flujo del proyecto.
+
+## Base de datos
+
+Para la base de datos se utiliza Docker Compose. Esto permite que todos los integrantes del equipo trabajen con una base de datos local configurada de la misma manera.
+
+La configuración de la base de datos se encuentra en el archivo `docker-compose.yml`, ubicado en la raíz del proyecto.
+
+## Requisitos
+
+Antes de levantar la base de datos, asegúrate de tener instalado Docker y el plugin de Docker Compose.
+
+Puedes comprobarlo con los siguientes comandos:
+
+```bash
+docker --version
+```
+
+```bash
+docker compose version
+```
+
+Si alguno de los comandos anteriores no muestra una versión instalada, será necesario instalar Docker y Docker Compose antes de continuar.
+
+## Configuración de variables de entorno
+
+En la raíz del proyecto existe un archivo de ejemplo llamado:
+
+```text
+.env.example
+```
+
+Este archivo contiene las variables necesarias para configurar la base de datos.
+
+Para usarlo, copia el archivo y renómbralo como `.env`:
+
+```bash
+cp .env.example .env
+```
+
+Después, abre el archivo `.env` y asigna los valores correspondientes a las variables de la base de datos.
+
+Ejemplo:
+
+```env
+POSTGRES_DB=sistema_congreso
+POSTGRES_USER=congreso_user
+POSTGRES_PASSWORD=congreso_password
+POSTGRES_PORT=5432
+```
+
+El archivo `.env` no debe subirse al repositorio, ya que puede contener información sensible o configuraciones locales de cada desarrollador.
+
+## Levantar la base de datos
+
+Para iniciar la base de datos, ejecuta el siguiente comando desde la raíz del proyecto, al mismo nivel donde se encuentra el archivo `docker-compose.yml`:
+
+```bash
+docker compose up -d
+```
+
+El parámetro `-d` permite ejecutar el contenedor en segundo plano.
+
+## Verificar que la base de datos esté corriendo
+
+Para revisar el estado de los contenedores:
+
+```bash
+docker compose ps
+```
+
+Si el contenedor de PostgreSQL aparece en estado `running`, la base de datos se levantó correctamente.
+
+## Detener la base de datos
+
+Para detener los contenedores sin eliminar los datos:
+
+```bash
+docker compose down
+```
+
+## Eliminar la base de datos y sus datos
+
+Si necesitas eliminar completamente la base de datos local, incluyendo los datos guardados en el volumen, ejecuta:
+
+```bash
+docker compose down -v
+```
+
+Este comando elimina los contenedores y también los volúmenes asociados, por lo que se perderá la información almacenada localmente.
+
+## Flujo recomendado
+
+Cada integrante del equipo debe seguir estos pasos:
+
+```bash
+cp .env.example .env
+docker compose up -d
+pnpm dev:backend
+```
+
+Con esto, la base de datos quedará activa y el backend podrá conectarse a PostgreSQL usando las variables definidas en el archivo `.env`.
