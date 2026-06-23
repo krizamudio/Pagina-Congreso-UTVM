@@ -1,10 +1,15 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { QrGeneratorModule } from './qr-generator/qr-generator.module';
+import { UserModule } from './user/user.module';
+import { TypeOrmModule } from './datasource/typeorm.module';
+import { ConfigModule } from '@nestjs/config';
+
 
 @Module({
-  imports: [QrGeneratorModule],
+  imports: [TypeOrmModule, UserModule, 
+    ConfigModule.forRoot({isGlobal: true})
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
