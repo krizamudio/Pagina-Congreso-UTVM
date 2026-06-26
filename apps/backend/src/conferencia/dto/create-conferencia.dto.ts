@@ -68,7 +68,7 @@ export class CreateConferenciaDto {
   @IsNotEmpty({ message: 'El campo "hora_fin" es obligatorio.' })
   hora_fin!: string;
 
-  @IsUUID('4', { message: 'El campo "sede_id" debe ser un UUID válido.' })
-  @IsNotEmpty({ message: 'El campo "sede_id" es obligatorio.' })
-  sede_id!: string;
+  @IsUUID('4', { message: 'El campo "ubicacion_id" debe ser un UUID válido.' })
+  @IsNotEmpty({ message: 'El campo "ubicacion_id" es obligatorio.' })
+  ubicacion_id!: string;
 }
