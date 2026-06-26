@@ -42,6 +42,12 @@ import EssentialLink, {
 } from "@/components/EssentialLink.vue";
 
 const linksList: EssentialLinkProps[] = [
+{
+  label: 'Registro de Participantes',
+  caption: 'Externos',
+  icon: 'how_to_reg',
+  link: '/registro-externo'   // 👈 debe coincidir con el path en routes.ts
+},
   {
     label: "Docs",
     caption: "quasar.dev",

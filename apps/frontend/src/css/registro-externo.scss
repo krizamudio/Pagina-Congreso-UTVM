@@ -1,0 +1,177 @@
+.registro-page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 50px;
+  background: linear-gradient(180deg, #071E1B 0%, #0B2A25 100%);
+}
+
+.registro-card {
+  width: 1100px;
+  max-width: 100%;
+  padding: 40px;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 18px 35px rgba(0, 0, 0, .25);
+}
+
+/* ---------- Encabezado ---------- */
+
+.titulo {
+  margin-top: 14px;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #00B86B;
+}
+
+.subtitulo {
+  margin-top: 6px;
+  color: #7A8A86;
+  font-size: .95rem;
+}
+
+.linea-titulo {
+  width: 90px;
+  height: 4px;
+  margin: 18px auto 0;
+  border-radius: 20px;
+  background: #00E676;
+}
+
+/* ---------- Secciones ---------- */
+
+.section-title {
+  margin-bottom: 18px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #16332D;
+}
+
+/* ---------- Inputs ---------- */
+
+.q-field__control {
+  border-radius: 10px !important;
+}
+
+.q-field--outlined .q-field__control:hover {
+  border-color: #00B86B;
+}
+
+/* ---------- Tarjetas ---------- */
+
+.info-card,
+.upload-card {
+  height: 260px;
+  padding: 24px;
+  border-radius: 12px;
+  border: 1px solid #E5ECE9;
+  transition: all .25s ease;
+}
+
+.info-card:hover,
+.upload-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 22px rgba(0, 0, 0, .08);
+}
+
+.card-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 18px;
+  font-weight: 600;
+  color: #16332D;
+}
+
+/* ---------- Total ---------- */
+
+.precio {
+  margin-top: 45px;
+  text-align: center;
+  font-size: 2.6rem;
+  font-weight: 700;
+  color: #00B86B;
+}
+
+.moneda {
+  text-align: center;
+  color: #8B9994;
+  font-size: .9rem;
+  letter-spacing: 2px;
+}
+
+/* ---------- Comprobante ---------- */
+
+.upload-card {
+  cursor: pointer;
+  border: 2px dashed #CAD6D2;
+  background: #FCFCFC;
+}
+
+.upload-card:hover {
+  border-color: #00B86B;
+  background: #F7FFF9;
+}
+
+.upload-content {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+}
+
+.upload-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #16332D;
+}
+
+.upload-subtitle {
+  font-size: .85rem;
+  color: #8B9994;
+}
+
+/* ---------- Botón ---------- */
+
+.btn-registro {
+  width: 320px;
+  height: 52px;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #00E676, #00B86B);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  transition: all .25s ease;
+}
+
+.btn-registro:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 22px rgba(0, 184, 107, .35);
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 1024px) {
+
+  .registro-page {
+    padding: 20px;
+  }
+
+  .registro-card {
+    padding: 28px;
+  }
+
+  .info-card,
+  .upload-card {
+    height: auto;
+    min-height: 220px;
+  }
+
+  .btn-registro {
+    width: 100%;
+  }
+}
