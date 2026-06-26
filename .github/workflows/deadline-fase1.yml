@@ -21,7 +21,7 @@ jobs:
           # FASE 1  →  30 de junio de 2026 a las 12:00 (hora Ciudad de México, UTC-6)
           # En UTC equivale a las 18:00
           # ─────────────────────────────────────────────
-          DEADLINE="2026-06-30T18:00:00"
+          DEADLINE="2026-06-30T19:00:00"
           NOW=$(date -u +"%Y-%m-%dT%H:%M:%S")
 
           echo "🕐 Fecha/hora actual (UTC): $NOW"
