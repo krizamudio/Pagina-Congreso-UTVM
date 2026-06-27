@@ -22,8 +22,7 @@ export class PonenteService {
     const ponente: Ponente = this.ponenteRepository.create(createPonenteDto);
 
     try {
-      await this.createPonente(ponente);
-      return ponente;
+      return await this.ponenteRepository.save(ponente);
     } catch (err) {
       throw new InternalServerErrorException('Ocurrio algo inesperado');
     }
