@@ -5,7 +5,7 @@
       <!-- Encabezado -->
       <div class="text-center q-mb-xl">
         <img
-          src="/logo.png"
+          src="../../components/logo1.png"
           alt="Congreso"
           width="110"
         >
@@ -21,22 +21,52 @@
         <div class="linea-titulo"></div>
       </div>
 
-      <q-form @submit.prevent="registrar">
+      <q-form
+        ref="formRef"
+        @submit.prevent="registrar"
+      >
 
-        <!-- Datos personales -->
         <div class="section-title">
           Datos personales
         </div>
 
         <div class="row q-col-gutter-lg">
 
-          <div class="col-12">
+          <div class="col-md-4 col-12">
             <q-input
               outlined
               dense
               color="positive"
               v-model="form.nombre"
-              label="Nombre completo"
+              label="Nombre(s)"
+              lazy-rules
+              :rules="[
+                v => !!v || 'El nombre es obligatorio'
+              ]"
+            />
+          </div>
+
+          <div class="col-md-4 col-12">
+            <q-input
+              outlined
+              dense
+              color="positive"
+              v-model="form.apellidoPaterno"
+              label="Apellido paterno"
+              lazy-rules
+              :rules="[
+                v => !!v || 'Campo obligatorio'
+              ]"
+            />
+          </div>
+
+          <div class="col-md-4 col-12">
+            <q-input
+              outlined
+              dense
+              color="positive"
+              v-model="form.apellidoMaterno"
+              label="Apellido materno"
             />
           </div>
 
@@ -45,9 +75,14 @@
               outlined
               dense
               color="positive"
-              v-model="form.correo"
               type="email"
+              v-model="form.correo"
               label="Correo electrónico"
+              lazy-rules
+              :rules="[
+                v => !!v || 'El correo es obligatorio',
+                v => /.+@.+\..+/.test(v) || 'Correo inválido'
+              ]"
             />
           </div>
 
@@ -56,8 +91,14 @@
               outlined
               dense
               color="positive"
+              mask="##########"
               v-model="form.telefono"
               label="Teléfono"
+              lazy-rules
+              :rules="[
+                v => !!v || 'El teléfono es obligatorio',
+                v => v.length === 10 || 'Debe contener 10 dígitos'
+              ]"
             />
           </div>
 
@@ -68,6 +109,10 @@
               color="positive"
               v-model="form.institucion"
               label="Institución o Empresa"
+              lazy-rules
+              :rules="[
+                v => !!v || 'Campo obligatorio'
+              ]"
             />
           </div>
 
@@ -78,11 +123,17 @@
         <div class="row q-col-gutter-lg">
 
           <!-- Días -->
+
           <div class="col-lg-4 col-md-4 col-12">
 
-            <q-card flat bordered class="info-card">
+            <q-card
+              flat
+              bordered
+              class="info-card"
+            >
 
               <div class="card-title">
+
                 <q-icon
                   name="event"
                   color="positive"
@@ -90,6 +141,7 @@
                 />
 
                 <span>Días de participación</span>
+
               </div>
 
               <q-option-group
@@ -99,16 +151,29 @@
                 color="positive"
               />
 
+              <div
+                v-if="diasError"
+                class="upload-error"
+              >
+                {{ diasError }}
+              </div>
+
             </q-card>
 
           </div>
 
           <!-- Total -->
+
           <div class="col-lg-4 col-md-4 col-12">
 
-            <q-card flat bordered class="info-card">
+            <q-card
+              flat
+              bordered
+              class="info-card"
+            >
 
               <div class="card-title">
+
                 <q-icon
                   name="payments"
                   color="positive"
@@ -116,14 +181,19 @@
                 />
 
                 <span>Total a pagar</span>
+
               </div>
 
               <div class="precio">
+
                 $ {{ total.toFixed(2) }}
+
               </div>
 
               <div class="moneda">
+
                 MXN
+
               </div>
 
             </q-card>
@@ -131,45 +201,58 @@
           </div>
 
           <!-- Comprobante -->
+
           <div class="col-lg-4 col-md-4 col-12">
 
             <q-card
               flat
               bordered
               class="upload-card"
-              :class="{ 'is-dragging': isDragging, 'has-file': !!form.comprobante }"
-              @click="$refs.fileInput.pickFiles()"
+              :class="{
+                'is-dragging': isDragging,
+                'has-file': !!form.comprobante
+              }"
+              @click="abrirSelector"
               @dragover.prevent="isDragging = true"
               @dragleave.prevent="isDragging = false"
               @drop.prevent="onDrop"
             >
 
-              <!-- input real, oculto -->
               <q-file
                 ref="fileInput"
+                style="display:none"
                 v-model="form.comprobante"
                 accept=".pdf,.jpg,.jpeg,.png"
-                style="display: none"
+                @update:model-value="seleccionarArchivo"
               />
 
               <div class="upload-content">
 
                 <q-icon
-                  :name="form.comprobante ? 'task' : 'cloud_upload'"
-                  size="55px"
+                  :name="form.comprobante ? 'task_alt' : 'cloud_upload'"
+                  size="58px"
                   color="positive"
                 />
 
                 <div class="upload-title">
+
                   {{ archivo }}
+
                 </div>
 
                 <div class="upload-subtitle">
-                  {{ form.comprobante ? 'Haz clic o arrastra otro archivo para cambiarlo' : 'Arrastra tu archivo aquí o haz clic para seleccionarlo' }}
+
+                  {{ form.comprobante
+                    ? 'Haz clic para cambiar el archivo'
+                    : 'Arrastra tu comprobante o haz clic aquí'
+                  }}
+
                 </div>
 
                 <div class="upload-formats">
-                  PDF · JPG · PNG
+
+                  PDF · JPG · PNG · Máximo 5 MB
+
                 </div>
 
                 <q-btn
@@ -177,7 +260,7 @@
                   color="positive"
                   class="q-mt-md"
                   :label="accionLabel"
-                  @click.stop="$refs.fileInput.pickFiles()"
+                  @click.stop="abrirSelector"
                 />
 
                 <div
@@ -210,15 +293,214 @@
       </q-form>
 
     </q-card>
+    <q-dialog
+  v-model="mostrarResumen"
+  persistent
+>
+
+  <q-card
+    class="resumen-card"
+    style="width:700px;max-width:90vw"
+  >
+
+    <q-card-section class="bg-positive text-white">
+
+      <div class="text-h6 text-weight-bold">
+        Confirmar registro
+      </div>
+
+      <div class="text-caption">
+        Verifica que toda la información sea correcta.
+      </div>
+
+    </q-card-section>
+
+    <q-card-section>
+
+      <div class="text-subtitle1 text-weight-bold q-mb-md">
+        Datos personales
+      </div>
+
+      <q-list dense separator>
+
+        <q-item>
+          <q-item-section avatar>
+            <q-icon name="person" color="positive" />
+          </q-item-section>
+
+          <q-item-section>
+
+            <div class="text-grey-7">
+              Nombre
+            </div>
+
+            <div class="text-weight-medium">
+              {{ nombreCompleto }}
+            </div>
+
+          </q-item-section>
+
+        </q-item>
+
+        <q-item>
+
+          <q-item-section avatar>
+            <q-icon name="mail" color="positive" />
+          </q-item-section>
+
+          <q-item-section>
+
+            <div class="text-grey-7">
+              Correo
+            </div>
+
+            <div class="text-weight-medium">
+              {{ form.correo }}
+            </div>
+
+          </q-item-section>
+
+        </q-item>
+
+        <q-item>
+
+          <q-item-section avatar>
+            <q-icon name="business" color="positive" />
+          </q-item-section>
+
+          <q-item-section>
+
+            <div class="text-grey-7">
+              Institución
+            </div>
+
+            <div class="text-weight-medium">
+              {{ form.institucion }}
+            </div>
+
+          </q-item-section>
+
+        </q-item>
+
+        <q-item>
+
+          <q-item-section avatar>
+            <q-icon name="phone" color="positive" />
+          </q-item-section>
+
+          <q-item-section>
+
+            <div class="text-grey-7">
+              Teléfono
+            </div>
+
+            <div class="text-weight-medium">
+              {{ form.telefono }}
+            </div>
+
+          </q-item-section>
+
+        </q-item>
+
+      </q-list>
+
+      <q-separator class="q-my-lg" />
+
+      <div class="text-subtitle1 text-weight-bold q-mb-sm">
+        Días seleccionados
+      </div>
+
+<q-chip
+  v-for="dia in diasSeleccionados"
+  :key="dia.value"
+  color="positive"
+  text-color="white"
+  icon="event_available"
+  class="q-mr-sm q-mb-sm"
+>
+  {{ dia.label }}
+</q-chip>
+
+      <q-separator class="q-my-lg" />
+
+      <div class="row items-center">
+
+        <q-icon
+          name="attach_file"
+          color="positive"
+          class="q-mr-sm"
+        />
+
+        <div>
+
+          <div class="text-grey-7">
+            Comprobante
+          </div>
+
+          <div class="text-weight-medium">
+            {{ archivo }}
+          </div>
+
+        </div>
+
+      </div>
+
+      <q-separator class="q-my-lg" />
+
+      <div class="row justify-between items-center">
+
+        <div class="text-h6 text-weight-bold">
+          Total a pagar
+        </div>
+
+        <div class="text-h4 text-positive text-weight-bold">
+          $ {{ total.toFixed(2) }}
+        </div>
+
+      </div>
+
+    </q-card-section>
+
+    <q-card-actions align="right">
+
+      <q-btn
+        flat
+        color="grey-8"
+        label="Volver"
+        v-close-popup
+      />
+
+      <q-btn
+        color="positive"
+        label="Confirmar registro"
+        :loading="cargando"
+        @click="confirmarRegistro"
+      />
+
+    </q-card-actions>
+
+  </q-card>
+
+</q-dialog>
   </q-page>
 </template>
-
 <script setup>
 import { ref, computed } from 'vue'
 
 const COSTO_DIA = 250
+const MAX_SIZE = 5 * 1024 * 1024 // 5 MB
 
-const TIPOS_VALIDOS = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png']
+const TIPOS_VALIDOS = [
+  'application/pdf',
+  'image/jpeg',
+  'image/jpg',
+  'image/png'
+]
+
+const formRef = ref(null)
+const fileInput = ref(null)
+const mostrarResumen = ref(false)
+const cargando = ref(false)
 
 const dias = [
   { label: 'Día 1', value: 'dia1' },
@@ -228,6 +510,8 @@ const dias = [
 
 const form = ref({
   nombre: '',
+  apellidoPaterno: '',
+  apellidoMaterno: '',
   correo: '',
   telefono: '',
   institucion: '',
@@ -237,8 +521,24 @@ const form = ref({
 
 const isDragging = ref(false)
 const archivoError = ref('')
+const diasError = ref('')
 
-const total = computed(() => form.value.dias.length * COSTO_DIA)
+const total = computed(() =>
+  form.value.dias.length * COSTO_DIA
+)
+const diasSeleccionados = computed(() =>
+  dias.filter(d => form.value.dias.includes(d.value))
+)
+
+const nombreCompleto = computed(() =>
+  [
+    form.value.nombre,
+    form.value.apellidoPaterno,
+    form.value.apellidoMaterno
+  ]
+    .filter(Boolean)
+    .join(' ')
+)
 
 const archivo = computed(() =>
   form.value.comprobante
@@ -246,35 +546,137 @@ const archivo = computed(() =>
     : 'Adjuntar comprobante'
 )
 
-// Cambia el texto del botón una vez que ya hay un archivo cargado
 const accionLabel = computed(() =>
-  form.value.comprobante ? 'Cambiar archivo' : 'Seleccionar archivo'
+  form.value.comprobante
+    ? 'Cambiar archivo'
+    : 'Seleccionar archivo'
 )
 
-function esArchivoValido(file) {
-  return TIPOS_VALIDOS.includes(file.type)
+function abrirSelector() {
+  fileInput.value?.pickFiles()
 }
 
-function onDrop(event) {
-  isDragging.value = false
+function esArchivoValido(file) {
 
-  const file = event.dataTransfer?.files?.[0]
-  if (!file) return
+  if (!TIPOS_VALIDOS.includes(file.type)) {
 
-  if (!esArchivoValido(file)) {
-    archivoError.value = 'Formato no válido. Usa PDF, JPG o PNG.'
-    return
+    archivoError.value =
+      'Formato no válido. Solo PDF, JPG o PNG.'
+
+    return false
+
+  }
+
+  if (file.size > MAX_SIZE) {
+
+    archivoError.value =
+      'El archivo supera el tamaño máximo de 5 MB.'
+
+    return false
+
   }
 
   archivoError.value = ''
+
+  return true
+}
+
+function seleccionarArchivo(file) {
+
+  if (!file) {
+
+    form.value.comprobante = null
+
+    return
+
+  }
+
+  if (!esArchivoValido(file)) {
+
+    form.value.comprobante = null
+
+    return
+
+  }
+
   form.value.comprobante = file
 }
 
-function registrar() {
-  console.log(form.value)
+function onDrop(event) {
+
+  isDragging.value = false
+
+  const file = event.dataTransfer?.files?.[0]
+
+  if (!file) return
+
+  if (!esArchivoValido(file)) return
+
+  form.value.comprobante = file
+}
+
+function validarDias() {
+
+  if (form.value.dias.length === 0) {
+
+    diasError.value =
+      'Selecciona al menos un día.'
+
+    return false
+
+  }
+
+  diasError.value = ''
+
+  return true
+}
+
+  async function registrar() {
+
+  const formularioValido = await formRef.value.validate()
+
+  const diasValidos = validarDias()
+
+  if (!form.value.comprobante) {
+    archivoError.value = 'Debes adjuntar un comprobante.'
+  }
+
+  if (
+    !formularioValido ||
+    !diasValidos ||
+    !form.value.comprobante
+  ) {
+    return
+  }
+
+  mostrarResumen.value = true
+
+}
+async function confirmarRegistro() {
+
+  cargando.value = true
+
+  const participante = {
+    nombreCompleto: nombreCompleto.value,
+    correo: form.value.correo,
+    telefono: form.value.telefono,
+    institucion: form.value.institucion,
+    dias: form.value.dias,
+    total: total.value,
+    comprobante: form.value.comprobante
+  }
+
+  console.clear()
+  console.log('===== PARTICIPANTE =====')
+  console.log(participante)
+
+  // Aquí después irá la petición POST al backend
+
+  cargando.value = false
+  mostrarResumen.value = false
+
 }
 </script>
-
 <style lang="scss">
 @import "../../css/registro-externo.scss";
 </style>
