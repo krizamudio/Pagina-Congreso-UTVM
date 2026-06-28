@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateTallerDto } from './dto/create-taller.dto';
 import { UpdateTallerDto } from './dto/update-taller.dto';
 import { Taller } from './entities/taller.entity';
@@ -16,9 +20,7 @@ export class TallerService {
     const tallerCreado = this.tallerRepository.create(createTallerDto);
 
     try {
-      const tallerGuardado: Taller =
-        await this.tallerRepository.save(tallerCreado);
-      return tallerCreado;
+      return await this.tallerRepository.save(tallerCreado);
     } catch (err) {
       throw new InternalServerErrorException(err);
     }
@@ -31,24 +33,30 @@ export class TallerService {
   }
 
   async findOneTaller(id: string): Promise<Taller> {
+    const taller: Taller | null = await this.tallerRepository.findOneBy({ id });
 
-    const taller: Taller | null = await this.tallerRepository.findOneBy({id});
-
-    if( taller === null || taller === undefined){
-      throw new NotFoundException(`No se encontro ningun taller con el id ${id}`);
+    if (taller === null || taller === undefined) {
+      throw new NotFoundException(
+        `No se encontro ningun taller con el id ${id}`,
+      );
     }
 
     return taller;
   }
 
-  async updateTaller(id: string, updateTallerDto: UpdateTallerDto): Promise<Taller> {
+  async updateTaller(
+    id: string,
+    updateTallerDto: UpdateTallerDto,
+  ): Promise<Taller> {
     const taller: Taller | undefined = await this.tallerRepository.preload({
       id,
       ...updateTallerDto,
     });
 
     if (!taller) {
-      throw new NotFoundException(`No se encontro ningun taller con el id ${id}`);
+      throw new NotFoundException(
+        `No se encontro ningun taller con el id ${id}`,
+      );
     }
 
     try {
@@ -58,14 +66,14 @@ export class TallerService {
     }
   }
 
-  async removeConferencia(id: string): Promise<Taller> {
+  async removeTaller(id: string): Promise<Taller> {
     const taller: Taller = await this.findOneTaller(id);
-    
+
     try {
       await this.tallerRepository.delete(id);
       return taller;
-    }catch( err ){
-      throw new InternalServerErrorException( err );
+    } catch (err) {
+      throw new InternalServerErrorException(err);
     }
   }
 }

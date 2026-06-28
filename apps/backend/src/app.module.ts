@@ -4,6 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConferenciasModule } from './conferencia/conferencia.module';
 import { TallerModule } from './taller/taller.module';
+import { PonenteModule } from './ponente/ponente.module';
 
 @Module({
   imports: [
@@ -21,7 +22,8 @@ import { TallerModule } from './taller/taller.module';
       synchronize: true,
     }),
     ConferenciasModule,
-    TallerModule
+    TallerModule,
+    PonenteModule
   ],
   controllers: [],
   providers: [],

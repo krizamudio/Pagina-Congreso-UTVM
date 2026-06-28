@@ -37,6 +37,6 @@ export class TallerController {
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.tallerService.removeConferencia(id);
+    return this.tallerService.removeTaller(id);
   }
 }
