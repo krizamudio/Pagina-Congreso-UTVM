@@ -1,6 +1,6 @@
 <template>
-  <q-page class="registro-page">
-    <q-card flat class="registro-card">
+<q-page class="registro-externo-page">
+  <q-card flat class="registro-externo-card">
       <!-- Encabezado -->
       <div class="text-center q-mb-xl">
         <img
@@ -266,7 +266,7 @@
       persistent
     >
       <q-card
-        class="resumen-card"
+        class="resumen-externo-card"
         style="width:700px;max-width:90vw"
       >
         <q-card-section class="bg-positive text-white">
@@ -424,7 +424,7 @@
       persistent
     >
       <q-card
-        class="resumen-card"
+        class="resumen-externo-card"
         style="width:500px;max-width:90vw"
       >
         <q-card-section class="bg-orange text-white">
@@ -470,7 +470,7 @@
       persistent
     >
       <q-card
-        class="resumen-card"
+        class="resumen-externo-card"
         style="width:560px;max-width:90vw"
       >
         <q-card-section class="bg-positive text-white">
