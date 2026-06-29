@@ -9,7 +9,7 @@ import { ExternosModule } from './externos/externos.module';
 
 @Module({
   imports: [TypeOrmModule, UserModule, 
-    ConfigModule.forRoot({isGlobal: true}), ExternosModule
+    ConfigModule.forRoot({isGlobal: true}), ExternosModule,
   ],
   controllers: [AppController],
   providers: [AppService],

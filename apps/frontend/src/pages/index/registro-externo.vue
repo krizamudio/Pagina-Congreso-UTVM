@@ -1,7 +1,6 @@
 <template>
   <q-page class="registro-page">
     <q-card flat class="registro-card">
-
       <!-- Encabezado -->
       <div class="text-center q-mb-xl">
         <img
@@ -25,13 +24,11 @@
         ref="formRef"
         @submit.prevent="registrar"
       >
-
         <div class="section-title">
           Datos personales
         </div>
 
         <div class="row q-col-gutter-lg">
-
           <div class="col-md-4 col-12">
             <q-input
               outlined
@@ -115,25 +112,19 @@
               ]"
             />
           </div>
-
         </div>
 
         <q-separator class="q-my-xl" />
 
         <div class="row q-col-gutter-lg">
-
           <!-- Días -->
-
           <div class="col-lg-4 col-md-4 col-12">
-
             <q-card
               flat
               bordered
               class="info-card"
             >
-
               <div class="card-title">
-
                 <q-icon
                   name="event"
                   color="positive"
@@ -141,7 +132,6 @@
                 />
 
                 <span>Días de participación</span>
-
               </div>
 
               <q-option-group
@@ -157,23 +147,17 @@
               >
                 {{ diasError }}
               </div>
-
             </q-card>
-
           </div>
 
           <!-- Total -->
-
           <div class="col-lg-4 col-md-4 col-12">
-
             <q-card
               flat
               bordered
               class="info-card"
             >
-
               <div class="card-title">
-
                 <q-icon
                   name="payments"
                   color="positive"
@@ -181,29 +165,20 @@
                 />
 
                 <span>Total a pagar</span>
-
               </div>
 
               <div class="precio">
-
                 $ {{ total.toFixed(2) }}
-
               </div>
 
               <div class="moneda">
-
                 MXN
-
               </div>
-
             </q-card>
-
           </div>
 
           <!-- Comprobante -->
-
           <div class="col-lg-4 col-md-4 col-12">
-
             <q-card
               flat
               bordered
@@ -217,7 +192,6 @@
               @dragleave.prevent="isDragging = false"
               @drop.prevent="onDrop"
             >
-
               <q-file
                 ref="fileInput"
                 style="display:none"
@@ -227,7 +201,6 @@
               />
 
               <div class="upload-content">
-
                 <q-icon
                   :name="form.comprobante ? 'task_alt' : 'cloud_upload'"
                   size="58px"
@@ -235,24 +208,18 @@
                 />
 
                 <div class="upload-title">
-
                   {{ archivo }}
-
                 </div>
 
                 <div class="upload-subtitle">
-
                   {{ form.comprobante
                     ? 'Haz clic para cambiar el archivo'
                     : 'Arrastra tu comprobante o haz clic aquí'
                   }}
-
                 </div>
 
                 <div class="upload-formats">
-
                   PDF · JPG · PNG · Máximo 5 MB
-
                 </div>
 
                 <q-btn
@@ -269,17 +236,12 @@
                 >
                   {{ archivoError }}
                 </div>
-
               </div>
-
             </q-card>
-
           </div>
-
         </div>
 
         <div class="text-center q-mt-xl">
-
           <q-btn
             unelevated
             class="btn-registro"
@@ -288,207 +250,275 @@
             type="submit"
           />
 
+          <div
+            v-if="mensajeError"
+            class="upload-error text-center q-mt-md"
+          >
+            {{ mensajeError }}
+          </div>
         </div>
-
       </q-form>
-
     </q-card>
+
+    <!-- Diálogo de resumen -->
     <q-dialog
-  v-model="mostrarResumen"
-  persistent
->
-
-  <q-card
-    class="resumen-card"
-    style="width:700px;max-width:90vw"
-  >
-
-    <q-card-section class="bg-positive text-white">
-
-      <div class="text-h6 text-weight-bold">
-        Confirmar registro
-      </div>
-
-      <div class="text-caption">
-        Verifica que toda la información sea correcta.
-      </div>
-
-    </q-card-section>
-
-    <q-card-section>
-
-      <div class="text-subtitle1 text-weight-bold q-mb-md">
-        Datos personales
-      </div>
-
-      <q-list dense separator>
-
-        <q-item>
-          <q-item-section avatar>
-            <q-icon name="person" color="positive" />
-          </q-item-section>
-
-          <q-item-section>
-
-            <div class="text-grey-7">
-              Nombre
-            </div>
-
-            <div class="text-weight-medium">
-              {{ nombreCompleto }}
-            </div>
-
-          </q-item-section>
-
-        </q-item>
-
-        <q-item>
-
-          <q-item-section avatar>
-            <q-icon name="mail" color="positive" />
-          </q-item-section>
-
-          <q-item-section>
-
-            <div class="text-grey-7">
-              Correo
-            </div>
-
-            <div class="text-weight-medium">
-              {{ form.correo }}
-            </div>
-
-          </q-item-section>
-
-        </q-item>
-
-        <q-item>
-
-          <q-item-section avatar>
-            <q-icon name="business" color="positive" />
-          </q-item-section>
-
-          <q-item-section>
-
-            <div class="text-grey-7">
-              Institución
-            </div>
-
-            <div class="text-weight-medium">
-              {{ form.institucion }}
-            </div>
-
-          </q-item-section>
-
-        </q-item>
-
-        <q-item>
-
-          <q-item-section avatar>
-            <q-icon name="phone" color="positive" />
-          </q-item-section>
-
-          <q-item-section>
-
-            <div class="text-grey-7">
-              Teléfono
-            </div>
-
-            <div class="text-weight-medium">
-              {{ form.telefono }}
-            </div>
-
-          </q-item-section>
-
-        </q-item>
-
-      </q-list>
-
-      <q-separator class="q-my-lg" />
-
-      <div class="text-subtitle1 text-weight-bold q-mb-sm">
-        Días seleccionados
-      </div>
-
-<q-chip
-  v-for="dia in diasSeleccionados"
-  :key="dia.value"
-  color="positive"
-  text-color="white"
-  icon="event_available"
-  class="q-mr-sm q-mb-sm"
->
-  {{ dia.label }}
-</q-chip>
-
-      <q-separator class="q-my-lg" />
-
-      <div class="row items-center">
-
-        <q-icon
-          name="attach_file"
-          color="positive"
-          class="q-mr-sm"
-        />
-
-        <div>
-
-          <div class="text-grey-7">
-            Comprobante
+      v-model="mostrarResumen"
+      persistent
+    >
+      <q-card
+        class="resumen-card"
+        style="width:700px;max-width:90vw"
+      >
+        <q-card-section class="bg-positive text-white">
+          <div class="text-h6 text-weight-bold">
+            Confirmar registro
           </div>
 
-          <div class="text-weight-medium">
-            {{ archivo }}
+          <div class="text-caption">
+            Verifica que toda la información sea correcta.
+          </div>
+        </q-card-section>
+
+        <q-card-section>
+          <div class="text-subtitle1 text-weight-bold q-mb-md">
+            Datos personales
           </div>
 
-        </div>
+          <q-list dense separator>
+            <q-item>
+              <q-item-section avatar>
+                <q-icon name="person" color="positive" />
+              </q-item-section>
 
-      </div>
+              <q-item-section>
+                <div class="text-grey-7">
+                  Nombre
+                </div>
 
-      <q-separator class="q-my-lg" />
+                <div class="text-weight-medium">
+                  {{ nombreCompleto }}
+                </div>
+              </q-item-section>
+            </q-item>
 
-      <div class="row justify-between items-center">
+            <q-item>
+              <q-item-section avatar>
+                <q-icon name="mail" color="positive" />
+              </q-item-section>
 
-        <div class="text-h6 text-weight-bold">
-          Total a pagar
-        </div>
+              <q-item-section>
+                <div class="text-grey-7">
+                  Correo
+                </div>
 
-        <div class="text-h4 text-positive text-weight-bold">
-          $ {{ total.toFixed(2) }}
-        </div>
+                <div class="text-weight-medium">
+                  {{ form.correo }}
+                </div>
+              </q-item-section>
+            </q-item>
 
-      </div>
+            <q-item>
+              <q-item-section avatar>
+                <q-icon name="business" color="positive" />
+              </q-item-section>
 
-    </q-card-section>
+              <q-item-section>
+                <div class="text-grey-7">
+                  Institución
+                </div>
 
-    <q-card-actions align="right">
+                <div class="text-weight-medium">
+                  {{ form.institucion }}
+                </div>
+              </q-item-section>
+            </q-item>
 
-      <q-btn
-        flat
-        color="grey-8"
-        label="Volver"
-        v-close-popup
-      />
+            <q-item>
+              <q-item-section avatar>
+                <q-icon name="phone" color="positive" />
+              </q-item-section>
 
-      <q-btn
-        color="positive"
-        label="Confirmar registro"
-        :loading="cargando"
-        @click="confirmarRegistro"
-      />
+              <q-item-section>
+                <div class="text-grey-7">
+                  Teléfono
+                </div>
 
-    </q-card-actions>
+                <div class="text-weight-medium">
+                  {{ form.telefono }}
+                </div>
+              </q-item-section>
+            </q-item>
+          </q-list>
 
-  </q-card>
+          <q-separator class="q-my-lg" />
 
-</q-dialog>
+          <div class="text-subtitle1 text-weight-bold q-mb-sm">
+            Días seleccionados
+          </div>
+
+          <q-chip
+            v-for="dia in diasSeleccionados"
+            :key="dia.value"
+            color="positive"
+            text-color="white"
+            icon="event_available"
+            class="q-mr-sm q-mb-sm"
+          >
+            {{ dia.label }}
+          </q-chip>
+
+          <q-separator class="q-my-lg" />
+
+          <div class="row items-center">
+            <q-icon
+              name="attach_file"
+              color="positive"
+              class="q-mr-sm"
+            />
+
+            <div>
+              <div class="text-grey-7">
+                Comprobante
+              </div>
+
+              <div class="text-weight-medium">
+                {{ archivo }}
+              </div>
+            </div>
+          </div>
+
+          <q-separator class="q-my-lg" />
+
+          <div class="row justify-between items-center">
+            <div class="text-h6 text-weight-bold">
+              Total a pagar
+            </div>
+
+            <div class="text-h4 text-positive text-weight-bold">
+              $ {{ total.toFixed(2) }}
+            </div>
+          </div>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn
+            flat
+            color="grey-8"
+            label="Volver"
+            v-close-popup
+          />
+
+          <q-btn
+            color="positive"
+            label="Confirmar registro"
+            :loading="cargando"
+            @click="confirmarRegistro"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <!-- Diálogo de correo duplicado -->
+    <q-dialog
+      v-model="mostrarCorreoDuplicado"
+      persistent
+    >
+      <q-card
+        class="resumen-card"
+        style="width:500px;max-width:90vw"
+      >
+        <q-card-section class="bg-orange text-white">
+          <div class="text-h6 text-weight-bold">
+            Correo ya registrado
+          </div>
+
+          <div class="text-caption">
+            No se pudo completar el registro.
+          </div>
+        </q-card-section>
+
+        <q-card-section class="text-center q-pa-lg">
+          <q-icon
+            name="warning"
+            color="orange"
+            size="64px"
+          />
+
+          <div class="text-h6 q-mt-md">
+            Este correo ya fue registrado anteriormente
+          </div>
+
+          <div class="text-grey-7 q-mt-sm">
+            Verifica el correo ingresado o utiliza uno diferente para continuar.
+          </div>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn
+            flat
+            color="grey-8"
+            label="Cerrar"
+            v-close-popup
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <!-- Diálogo de registro exitoso -->
+    <q-dialog
+      v-model="mostrarRegistroExitoso"
+      persistent
+    >
+      <q-card
+        class="resumen-card"
+        style="width:560px;max-width:90vw"
+      >
+        <q-card-section class="bg-positive text-white">
+          <div class="text-h6 text-weight-bold">
+            Registro enviado correctamente
+          </div>
+
+          <div class="text-caption">
+            Tu solicitud fue recibida.
+          </div>
+        </q-card-section>
+
+        <q-card-section class="text-center q-pa-lg">
+          <q-icon
+            name="mark_email_read"
+            color="positive"
+            size="72px"
+          />
+
+          <div class="text-h6 q-mt-md">
+            Tus datos serán validados
+          </div>
+
+          <div class="text-grey-7 q-mt-sm">
+            El comité revisará tu información y comprobante de pago.
+            Espera el correo de confirmación para continuar con el proceso.
+          </div>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn
+            color="positive"
+            label="Entendido"
+            v-close-popup
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
+
 <script setup>
 import { ref, computed } from 'vue'
 
+const API_EXTERNOS = 'http://localhost:3000/api/externos'
+
 const COSTO_DIA = 250
-const MAX_SIZE = 5 * 1024 * 1024 // 5 MB
+const MAX_SIZE = 5 * 1024 * 1024
 
 const TIPOS_VALIDOS = [
   'application/pdf',
@@ -501,6 +531,9 @@ const formRef = ref(null)
 const fileInput = ref(null)
 const mostrarResumen = ref(false)
 const cargando = ref(false)
+const mostrarCorreoDuplicado = ref(false)
+const mostrarRegistroExitoso = ref(false)
+const mensajeError = ref('')
 
 const dias = [
   { label: 'Día 1', value: 'dia1' },
@@ -526,6 +559,7 @@ const diasError = ref('')
 const total = computed(() =>
   form.value.dias.length * COSTO_DIA
 )
+
 const diasSeleccionados = computed(() =>
   dias.filter(d => form.value.dias.includes(d.value))
 )
@@ -557,84 +591,91 @@ function abrirSelector() {
 }
 
 function esArchivoValido(file) {
-
   if (!TIPOS_VALIDOS.includes(file.type)) {
-
-    archivoError.value =
-      'Formato no válido. Solo PDF, JPG o PNG.'
-
+    archivoError.value = 'Formato no válido. Solo PDF, JPG o PNG.'
     return false
-
   }
 
   if (file.size > MAX_SIZE) {
-
-    archivoError.value =
-      'El archivo supera el tamaño máximo de 5 MB.'
-
+    archivoError.value = 'El archivo supera el tamaño máximo de 5 MB.'
     return false
-
   }
 
   archivoError.value = ''
-
   return true
 }
 
 function seleccionarArchivo(file) {
-
   if (!file) {
-
     form.value.comprobante = null
-
     return
-
   }
 
   if (!esArchivoValido(file)) {
-
     form.value.comprobante = null
-
     return
-
   }
 
   form.value.comprobante = file
 }
 
 function onDrop(event) {
-
   isDragging.value = false
 
   const file = event.dataTransfer?.files?.[0]
 
   if (!file) return
-
   if (!esArchivoValido(file)) return
 
   form.value.comprobante = file
 }
 
 function validarDias() {
-
   if (form.value.dias.length === 0) {
-
-    diasError.value =
-      'Selecciona al menos un día.'
-
+    diasError.value = 'Selecciona al menos un día.'
     return false
-
   }
 
   diasError.value = ''
-
   return true
 }
 
-  async function registrar() {
+function limpiarFormulario() {
+  form.value = {
+    nombre: '',
+    apellidoPaterno: '',
+    apellidoMaterno: '',
+    correo: '',
+    telefono: '',
+    institucion: '',
+    dias: [],
+    comprobante: null
+  }
 
+  archivoError.value = ''
+  diasError.value = ''
+  mensajeError.value = ''
+  isDragging.value = false
+
+  formRef.value?.resetValidation()
+}
+
+async function correoYaRegistrado(correo) {
+  const response = await fetch(API_EXTERNOS)
+
+  if (!response.ok) {
+    throw new Error('No se pudo verificar el correo.')
+  }
+
+  const externos = await response.json()
+
+  return externos.some(externo =>
+    externo.correo?.trim().toLowerCase() === correo.trim().toLowerCase()
+  )
+}
+
+async function registrar() {
   const formularioValido = await formRef.value.validate()
-
   const diasValidos = validarDias()
 
   if (!form.value.comprobante) {
@@ -649,34 +690,63 @@ function validarDias() {
     return
   }
 
+  mensajeError.value = ''
   mostrarResumen.value = true
-
 }
-async function confirmarRegistro() {
 
+async function confirmarRegistro() {
   cargando.value = true
+  mensajeError.value = ''
 
   const participante = {
-    nombreCompleto: nombreCompleto.value,
+    nombre: form.value.nombre,
+    apellidoPaterno: form.value.apellidoPaterno,
+    apellidoMaterno: form.value.apellidoMaterno,
     correo: form.value.correo,
     telefono: form.value.telefono,
     institucion: form.value.institucion,
     dias: form.value.dias,
-    total: total.value,
-    comprobante: form.value.comprobante
+    total: Number(total.value),
+    comprobante: form.value.comprobante?.name || 'sin-comprobante'
   }
 
-  console.clear()
-  console.log('===== PARTICIPANTE =====')
-  console.log(participante)
+  try {
+    const existeCorreo = await correoYaRegistrado(participante.correo)
 
-  // Aquí después irá la petición POST al backend
+    if (existeCorreo) {
+      mostrarResumen.value = false
+      mostrarCorreoDuplicado.value = true
+      return
+    }
 
-  cargando.value = false
-  mostrarResumen.value = false
+    const response = await fetch(API_EXTERNOS, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(participante)
+    })
 
+    if (!response.ok) {
+      throw new Error('No se pudo registrar el participante.')
+    }
+
+    await response.json()
+
+    mostrarResumen.value = false
+    mostrarRegistroExitoso.value = true
+    limpiarFormulario()
+  } catch (error) {
+    mensajeError.value =
+      error.message || 'Ocurrió un error al registrar.'
+
+    console.error('Error al registrar:', error)
+  } finally {
+    cargando.value = false
+  }
 }
 </script>
+
 <style lang="scss">
 @import "../../css/registro-externo.scss";
 </style>
