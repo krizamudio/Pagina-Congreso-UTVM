@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
+import { ExternosModule } from './externos/externos.module';
 import { UserModule } from './user/user.module';
 import { RegistroNsuModule } from './registro-nsu/registro-nsu.module';
 import { ConferenciasModule } from './conferencia/conferencia.module';
@@ -32,6 +33,7 @@ import { PonenteModule } from './ponente/ponente.module';
     ConferenciasModule,
     TallerModule,
     PonenteModule,
+    ExternosModule,
   ],
   controllers: [],
   providers: [],
