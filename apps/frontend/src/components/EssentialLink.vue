@@ -1,9 +1,7 @@
 <template>
   <q-item
     clickable
-    tag="a"
-    target="_blank"
-    :href="link"
+    :to="link"
   >
     <q-item-section
       v-if="icon"
@@ -25,11 +23,11 @@ export interface EssentialLinkProps {
   caption?: string;
   link?: string;
   icon?: string;
-};
+}
 
 withDefaults(defineProps<EssentialLinkProps>(), {
   caption: '',
-  link: '#',
+  link: '/',
   icon: '',
 });
 </script>

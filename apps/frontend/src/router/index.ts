@@ -1,11 +1,20 @@
 import { defineRouter } from '#q-app';
-import { routes, handleHotUpdate } from 'vue-router/auto-routes';
+import { handleHotUpdate } from 'vue-router/auto-routes';
+import { routes as autoRoutes } from 'vue-router/auto-routes';
 import {
   createMemoryHistory,
   createRouter,
   createWebHashHistory,
   createWebHistory,
 } from 'vue-router';
+const routes = [
+  {
+    path: '/registro_nsu',
+    component: () => import('../pages/registro_nsu.vue')
+  },
+
+  ...autoRoutes,
+];
 
 /*
  * If not building with SSR mode, you can

@@ -1,14 +1,20 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { UserModule } from './user/user.module';
 import { TypeOrmModule } from './datasource/typeorm.module';
-import { ConfigModule } from '@nestjs/config';
-
+import { UserModule } from './user/user.module';
+import { RegistroNsuModule } from './registro-nsu/registro-nsu.module';
 
 @Module({
-  imports: [TypeOrmModule, UserModule, 
-    ConfigModule.forRoot({isGlobal: true})
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: '.env',
+    }),
+    TypeOrmModule,
+    UserModule,
+    RegistroNsuModule,
   ],
   controllers: [AppController],
   providers: [AppService],
