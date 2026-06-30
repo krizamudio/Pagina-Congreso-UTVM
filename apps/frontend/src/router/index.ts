@@ -13,6 +13,17 @@ const routes = [
     component: () => import('../pages/registro_nsu.vue')
   },
 
+  {
+    path: '/registro_ems',
+    component: () => import('../pages/registro_ems.vue'),
+  },
+
+  {
+  path: '/registro_utvm',
+  component: () => import('../pages/registro_utvm.vue'),
+},
+
+
   ...autoRoutes,
 ];
 

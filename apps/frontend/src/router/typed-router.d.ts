@@ -68,9 +68,23 @@ declare module 'vue-router/auto-routes' {
       { path: ParamValue<false> },
       | never
     >,
+    '/registro_ems': RouteRecordInfo<
+      '/registro_ems',
+      '/registro_ems',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/registro_nsu': RouteRecordInfo<
       '/registro_nsu',
       '/registro_nsu',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/registro_utvm': RouteRecordInfo<
+      '/registro_utvm',
+      '/registro_utvm',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -131,9 +145,25 @@ declare module 'vue-router/auto-routes' {
       pathParamNames:
         | 'path'
     }
+    'src/pages/registro_ems.vue': {
+      routes:
+        | '/registro_ems'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
     'src/pages/registro_nsu.vue': {
       routes:
         | '/registro_nsu'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/registro_utvm.vue': {
+      routes:
+        | '/registro_utvm'
       views:
         | never
       pathParamNames:

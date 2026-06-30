@@ -13,7 +13,7 @@
 
         <q-toolbar-title> Quasar App </q-toolbar-title>
 
-        <div>Quasar v{{ $q.version }}</div>
+        <q-toolbar-title> Congreso UTVM </q-toolbar-title>
       </q-toolbar>
     </q-header>
 
@@ -42,25 +42,30 @@ import EssentialLink, {
 } from "@/components/EssentialLink.vue";
 
 const linksList: EssentialLinkProps[] = [
-{
-  label: 'Registro de Participantes',
-  caption: 'Externos',
-  icon: 'how_to_reg',
-  link: '/registro-externo'   // 👈 debe coincidir con el path en routes.ts
-},
   {
-    label: "Docs",
-    caption: "quasar.dev",
-    icon: "school",
-    link: "https://quasar.dev"
+    label: 'Registro de Participantes',
+    caption: 'Externos',
+    icon: 'how_to_reg',
+    link: '/registro-externo',
   },
-
   {
     label: 'Registro NSU',
     caption: 'Formulario de registro',
     icon: 'school',
     link: '/registro_nsu',
-  }
+  },
+  {
+    label: 'Registro EMS',
+    caption: 'Participantes EMS',
+    icon: 'groups',
+    link: '/registro_ems',
+  },
+  {
+    label: 'Registro UTVM',
+    caption: 'Participantes UTVM',
+    icon: 'account_balance',
+    link: '/registro_utvm',
+  },
 ];
 
 const leftDrawerOpen = ref(false);
