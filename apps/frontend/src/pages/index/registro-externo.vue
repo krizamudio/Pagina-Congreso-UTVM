@@ -698,20 +698,8 @@ async function confirmarRegistro() {
   cargando.value = true
   mensajeError.value = ''
 
-  const participante = {
-    nombre: form.value.nombre,
-    apellidoPaterno: form.value.apellidoPaterno,
-    apellidoMaterno: form.value.apellidoMaterno,
-    correo: form.value.correo,
-    telefono: form.value.telefono,
-    institucion: form.value.institucion,
-    dias: form.value.dias,
-    total: Number(total.value),
-    comprobante: form.value.comprobante?.name || 'sin-comprobante'
-  }
-
   try {
-    const existeCorreo = await correoYaRegistrado(participante.correo)
+    const existeCorreo = await correoYaRegistrado(form.value.correo)
 
     if (existeCorreo) {
       mostrarResumen.value = false
@@ -719,19 +707,34 @@ async function confirmarRegistro() {
       return
     }
 
-    const response = await fetch(API_EXTERNOS, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(participante)
+    const formData = new FormData()
+
+    formData.append('nombre', form.value.nombre)
+    formData.append('apellidoPaterno', form.value.apellidoPaterno)
+    formData.append('apellidoMaterno', form.value.apellidoMaterno || '')
+    formData.append('correo', form.value.correo)
+    formData.append('telefono', form.value.telefono)
+    formData.append('institucion', form.value.institucion)
+    formData.append('total', String(total.value))
+
+    form.value.dias.forEach((dia) => {
+      formData.append('dias', dia)
     })
 
-    if (!response.ok) {
-      throw new Error('No se pudo registrar el participante.')
-    }
+    formData.append('comprobante', form.value.comprobante)
 
-    await response.json()
+    const response = await fetch(API_EXTERNOS, {
+      method: 'POST',
+      body: formData
+    })
+
+    const data = await response.json().catch(() => null)
+
+    if (!response.ok) {
+      throw new Error(
+        data?.message || 'No se pudo registrar el participante.'
+      )
+    }
 
     mostrarResumen.value = false
     mostrarRegistroExitoso.value = true

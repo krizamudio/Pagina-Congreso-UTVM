@@ -7,6 +7,7 @@ dist
 apps/backend/dist
 apps/frontend/dist
 apps/frontend/.quasar
+apps/backend/uploads/
 
 .env
 .env.*
