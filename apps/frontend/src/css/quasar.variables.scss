@@ -1,25 +1,28 @@
 // Quasar Sass (& SCSS) Variables
 // --------------------------------------------------
-// To customize the look and feel of this app, you can override
-// the Sass/SCSS variables found in Quasar's source Sass/SCSS files.
+// Colores adaptados a la paleta del diseño proporcionado.
 
-// Check documentation for full list of Quasar variables
+$primary: #00e676; // Verde Neón - Primario / CTA
+$secondary: #00b86b; // Verde Medio - Secundario
+$accent: #7c4dff; // Violeta - Acento opcional
 
-// Your own variables (that are declared here) and Quasar's own
-// ones will be available out of the box in your .vue/.scss/.sass files
+$dark: #071e1b; // Verde oscuro - Fondo principal
+$dark-page: #1f2a28; // Gris oscuro - Superficies elevadas / fondo de app
 
-// It's highly recommended to change the default colors
-// to match your app's branding.
-// Tip: Use the "Theme Builder" on Quasar's documentation website.
+$positive: #66f5b5; // Verde claro - Éxito / estados positivos
+$negative: #ff4d9d; // Rosa - Error / estados negativos
+$info: #00f5ff; // Cian - Información interactiva
+$warning: #ffb020; // Naranja - Advertencia
 
-$primary   : #1976D2;
-$secondary : #26A69A;
-$accent    : #9C27B0;
+// Neutros adicionales
+$grey-1: #ffffff; // Blanco
+$grey-8: #8ca09a; // Gris medio - Texto secundario
+$grey-9: #e6ecea; // Gris claro - Bordes / separadores
 
-$dark      : #1D1D1D;
-$dark-page : #121212;
-
-$positive  : #21BA45;
-$negative  : #C10015;
-$info      : #31CCEC;
-$warning   : #F2C037;
+// Gradientes sugeridos
+$gradient-green-start: #00e676;
+$gradient-green-end: #00b86b;
+$gradient-blue-start: #00f5ff;
+$gradient-blue-end: #2979ff;
+$gradient-violet-start: #7c4dff;
+$gradient-violet-end: #ff4d9d;
