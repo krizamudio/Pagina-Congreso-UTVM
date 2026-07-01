@@ -1,4 +1,9 @@
-import { Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateTallerDto } from './dto/create-taller.dto';
 import { UpdateTallerDto } from './dto/update-taller.dto';
 import { Taller } from './entities/taller.entity';
@@ -13,11 +18,27 @@ export class TallerService {
   ) {}
 
   async createTaller(createTallerDto: CreateTallerDto): Promise<Taller> {
+    const { fecha, hora_fin, hora_inicio } = createTallerDto;
+
+    const fechaFormateada = new Date(fecha);
+    const diaActual = new Date();
+
+    if (fechaFormateada.getTime() <= diaActual.getTime()) {
+      throw new BadRequestException(
+        'La fecha no puede ser anterior ni igual al dia actual',
+      );
+    }
+
+    if (hora_fin <= hora_inicio) {
+      throw new BadRequestException(
+        'La hora de fin no puede ser igual ni menor a la hora de inicio',
+      );
+    }
+
     const tallerCreado = this.tallerRepository.create(createTallerDto);
 
     try {
-      const tallerGuardado: Taller =
-        await this.tallerRepository.save(tallerCreado);
+      await this.tallerRepository.save(tallerCreado);
       return tallerCreado;
     } catch (err) {
       throw new InternalServerErrorException(err);
@@ -31,24 +52,70 @@ export class TallerService {
   }
 
   async findOneTaller(id: string): Promise<Taller> {
+    const taller: Taller | null = await this.tallerRepository.findOneBy({ id });
 
-    const taller: Taller | null = await this.tallerRepository.findOneBy({id});
-
-    if( taller === null || taller === undefined){
-      throw new NotFoundException(`No se encontro ningun taller con el id ${id}`);
+    if (taller === null || taller === undefined) {
+      throw new NotFoundException(
+        `No se encontro ningun taller con el id ${id}`,
+      );
     }
 
     return taller;
   }
 
-  async updateTaller(id: string, updateTallerDto: UpdateTallerDto): Promise<Taller> {
+  async updateTaller(
+    id: string,
+    updateTallerDto: UpdateTallerDto,
+  ): Promise<Taller> {
+    const { fecha, hora_fin, hora_inicio } = updateTallerDto;
+
+    const { hora_fin: hora_fin_actual, hora_inicio: hora_inicio_actual } =
+      await this.findOneTaller(id);
+
+    if (fecha) {
+      const fechaFormateada = new Date(fecha);
+      const diaActual = new Date();
+
+      if (fechaFormateada.getTime() <= diaActual.getTime()) {
+        throw new BadRequestException(
+          'La fecha no puede ser anterior ni igual al dia actual',
+        );
+      }
+    }
+
+    if (hora_inicio && hora_fin) {
+      if (hora_fin >= hora_inicio) {
+        throw new BadRequestException(
+          'La hora de finalizacion no puede ser antes que la hora de inicio',
+        );
+      }
+    } else {
+      if (hora_fin) {
+        if (hora_fin <= hora_inicio_actual) {
+          throw new BadRequestException(
+            'La hora de finalizacion no puede ser antes que la hora de inicio',
+          );
+        }
+      }
+
+      if (hora_inicio) {
+        if (hora_inicio <= hora_fin_actual) {
+          throw new BadRequestException(
+            'La hora de inicio no puede ser despues o igual a la hora de finalizacion',
+          );
+        }
+      }
+    }
+
     const taller: Taller | undefined = await this.tallerRepository.preload({
       id,
       ...updateTallerDto,
     });
 
     if (!taller) {
-      throw new NotFoundException(`No se encontro ningun taller con el id ${id}`);
+      throw new NotFoundException(
+        `No se encontro ningun taller con el id ${id}`,
+      );
     }
 
     try {
@@ -60,12 +127,12 @@ export class TallerService {
 
   async removeConferencia(id: string): Promise<Taller> {
     const taller: Taller = await this.findOneTaller(id);
-    
+
     try {
       await this.tallerRepository.delete(id);
       return taller;
-    }catch( err ){
-      throw new InternalServerErrorException( err );
+    } catch (err) {
+      throw new InternalServerErrorException(err);
     }
   }
 }
