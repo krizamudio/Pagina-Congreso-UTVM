@@ -7,6 +7,7 @@ import { TallerModule } from './taller/taller.module';
 import { PonenteModule } from './ponente/ponente.module';
 import { FotoModule } from './foto/foto.module';
 import { ArchivoMultimediaModule } from './archivo_multimedia/archivo_multimedia.module';
+import { CommonModule } from '../common/common.module';
 
 @Module({
   imports: [
@@ -27,7 +28,8 @@ import { ArchivoMultimediaModule } from './archivo_multimedia/archivo_multimedia
     TallerModule,
     PonenteModule,
     FotoModule,
-    ArchivoMultimediaModule
+    ArchivoMultimediaModule,
+    CommonModule
   ],
   controllers: [],
   providers: [],
