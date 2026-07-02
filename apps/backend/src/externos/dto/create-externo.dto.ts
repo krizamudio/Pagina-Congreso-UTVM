@@ -42,4 +42,6 @@ export class CreateExternoDto {
   @IsNotEmpty()
   comprobante!: string;
 
+  
+
 }

@@ -517,7 +517,7 @@ import { ref, computed } from 'vue'
 
 const API_EXTERNOS = 'http://localhost:3000/api/externos'
 
-const COSTO_DIA = 1000
+const COSTO_DIA = 250
 const MAX_SIZE = 5 * 1024 * 1024
 
 const TIPOS_VALIDOS = [
