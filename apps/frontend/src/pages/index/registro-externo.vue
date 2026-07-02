@@ -1,6 +1,6 @@
 <template>
-<q-page class="registro-externo-page">
-  <q-card flat class="registro-externo-card">
+  <q-page class="registro-externo-page">
+    <q-card flat class="registro-externo-card">
       <!-- Encabezado -->
       <div class="text-center q-mb-xl">
         <img
@@ -33,6 +33,7 @@
             <q-input
               outlined
               dense
+              hide-bottom-space
               color="positive"
               v-model="form.nombre"
               label="Nombre(s)"
@@ -47,6 +48,7 @@
             <q-input
               outlined
               dense
+              hide-bottom-space
               color="positive"
               v-model="form.apellidoPaterno"
               label="Apellido paterno"
@@ -61,6 +63,7 @@
             <q-input
               outlined
               dense
+              hide-bottom-space
               color="positive"
               v-model="form.apellidoMaterno"
               label="Apellido materno"
@@ -71,6 +74,7 @@
             <q-input
               outlined
               dense
+              hide-bottom-space
               color="positive"
               type="email"
               v-model="form.correo"
@@ -87,6 +91,7 @@
             <q-input
               outlined
               dense
+              hide-bottom-space
               color="positive"
               mask="##########"
               v-model="form.telefono"
@@ -103,6 +108,7 @@
             <q-input
               outlined
               dense
+              hide-bottom-space
               color="positive"
               v-model="form.institucion"
               label="Institución o Empresa"
@@ -212,9 +218,10 @@
                 </div>
 
                 <div class="upload-subtitle">
-                  {{ form.comprobante
-                    ? 'Haz clic para cambiar el archivo'
-                    : 'Arrastra tu comprobante o haz clic aquí'
+                  {{
+                    form.comprobante
+                      ? 'Haz clic para cambiar el archivo'
+                      : 'Arrastra tu comprobante o haz clic aquí'
                   }}
                 </div>
 
@@ -410,7 +417,7 @@
 
           <q-btn
             color="positive"
-            label="Confirmar registro"
+            label="Enviar código"
             :loading="cargando"
             @click="confirmarRegistro"
           />
@@ -464,6 +471,75 @@
       </q-card>
     </q-dialog>
 
+    <!-- Diálogo de código de verificación -->
+    <q-dialog
+      v-model="mostrarCodigoVerificacion"
+      persistent
+    >
+      <q-card
+        class="resumen-externo-card"
+        style="width:500px;max-width:90vw"
+      >
+        <q-card-section class="bg-positive text-white">
+          <div class="text-h6 text-weight-bold">
+            Verificación de correo
+          </div>
+
+          <div class="text-caption">
+            Hemos enviado un código a tu correo electrónico.
+          </div>
+        </q-card-section>
+
+        <q-card-section class="q-pa-lg">
+          <div class="text-grey-7 q-mb-md">
+            Ingresa el código que enviamos a:
+          </div>
+
+          <div class="text-weight-bold q-mb-lg">
+            {{ correoCodigo }}
+          </div>
+
+          <q-input
+  outlined
+  stack-label
+  hide-bottom-space
+  color="positive"
+  class="codigo-verificacion-input"
+  input-class="codigo-verificacion-text"
+  v-model="codigoVerificacion"
+  label="Código de verificación"
+  placeholder="000000"
+  maxlength="6"
+  mask="######"
+/>
+
+          <div
+            v-if="codigoError"
+            class="upload-error q-mt-md"
+          >
+            {{ codigoError }}
+          </div>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn
+            flat
+            color="grey-8"
+            label="Cancelar"
+            :disable="cargando"
+            @click="cancelarCodigo"
+          />
+
+          <q-btn
+            color="positive"
+            label="Confirmar registro"
+            :loading="cargando"
+            @click="confirmarCodigoYRegistrar"
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
     <!-- Diálogo de registro exitoso -->
     <q-dialog
       v-model="mostrarRegistroExitoso"
@@ -491,7 +567,7 @@
           />
 
           <div class="text-h6 q-mt-md">
-            Tus datos serán validados
+            Tu correo fue verificado correctamente
           </div>
 
           <div class="text-grey-7 q-mt-sm">
@@ -516,6 +592,8 @@
 import { ref, computed } from 'vue'
 
 const API_EXTERNOS = 'http://localhost:3000/api/externos'
+const API_ENVIAR_CODIGO =
+  'http://localhost:3000/api/externos/enviar-codigo'
 
 const COSTO_DIA = 250
 const MAX_SIZE = 5 * 1024 * 1024
@@ -529,11 +607,18 @@ const TIPOS_VALIDOS = [
 
 const formRef = ref(null)
 const fileInput = ref(null)
+
 const mostrarResumen = ref(false)
 const cargando = ref(false)
 const mostrarCorreoDuplicado = ref(false)
 const mostrarRegistroExitoso = ref(false)
+const mostrarCodigoVerificacion = ref(false)
+
 const mensajeError = ref('')
+const codigoVerificacion = ref('')
+const codigoError = ref('')
+const verificationToken = ref('')
+const correoCodigo = ref('')
 
 const dias = [
   { label: 'Día 1', value: 'dia1' },
@@ -655,23 +740,21 @@ function limpiarFormulario() {
   archivoError.value = ''
   diasError.value = ''
   mensajeError.value = ''
+  codigoError.value = ''
+  codigoVerificacion.value = ''
+  verificationToken.value = ''
+  correoCodigo.value = ''
   isDragging.value = false
 
   formRef.value?.resetValidation()
 }
 
-async function correoYaRegistrado(correo) {
-  const response = await fetch(API_EXTERNOS)
-
-  if (!response.ok) {
-    throw new Error('No se pudo verificar el correo.')
-  }
-
-  const externos = await response.json()
-
-  return externos.some(externo =>
-    externo.correo?.trim().toLowerCase() === correo.trim().toLowerCase()
-  )
+function cancelarCodigo() {
+  mostrarCodigoVerificacion.value = false
+  codigoVerificacion.value = ''
+  codigoError.value = ''
+  verificationToken.value = ''
+  correoCodigo.value = ''
 }
 
 async function registrar() {
@@ -691,22 +774,67 @@ async function registrar() {
   }
 
   mensajeError.value = ''
+  codigoError.value = ''
   mostrarResumen.value = true
 }
 
 async function confirmarRegistro() {
   cargando.value = true
   mensajeError.value = ''
+  codigoError.value = ''
 
   try {
-    const existeCorreo = await correoYaRegistrado(form.value.correo)
+    const response = await fetch(API_ENVIAR_CODIGO, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        correo: form.value.correo
+      })
+    })
 
-    if (existeCorreo) {
+    const data = await response.json().catch(() => null)
+
+    if (response.status === 409) {
       mostrarResumen.value = false
       mostrarCorreoDuplicado.value = true
       return
     }
 
+    if (!response.ok) {
+      throw new Error(
+        data?.message || 'No se pudo enviar el código de verificación.'
+      )
+    }
+
+    verificationToken.value = data.verificationToken
+    correoCodigo.value = form.value.correo
+
+    mostrarResumen.value = false
+    mostrarCodigoVerificacion.value = true
+  } catch (error) {
+    mensajeError.value =
+      error.message || 'Ocurrió un error al enviar el código.'
+
+    console.error('Error al enviar código:', error)
+  } finally {
+    cargando.value = false
+  }
+}
+
+async function confirmarCodigoYRegistrar() {
+  cargando.value = true
+  codigoError.value = ''
+
+  if (!codigoVerificacion.value) {
+    codigoError.value =
+      'Ingresa el código que enviamos a tu correo electrónico.'
+    cargando.value = false
+    return
+  }
+
+  try {
     const formData = new FormData()
 
     formData.append('nombre', form.value.nombre)
@@ -716,6 +844,8 @@ async function confirmarRegistro() {
     formData.append('telefono', form.value.telefono)
     formData.append('institucion', form.value.institucion)
     formData.append('total', String(total.value))
+    formData.append('codigoVerificacion', codigoVerificacion.value)
+    formData.append('verificationToken', verificationToken.value)
 
     form.value.dias.forEach((dia) => {
       formData.append('dias', dia)
@@ -731,19 +861,21 @@ async function confirmarRegistro() {
     const data = await response.json().catch(() => null)
 
     if (!response.ok) {
-      throw new Error(
-        data?.message || 'No se pudo registrar el participante.'
-      )
+      codigoError.value =
+        data?.message ||
+        'Código incorrecto. Verifica tu correo electrónico o vuelve a intentarlo.'
+      return
     }
 
-    mostrarResumen.value = false
+    mostrarCodigoVerificacion.value = false
     mostrarRegistroExitoso.value = true
     limpiarFormulario()
   } catch (error) {
-    mensajeError.value =
-      error.message || 'Ocurrió un error al registrar.'
+    codigoError.value =
+      error.message ||
+      'Código incorrecto. Verifica tu correo electrónico o vuelve a intentarlo.'
 
-    console.error('Error al registrar:', error)
+    console.error('Error al confirmar código:', error)
   } finally {
     cargando.value = false
   }

@@ -12,9 +12,13 @@ import {
 } from '@nestjs/common';
 
 import { FileInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
+import { memoryStorage } from 'multer';
 import { extname, join } from 'path';
-import { existsSync, mkdirSync } from 'fs';
+import {
+  existsSync,
+  mkdirSync,
+  writeFileSync,
+} from 'fs';
 
 import { ExternosService } from './externos.service';
 import { CreateExternoDto } from './dto/create-externo.dto';
@@ -53,32 +57,28 @@ function normalizarDias(
 
 @Controller('externos')
 export class ExternosController {
+
   constructor(
     private readonly externosService: ExternosService,
   ) {}
 
+  @Post('enviar-codigo')
+  enviarCodigo(
+    @Body('correo') correo: string,
+  ) {
+    if (!correo) {
+      throw new BadRequestException(
+        'El correo es obligatorio.',
+      );
+    }
+
+    return this.externosService.enviarCodigoVerificacion(correo);
+  }
+
   @Post()
   @UseInterceptors(
     FileInterceptor('comprobante', {
-      storage: diskStorage({
-        destination: (req, file, callback) => {
-          if (!existsSync(uploadPath)) {
-            mkdirSync(uploadPath, {
-              recursive: true,
-            });
-          }
-
-          callback(null, uploadPath);
-        },
-
-        filename: (req, file, callback) => {
-          const extension = extname(file.originalname);
-          const nombreArchivo =
-            `comprobante-${Date.now()}${extension}`;
-
-          callback(null, nombreArchivo);
-        },
-      }),
+      storage: memoryStorage(),
 
       fileFilter: (req, file, callback) => {
         const tiposPermitidos = [
@@ -105,7 +105,7 @@ export class ExternosController {
       },
     }),
   )
-  create(
+  async create(
     @UploadedFile() file: Express.Multer.File,
     @Body() body: any,
   ) {
@@ -114,6 +114,13 @@ export class ExternosController {
         'Debes adjuntar un comprobante.',
       );
     }
+
+    const extension = extname(file.originalname);
+    const nombreArchivo =
+      `comprobante-${Date.now()}${extension}`;
+
+    const rutaRelativa =
+      `uploads/comprobantes/externos/${nombreArchivo}`;
 
     const createExternoDto: CreateExternoDto = {
       nombre: body.nombre,
@@ -124,10 +131,26 @@ export class ExternosController {
       institucion: body.institucion,
       dias: normalizarDias(body.dias),
       total: Number(body.total),
-      comprobante: `uploads/comprobantes/externos/${file.filename}`,
+      comprobante: rutaRelativa,
+      codigoVerificacion: body.codigoVerificacion,
+      verificationToken: body.verificationToken,
     };
 
-    return this.externosService.create(createExternoDto);
+    const registro =
+      await this.externosService.create(createExternoDto);
+
+    if (!existsSync(uploadPath)) {
+      mkdirSync(uploadPath, {
+        recursive: true,
+      });
+    }
+
+    writeFileSync(
+      join(uploadPath, nombreArchivo),
+      file.buffer,
+    );
+
+    return registro;
   }
 
   @Get()

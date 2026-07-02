@@ -42,6 +42,11 @@ export class CreateExternoDto {
   @IsNotEmpty()
   comprobante!: string;
 
-  
+  @IsString()
+  @IsNotEmpty()
+  codigoVerificacion!: string;
 
+  @IsString()
+  @IsNotEmpty()
+  verificationToken!: string;
 }

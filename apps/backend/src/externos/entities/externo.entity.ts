@@ -8,6 +8,7 @@ import {
 
 @Entity('externos')
 export class Externo {
+
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
@@ -67,29 +68,16 @@ export class Externo {
 
   @Column({
     type: 'boolean',
-    default: false,
+    default: true,
   })
   correoVerificado!: boolean;
 
   @Column({
     type: 'varchar',
-    length: 255,
-    nullable: true,
+    length: 30,
+    default: 'pendiente',
   })
-  tokenVerificacion!: string | null;
-
-  @Column({
-    type: 'timestamp',
-    nullable: true,
-  })
-  tokenExpira!: Date | null;
-
-  @Column({
-    type: 'varchar',
-    length: 60,
-    default: 'pendiente_verificacion_correo',
-  })
-  estado!: string;
+  status!: string;
 
   @CreateDateColumn()
   createdAt!: Date;

@@ -728,3 +728,77 @@
     height: 52px !important;
   }
 }
+
+/* ---------- Modal código de verificación ---------- */
+
+.resumen-externo-card .codigo-verificacion-input {
+  width: 100%;
+  margin-top: 10px;
+}
+
+.resumen-externo-card .codigo-verificacion-input .q-field__control {
+  min-height: 66px !important;
+  height: 66px !important;
+  border-radius: 10px !important;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(5, 43, 74, 0.95),
+      rgba(3, 31, 48, 0.98)
+    ) !important;
+
+  border: 1px solid rgba(63, 134, 255, 0.65) !important;
+  box-shadow:
+    0 0 0 1px rgba(63, 134, 255, 0.25),
+    0 0 18px rgba(63, 134, 255, 0.15) !important;
+}
+
+.resumen-externo-card .codigo-verificacion-input .q-field__control::before,
+.resumen-externo-card .codigo-verificacion-input .q-field__control::after {
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+.resumen-externo-card .codigo-verificacion-input.q-field--focused .q-field__control {
+  border-color: #00e0a4 !important;
+  box-shadow:
+    0 0 0 2px rgba(0, 224, 164, 0.35),
+    0 0 22px rgba(0, 224, 164, 0.18) !important;
+}
+
+.resumen-externo-card .codigo-verificacion-input .q-field__label {
+  color: rgba(214, 227, 223, 0.85) !important;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.resumen-externo-card .codigo-verificacion-input.q-field--focused .q-field__label {
+  color: #00e0a4 !important;
+}
+
+.resumen-externo-card .codigo-verificacion-input .q-field__native,
+.resumen-externo-card .codigo-verificacion-input .q-field__input,
+.resumen-externo-card .codigo-verificacion-text {
+  color: #ffffff !important;
+  font-size: 1.55rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 6px;
+  text-align: center;
+  padding-top: 12px !important;
+  caret-color: #00e0a4;
+}
+
+.resumen-externo-card .codigo-verificacion-input .q-field__native::placeholder,
+.resumen-externo-card .codigo-verificacion-input .q-field__input::placeholder {
+  color: rgba(214, 227, 223, 0.32) !important;
+}
+
+.resumen-externo-card .codigo-verificacion-input .q-field__control-container {
+  display: flex;
+  align-items: center;
+}
+
+.resumen-externo-card .codigo-verificacion-input .q-field__bottom {
+  display: none !important;
+}
