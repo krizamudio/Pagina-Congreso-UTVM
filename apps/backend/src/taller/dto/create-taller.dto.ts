@@ -64,6 +64,8 @@ export class CreateTallerDto {
   @IsNotEmpty({ message: 'El campo "fecha" es obligatorio.' })
   fecha!: string;
 
+  // TODO: No mostrar todo el error al momento de que manden algo como
+  // 28:00:00
   @Matches(/^([01]\d|2[0-3]):([0-5]\d)(:([0-5]\d))?$/, {
     message: 'El campo "hora_inicio" debe tener formato HH:MM o HH:MM:SS.',
   })

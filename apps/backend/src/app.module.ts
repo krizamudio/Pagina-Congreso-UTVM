@@ -5,6 +5,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConferenciasModule } from './conferencia/conferencia.module';
 import { TallerModule } from './taller/taller.module';
 import { PonenteModule } from './ponente/ponente.module';
+import { FotoModule } from './foto/foto.module';
+import { ArchivoMultimediaModule } from './archivo_multimedia/archivo_multimedia.module';
+import { CommonModule } from '../common/common.module';
 
 @Module({
   imports: [
@@ -23,7 +26,10 @@ import { PonenteModule } from './ponente/ponente.module';
     }),
     ConferenciasModule,
     TallerModule,
-    PonenteModule
+    PonenteModule,
+    FotoModule,
+    ArchivoMultimediaModule,
+    CommonModule
   ],
   controllers: [],
   providers: [],

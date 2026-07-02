@@ -5,6 +5,7 @@ dist
 .cache
 
 apps/backend/dist
+apps/backend/uploads
 apps/frontend/dist
 apps/frontend/.quasar
 
