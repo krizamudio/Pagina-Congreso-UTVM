@@ -8,6 +8,8 @@ import { RegistroNsuModule } from './registro-nsu/registro-nsu.module';
 import { ConferenciasModule } from './conferencia/conferencia.module';
 import { TallerModule } from './taller/taller.module';
 import { PonenteModule } from './ponente/ponente.module';
+import { EmsModule } from './ems/ems.module';
+import { UtvmModule } from './utvm/utvm.module';
 
 @Module({
   imports: [
@@ -34,6 +36,8 @@ import { PonenteModule } from './ponente/ponente.module';
     TallerModule,
     PonenteModule,
     ExternosModule,
+    EmsModule,
+    UtvmModule,
   ],
   controllers: [],
   providers: [],

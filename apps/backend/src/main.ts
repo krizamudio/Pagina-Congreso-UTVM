@@ -8,9 +8,7 @@ async function main() {
   app.setGlobalPrefix('api');
 
   app.enableCors({
-    origin: ['http://localhost:9000'],
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    origin: true,
     credentials: true,
   });
 
