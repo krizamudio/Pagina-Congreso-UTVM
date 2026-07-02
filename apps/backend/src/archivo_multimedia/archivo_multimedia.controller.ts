@@ -47,11 +47,6 @@ export class ArchivoMultimediaController {
     return this.archivoMultimediaService.uploadPhoto(foto);
   }
 
-  @Post()
-  create(@Body() createArchivoMultimediaDto: CreateArchivoMultimediaDto) {
-    return this.archivoMultimediaService.create(createArchivoMultimediaDto);
-  }
-
   @Get()
   findAll() {
     return this.archivoMultimediaService.findAll();
