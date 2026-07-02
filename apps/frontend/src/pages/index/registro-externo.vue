@@ -1,271 +1,241 @@
 <template>
   <q-page class="registro-externo-page">
-    <q-card flat class="registro-externo-card">
-      <!-- Encabezado -->
-      <div class="text-center q-mb-xl">
-        <img
-          src="../../components/logo1.png"
-          alt="Congreso"
-          width="110"
-        >
+    <section class="registro-externo-header">
 
-        <div class="titulo q-mt-md">
-          Registro de Participantes Externos
-        </div>
+      <div>
+        <h1>Registro de Participantes Externos</h1>
 
-        <div class="subtitulo">
-          Completa tus datos para participar en el Congreso.
-        </div>
+        <p>
+          Completa tus datos, selecciona tus días de participación y adjunta tu comprobante de pago.
+        </p>
+      </div>
+    </section>
 
-        <div class="linea-titulo"></div>
+    <section class="registro-externo-card">
+      <div class="section-title">
+        <q-icon name="person" />
+        <span>Datos del participante</span>
       </div>
 
       <q-form
         ref="formRef"
+        class="externo-form-grid"
         @submit.prevent="registrar"
       >
-        <div class="section-title">
-          Datos personales
+        <q-input
+          outlined
+          dense
+          hide-bottom-space
+          color="positive"
+          class="externo-light-input"
+          v-model="form.nombre"
+          label="Nombre(s) *"
+          placeholder="Ingresa tu nombre"
+          lazy-rules
+          :rules="[
+            v => !!v || 'El nombre es obligatorio'
+          ]"
+        />
+
+        <q-input
+          outlined
+          dense
+          hide-bottom-space
+          color="positive"
+          class="externo-light-input"
+          v-model="form.apellidoPaterno"
+          label="Apellido paterno *"
+          placeholder="Ingresa tu apellido paterno"
+          lazy-rules
+          :rules="[
+            v => !!v || 'Campo obligatorio'
+          ]"
+        />
+
+        <q-input
+          outlined
+          dense
+          hide-bottom-space
+          color="positive"
+          class="externo-light-input"
+          v-model="form.apellidoMaterno"
+          label="Apellido materno"
+          placeholder="Ingresa tu apellido materno"
+        />
+
+        <q-input
+          outlined
+          dense
+          hide-bottom-space
+          color="positive"
+          class="externo-light-input"
+          type="email"
+          v-model="form.correo"
+          label="Correo electrónico *"
+          placeholder="ejemplo@correo.com"
+          lazy-rules
+          :rules="[
+            v => !!v || 'El correo es obligatorio',
+            v => /.+@.+\..+/.test(v) || 'Correo inválido'
+          ]"
+        />
+
+        <q-input
+          outlined
+          dense
+          hide-bottom-space
+          color="positive"
+          class="externo-light-input"
+          mask="##########"
+          v-model="form.telefono"
+          label="Teléfono *"
+          placeholder="Ej. 5512345678"
+          lazy-rules
+          :rules="[
+            v => !!v || 'El teléfono es obligatorio',
+            v => v.length === 10 || 'Debe contener 10 dígitos'
+          ]"
+        />
+
+        <q-input
+  outlined
+  dense
+  hide-bottom-space
+  color="positive"
+  class="externo-light-input"
+  v-model="form.institucion"
+  label="Institución o Empresa"
+  placeholder="Nombre de la institución o empresa"
+/>
+
+        <div
+          v-if="correoVerificado"
+          class="correo-verificado-box"
+        >
+          <q-icon name="verified" />
+          <span>Correo verificado correctamente</span>
         </div>
 
-        <div class="row q-col-gutter-lg">
-          <div class="col-md-4 col-12">
-            <q-input
-              outlined
-              dense
-              hide-bottom-space
-              color="positive"
-              v-model="form.nombre"
-              label="Nombre(s)"
-              lazy-rules
-              :rules="[
-                v => !!v || 'El nombre es obligatorio'
-              ]"
+        <div class="externo-dark-box">
+          <div class="box-label">
+            Días de participación *
+          </div>
+
+          <div class="externo-days-grid">
+            <q-checkbox
+              v-for="dia in dias"
+              :key="dia.value"
+              v-model="form.dias"
+              :val="dia.value"
+              :label="dia.label"
+              color="primary"
+              dark
             />
           </div>
 
-          <div class="col-md-4 col-12">
-            <q-input
-              outlined
-              dense
-              hide-bottom-space
-              color="positive"
-              v-model="form.apellidoPaterno"
-              label="Apellido paterno"
-              lazy-rules
-              :rules="[
-                v => !!v || 'Campo obligatorio'
-              ]"
-            />
-          </div>
-
-          <div class="col-md-4 col-12">
-            <q-input
-              outlined
-              dense
-              hide-bottom-space
-              color="positive"
-              v-model="form.apellidoMaterno"
-              label="Apellido materno"
-            />
-          </div>
-
-          <div class="col-md-6 col-12">
-            <q-input
-              outlined
-              dense
-              hide-bottom-space
-              color="positive"
-              type="email"
-              v-model="form.correo"
-              label="Correo electrónico"
-              lazy-rules
-              :rules="[
-                v => !!v || 'El correo es obligatorio',
-                v => /.+@.+\..+/.test(v) || 'Correo inválido'
-              ]"
-            />
-          </div>
-
-          <div class="col-md-6 col-12">
-            <q-input
-              outlined
-              dense
-              hide-bottom-space
-              color="positive"
-              mask="##########"
-              v-model="form.telefono"
-              label="Teléfono"
-              lazy-rules
-              :rules="[
-                v => !!v || 'El teléfono es obligatorio',
-                v => v.length === 10 || 'Debe contener 10 dígitos'
-              ]"
-            />
-          </div>
-
-          <div class="col-12">
-            <q-input
-              outlined
-              dense
-              hide-bottom-space
-              color="positive"
-              v-model="form.institucion"
-              label="Institución o Empresa"
-              lazy-rules
-              :rules="[
-                v => !!v || 'Campo obligatorio'
-              ]"
-            />
-          </div>
-        </div>
-
-        <q-separator class="q-my-xl" />
-
-        <div class="row q-col-gutter-lg">
-          <!-- Días -->
-          <div class="col-lg-4 col-md-4 col-12">
-            <q-card
-              flat
-              bordered
-              class="info-card"
-            >
-              <div class="card-title">
-                <q-icon
-                  name="event"
-                  color="positive"
-                  size="26px"
-                />
-
-                <span>Días de participación</span>
-              </div>
-
-              <q-option-group
-                v-model="form.dias"
-                :options="dias"
-                type="checkbox"
-                color="positive"
-              />
-
-              <div
-                v-if="diasError"
-                class="upload-error"
-              >
-                {{ diasError }}
-              </div>
-            </q-card>
-          </div>
-
-          <!-- Total -->
-          <div class="col-lg-4 col-md-4 col-12">
-            <q-card
-              flat
-              bordered
-              class="info-card"
-            >
-              <div class="card-title">
-                <q-icon
-                  name="payments"
-                  color="positive"
-                  size="26px"
-                />
-
-                <span>Total a pagar</span>
-              </div>
-
-              <div class="precio">
-                $ {{ total.toFixed(2) }}
-              </div>
-
-              <div class="moneda">
-                MXN
-              </div>
-            </q-card>
-          </div>
-
-          <!-- Comprobante -->
-          <div class="col-lg-4 col-md-4 col-12">
-            <q-card
-              flat
-              bordered
-              class="upload-card"
-              :class="{
-                'is-dragging': isDragging,
-                'has-file': !!form.comprobante
-              }"
-              @click="abrirSelector"
-              @dragover.prevent="isDragging = true"
-              @dragleave.prevent="isDragging = false"
-              @drop.prevent="onDrop"
-            >
-              <q-file
-                ref="fileInput"
-                style="display:none"
-                v-model="form.comprobante"
-                accept=".pdf,.jpg,.jpeg,.png"
-                @update:model-value="seleccionarArchivo"
-              />
-
-              <div class="upload-content">
-                <q-icon
-                  :name="form.comprobante ? 'task_alt' : 'cloud_upload'"
-                  size="58px"
-                  color="positive"
-                />
-
-                <div class="upload-title">
-                  {{ archivo }}
-                </div>
-
-                <div class="upload-subtitle">
-                  {{
-                    form.comprobante
-                      ? 'Haz clic para cambiar el archivo'
-                      : 'Arrastra tu comprobante o haz clic aquí'
-                  }}
-                </div>
-
-                <div class="upload-formats">
-                  PDF · JPG · PNG · Máximo 5 MB
-                </div>
-
-                <q-btn
-                  outline
-                  color="positive"
-                  class="q-mt-md"
-                  :label="accionLabel"
-                  @click.stop="abrirSelector"
-                />
-
-                <div
-                  v-if="archivoError"
-                  class="upload-error"
-                >
-                  {{ archivoError }}
-                </div>
-              </div>
-            </q-card>
+          <div
+            v-if="diasError"
+            class="upload-error"
+          >
+            {{ diasError }}
           </div>
         </div>
 
-        <div class="text-center q-mt-xl">
-          <q-btn
-            unelevated
-            class="btn-registro"
-            icon="how_to_reg"
-            label="Registrar participante"
-            type="submit"
+        <div class="externo-dark-box externo-total-box">
+          <div class="box-label">
+            Total a pagar
+          </div>
+
+          <div class="amount">
+            $ {{ total.toFixed(2) }}
+          </div>
+
+          <div class="box-help">
+            Selecciona los días de participación
+          </div>
+        </div>
+
+        <div class="externo-upload-box">
+          <div class="box-label">
+            Comprobante de pago *
+          </div>
+
+          <q-file
+            ref="fileInput"
+            style="display:none"
+            v-model="form.comprobante"
+            accept=".pdf,.jpg,.jpeg,.png"
+            @update:model-value="seleccionarArchivo"
           />
 
           <div
-            v-if="mensajeError"
-            class="upload-error text-center q-mt-md"
+            class="externo-file-input externo-upload-layout"
+            :class="{
+              'is-dragging': isDragging,
+              'has-file': !!form.comprobante
+            }"
+            @click="abrirSelector"
+            @dragover.prevent="isDragging = true"
+            @dragleave.prevent="isDragging = false"
+            @drop.prevent="onDrop"
           >
-            {{ mensajeError }}
+            <div class="externo-upload-left">
+              <q-icon
+                :name="form.comprobante ? 'task_alt' : 'cloud_upload'"
+                size="44px"
+              />
+
+              <div class="externo-upload-text">
+                <strong>
+                  {{ form.comprobante ? 'Comprobante seleccionado' : 'Arrastra tu archivo aquí o selecciona' }}
+                </strong>
+
+                <span v-if="!form.comprobante">
+                  Formatos permitidos: PDF, JPG, JPEG, PNG. Máx. 5 MB
+                </span>
+
+                <span v-else>
+                  Archivo seleccionado: {{ form.comprobante.name }}
+                </span>
+              </div>
+            </div>
+
+            <q-btn
+              outline
+              icon="upload"
+              :label="accionLabel"
+              class="externo-btn-outline"
+              @click.stop="abrirSelector"
+            />
+          </div>
+
+          <div
+            v-if="archivoError"
+            class="upload-error"
+          >
+            {{ archivoError }}
           </div>
         </div>
+
+        <div class="externo-actions-row">
+          <q-btn
+            unelevated
+            icon="how_to_reg"
+            label="Registrar participante"
+            type="submit"
+            class="btn-registro"
+            :loading="cargando"
+          />
+        </div>
+
+        <div
+          v-if="mensajeError"
+          class="upload-error externo-main-error"
+        >
+          {{ mensajeError }}
+        </div>
       </q-form>
-    </q-card>
+    </section>
 
     <!-- Diálogo de resumen -->
     <q-dialog
@@ -276,7 +246,7 @@
         class="resumen-externo-card"
         style="width:700px;max-width:90vw"
       >
-        <q-card-section class="bg-positive text-white">
+        <q-card-section class="dialog-header">
           <div class="text-h6 text-weight-bold">
             Confirmar registro
           </div>
@@ -294,7 +264,7 @@
           <q-list dense separator>
             <q-item>
               <q-item-section avatar>
-                <q-icon name="person" color="positive" />
+                <q-icon name="person" />
               </q-item-section>
 
               <q-item-section>
@@ -310,7 +280,7 @@
 
             <q-item>
               <q-item-section avatar>
-                <q-icon name="mail" color="positive" />
+                <q-icon name="mail" />
               </q-item-section>
 
               <q-item-section>
@@ -326,12 +296,12 @@
 
             <q-item>
               <q-item-section avatar>
-                <q-icon name="business" color="positive" />
+                <q-icon name="business" />
               </q-item-section>
 
               <q-item-section>
                 <div class="text-grey-7">
-                  Institución
+                  Institución o Empresa
                 </div>
 
                 <div class="text-weight-medium">
@@ -342,7 +312,7 @@
 
             <q-item>
               <q-item-section avatar>
-                <q-icon name="phone" color="positive" />
+                <q-icon name="phone" />
               </q-item-section>
 
               <q-item-section>
@@ -366,10 +336,8 @@
           <q-chip
             v-for="dia in diasSeleccionados"
             :key="dia.value"
-            color="positive"
-            text-color="white"
+            class="externo-chip"
             icon="event_available"
-            class="q-mr-sm q-mb-sm"
           >
             {{ dia.label }}
           </q-chip>
@@ -379,7 +347,6 @@
           <div class="row items-center">
             <q-icon
               name="attach_file"
-              color="positive"
               class="q-mr-sm"
             />
 
@@ -401,7 +368,7 @@
               Total a pagar
             </div>
 
-            <div class="text-h4 text-positive text-weight-bold">
+            <div class="dialog-total">
               $ {{ total.toFixed(2) }}
             </div>
           </div>
@@ -410,14 +377,14 @@
         <q-card-actions align="right">
           <q-btn
             flat
-            color="grey-8"
             label="Volver"
+            class="dialog-btn-flat"
             v-close-popup
           />
 
           <q-btn
-            color="positive"
-            label="Enviar código"
+            label="Confirmar registro"
+            class="dialog-btn-primary"
             :loading="cargando"
             @click="confirmarRegistro"
           />
@@ -434,7 +401,7 @@
         class="resumen-externo-card"
         style="width:500px;max-width:90vw"
       >
-        <q-card-section class="bg-orange text-white">
+        <q-card-section class="dialog-header dialog-header-warning">
           <div class="text-h6 text-weight-bold">
             Correo ya registrado
           </div>
@@ -447,7 +414,7 @@
         <q-card-section class="text-center q-pa-lg">
           <q-icon
             name="warning"
-            color="orange"
+            class="dialog-warning-icon"
             size="64px"
           />
 
@@ -463,78 +430,105 @@
         <q-card-actions align="right">
           <q-btn
             flat
-            color="grey-8"
             label="Cerrar"
+            class="dialog-btn-flat"
             v-close-popup
           />
         </q-card-actions>
       </q-card>
     </q-dialog>
 
-    <!-- Diálogo de código de verificación -->
+    <!-- Diálogo de verificación enviada -->
     <q-dialog
-      v-model="mostrarCodigoVerificacion"
+      v-model="mostrarVerificacionEnviada"
       persistent
     >
       <q-card
         class="resumen-externo-card"
-        style="width:500px;max-width:90vw"
+        style="width:560px;max-width:90vw"
       >
-        <q-card-section class="bg-positive text-white">
+        <q-card-section class="dialog-header">
           <div class="text-h6 text-weight-bold">
-            Verificación de correo
+            Verifica tu correo electrónico
           </div>
 
           <div class="text-caption">
-            Hemos enviado un código a tu correo electrónico.
+            Aún no se ha guardado el registro.
           </div>
         </q-card-section>
 
-        <q-card-section class="q-pa-lg">
-          <div class="text-grey-7 q-mb-md">
-            Ingresa el código que enviamos a:
+        <q-card-section class="text-center q-pa-lg">
+          <q-icon
+            name="outgoing_mail"
+            class="dialog-main-icon"
+            size="72px"
+          />
+
+          <div class="text-h6 q-mt-md">
+            Te enviamos un enlace de verificación
           </div>
 
-          <div class="text-weight-bold q-mb-lg">
-            {{ correoCodigo }}
+          <div class="text-grey-7 q-mt-sm">
+            Ingresa a tu correo electrónico y da clic en el enlace de verificación.
+            Después vuelve a esta pantalla para finalizar el registro.
           </div>
 
-          <q-input
-  outlined
-  stack-label
-  hide-bottom-space
-  color="positive"
-  class="codigo-verificacion-input"
-  input-class="codigo-verificacion-text"
-  v-model="codigoVerificacion"
-  label="Código de verificación"
-  placeholder="000000"
-  maxlength="6"
-  mask="######"
-/>
-
-          <div
-            v-if="codigoError"
-            class="upload-error q-mt-md"
-          >
-            {{ codigoError }}
+          <div class="dialog-email q-mt-md">
+            {{ form.correo }}
           </div>
         </q-card-section>
 
         <q-card-actions align="right">
           <q-btn
-            flat
-            color="grey-8"
-            label="Cancelar"
-            :disable="cargando"
-            @click="cancelarCodigo"
+            label="Entendido"
+            class="dialog-btn-primary"
+            v-close-popup
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <!-- Diálogo de correo verificado -->
+    <q-dialog
+      v-model="mostrarCorreoVerificado"
+      persistent
+    >
+      <q-card
+        class="resumen-externo-card"
+        style="width:560px;max-width:90vw"
+      >
+        <q-card-section class="dialog-header">
+          <div class="text-h6 text-weight-bold">
+            Correo verificado
+          </div>
+
+          <div class="text-caption">
+            Ya puedes finalizar tu registro.
+          </div>
+        </q-card-section>
+
+        <q-card-section class="text-center q-pa-lg">
+          <q-icon
+            name="verified"
+            class="dialog-main-icon"
+            size="72px"
           />
 
+          <div class="text-h6 q-mt-md">
+            Tu correo fue verificado correctamente
+          </div>
+
+          <div class="text-grey-7 q-mt-sm">
+            Ahora confirma tu registro. Si el comprobante no aparece,
+            vuelve a adjuntarlo antes de continuar.
+          </div>
+        </q-card-section>
+
+        <q-card-actions align="right">
           <q-btn
-            color="positive"
-            label="Confirmar registro"
-            :loading="cargando"
-            @click="confirmarCodigoYRegistrar"
+            label="Continuar"
+            class="dialog-btn-primary"
+            v-close-popup
           />
         </q-card-actions>
       </q-card>
@@ -549,7 +543,7 @@
         class="resumen-externo-card"
         style="width:560px;max-width:90vw"
       >
-        <q-card-section class="bg-positive text-white">
+        <q-card-section class="dialog-header">
           <div class="text-h6 text-weight-bold">
             Registro enviado correctamente
           </div>
@@ -562,12 +556,12 @@
         <q-card-section class="text-center q-pa-lg">
           <q-icon
             name="mark_email_read"
-            color="positive"
+            class="dialog-main-icon"
             size="72px"
           />
 
           <div class="text-h6 q-mt-md">
-            Tu correo fue verificado correctamente
+            Tu registro fue completado correctamente
           </div>
 
           <div class="text-grey-7 q-mt-sm">
@@ -578,8 +572,8 @@
 
         <q-card-actions align="right">
           <q-btn
-            color="positive"
             label="Entendido"
+            class="dialog-btn-primary"
             v-close-popup
           />
         </q-card-actions>
@@ -589,14 +583,15 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 
 const API_EXTERNOS = 'http://localhost:3000/api/externos'
-const API_ENVIAR_CODIGO =
-  'http://localhost:3000/api/externos/enviar-codigo'
+const API_ENVIAR_VERIFICACION =
+  'http://localhost:3000/api/externos/enviar-verificacion'
 
 const COSTO_DIA = 250
 const MAX_SIZE = 5 * 1024 * 1024
+const BORRADOR_KEY = 'registro_externo_borrador'
 
 const TIPOS_VALIDOS = [
   'application/pdf',
@@ -612,13 +607,13 @@ const mostrarResumen = ref(false)
 const cargando = ref(false)
 const mostrarCorreoDuplicado = ref(false)
 const mostrarRegistroExitoso = ref(false)
-const mostrarCodigoVerificacion = ref(false)
+const mostrarVerificacionEnviada = ref(false)
+const mostrarCorreoVerificado = ref(false)
 
 const mensajeError = ref('')
-const codigoVerificacion = ref('')
-const codigoError = ref('')
 const verificationToken = ref('')
-const correoCodigo = ref('')
+const correoVerificado = ref(false)
+const correoVerificadoPara = ref('')
 
 const dias = [
   { label: 'Día 1', value: 'dia1' },
@@ -668,8 +663,25 @@ const archivo = computed(() =>
 const accionLabel = computed(() =>
   form.value.comprobante
     ? 'Cambiar archivo'
-    : 'Seleccionar archivo'
+    : 'Buscar archivo'
 )
+
+onMounted(() => {
+  restaurarBorradorRegistro()
+  leerVerificacionDesdeUrl()
+})
+
+function normalizarCorreo(correo) {
+  return correo.trim().toLowerCase()
+}
+
+function correoEstaVerificado() {
+  return (
+    correoVerificado.value &&
+    verificationToken.value &&
+    correoVerificadoPara.value === normalizarCorreo(form.value.correo)
+  )
+}
 
 function abrirSelector() {
   fileInput.value?.pickFiles()
@@ -725,6 +737,72 @@ function validarDias() {
   return true
 }
 
+function guardarBorradorRegistro() {
+  const borrador = {
+    nombre: form.value.nombre,
+    apellidoPaterno: form.value.apellidoPaterno,
+    apellidoMaterno: form.value.apellidoMaterno,
+    correo: form.value.correo,
+    telefono: form.value.telefono,
+    institucion: form.value.institucion,
+    dias: form.value.dias
+  }
+
+  localStorage.setItem(
+    BORRADOR_KEY,
+    JSON.stringify(borrador)
+  )
+}
+
+function restaurarBorradorRegistro() {
+  const borradorGuardado = localStorage.getItem(BORRADOR_KEY)
+
+  if (!borradorGuardado) return
+
+  try {
+    const borrador = JSON.parse(borradorGuardado)
+
+    form.value.nombre = borrador.nombre || ''
+    form.value.apellidoPaterno = borrador.apellidoPaterno || ''
+    form.value.apellidoMaterno = borrador.apellidoMaterno || ''
+    form.value.correo = borrador.correo || ''
+    form.value.telefono = borrador.telefono || ''
+    form.value.institucion = borrador.institucion || ''
+    form.value.dias = Array.isArray(borrador.dias)
+      ? borrador.dias
+      : []
+  } catch {
+    localStorage.removeItem(BORRADOR_KEY)
+  }
+}
+
+function leerVerificacionDesdeUrl() {
+  const hash = window.location.hash || ''
+  const queryString = hash.includes('?')
+    ? hash.split('?')[1]
+    : window.location.search.replace('?', '')
+
+  if (!queryString) return
+
+  const params = new URLSearchParams(queryString)
+  const correo = params.get('correo')
+  const token = params.get('verificationToken')
+
+  if (!correo || !token) return
+
+  form.value.correo = correo
+  verificationToken.value = token
+  correoVerificado.value = true
+  correoVerificadoPara.value = normalizarCorreo(correo)
+  mostrarCorreoVerificado.value = true
+
+  window.history.replaceState(
+    null,
+    '',
+    `${window.location.origin}${window.location.pathname}#/registro-externo`
+  )
+}
+
 function limpiarFormulario() {
   form.value = {
     nombre: '',
@@ -740,21 +818,43 @@ function limpiarFormulario() {
   archivoError.value = ''
   diasError.value = ''
   mensajeError.value = ''
-  codigoError.value = ''
-  codigoVerificacion.value = ''
   verificationToken.value = ''
-  correoCodigo.value = ''
+  correoVerificado.value = false
+  correoVerificadoPara.value = ''
   isDragging.value = false
 
+  localStorage.removeItem(BORRADOR_KEY)
   formRef.value?.resetValidation()
 }
 
-function cancelarCodigo() {
-  mostrarCodigoVerificacion.value = false
-  codigoVerificacion.value = ''
-  codigoError.value = ''
-  verificationToken.value = ''
-  correoCodigo.value = ''
+async function enviarCorreoVerificacion() {
+  guardarBorradorRegistro()
+
+  const response = await fetch(API_ENVIAR_VERIFICACION, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      correo: form.value.correo
+    })
+  })
+
+  const data = await response.json().catch(() => null)
+
+  if (response.status === 409) {
+    mostrarCorreoDuplicado.value = true
+    return
+  }
+
+  if (!response.ok) {
+    throw new Error(
+      data?.message ||
+      'No se pudo enviar el correo de verificación.'
+    )
+  }
+
+  mostrarVerificacionEnviada.value = true
 }
 
 async function registrar() {
@@ -774,62 +874,35 @@ async function registrar() {
   }
 
   mensajeError.value = ''
-  codigoError.value = ''
+
+  if (!correoEstaVerificado()) {
+    try {
+      cargando.value = true
+      await enviarCorreoVerificacion()
+    } catch (error) {
+      mensajeError.value =
+        error.message ||
+        'Por favor ingresa a tu correo electrónico y verifica tu registro antes de continuar.'
+
+      console.error('Error al enviar verificación:', error)
+    } finally {
+      cargando.value = false
+    }
+
+    return
+  }
+
   mostrarResumen.value = true
 }
 
 async function confirmarRegistro() {
   cargando.value = true
   mensajeError.value = ''
-  codigoError.value = ''
 
-  try {
-    const response = await fetch(API_ENVIAR_CODIGO, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        correo: form.value.correo
-      })
-    })
-
-    const data = await response.json().catch(() => null)
-
-    if (response.status === 409) {
-      mostrarResumen.value = false
-      mostrarCorreoDuplicado.value = true
-      return
-    }
-
-    if (!response.ok) {
-      throw new Error(
-        data?.message || 'No se pudo enviar el código de verificación.'
-      )
-    }
-
-    verificationToken.value = data.verificationToken
-    correoCodigo.value = form.value.correo
-
-    mostrarResumen.value = false
-    mostrarCodigoVerificacion.value = true
-  } catch (error) {
+  if (!correoEstaVerificado()) {
     mensajeError.value =
-      error.message || 'Ocurrió un error al enviar el código.'
-
-    console.error('Error al enviar código:', error)
-  } finally {
-    cargando.value = false
-  }
-}
-
-async function confirmarCodigoYRegistrar() {
-  cargando.value = true
-  codigoError.value = ''
-
-  if (!codigoVerificacion.value) {
-    codigoError.value =
-      'Ingresa el código que enviamos a tu correo electrónico.'
+      'Por favor ingresa a tu correo electrónico y verifica tu registro antes de continuar.'
+    mostrarResumen.value = false
     cargando.value = false
     return
   }
@@ -844,7 +917,6 @@ async function confirmarCodigoYRegistrar() {
     formData.append('telefono', form.value.telefono)
     formData.append('institucion', form.value.institucion)
     formData.append('total', String(total.value))
-    formData.append('codigoVerificacion', codigoVerificacion.value)
     formData.append('verificationToken', verificationToken.value)
 
     form.value.dias.forEach((dia) => {
@@ -860,22 +932,26 @@ async function confirmarCodigoYRegistrar() {
 
     const data = await response.json().catch(() => null)
 
-    if (!response.ok) {
-      codigoError.value =
-        data?.message ||
-        'Código incorrecto. Verifica tu correo electrónico o vuelve a intentarlo.'
+    if (response.status === 409) {
+      mostrarResumen.value = false
+      mostrarCorreoDuplicado.value = true
       return
     }
 
-    mostrarCodigoVerificacion.value = false
+    if (!response.ok) {
+      throw new Error(
+        data?.message || 'No se pudo registrar el participante.'
+      )
+    }
+
+    mostrarResumen.value = false
     mostrarRegistroExitoso.value = true
     limpiarFormulario()
   } catch (error) {
-    codigoError.value =
-      error.message ||
-      'Código incorrecto. Verifica tu correo electrónico o vuelve a intentarlo.'
+    mensajeError.value =
+      error.message || 'Ocurrió un error al registrar.'
 
-    console.error('Error al confirmar código:', error)
+    console.error('Error al registrar:', error)
   } finally {
     cargando.value = false
   }

@@ -11,7 +11,6 @@ import { Repository } from 'typeorm';
 import * as nodemailer from 'nodemailer';
 import {
   createHmac,
-  randomInt,
   timingSafeEqual,
 } from 'crypto';
 
@@ -21,7 +20,6 @@ import { UpdateExternoDto } from './dto/update-externo.dto';
 
 @Injectable()
 export class ExternosService {
-
   constructor(
     @InjectRepository(Externo)
     private readonly externoRepository: Repository<Externo>,
@@ -29,7 +27,7 @@ export class ExternosService {
     private readonly configService: ConfigService,
   ) {}
 
-  async enviarCodigoVerificacion(correo: string) {
+  async enviarVerificacionCorreo(correo: string) {
     const correoNormalizado = correo.trim().toLowerCase();
 
     const correoExistente = await this.externoRepository.findOne({
@@ -44,28 +42,22 @@ export class ExternosService {
       );
     }
 
-    const codigo = String(randomInt(100000, 999999));
+    const verificationToken =
+      this.crearTokenVerificacion(correoNormalizado);
 
-    const verificationToken = this.crearTokenCodigo(
+    await this.enviarCorreoVerificacion(
       correoNormalizado,
-      codigo,
-    );
-
-    await this.enviarCorreoCodigo(
-      correoNormalizado,
-      codigo,
+      verificationToken,
     );
 
     return {
       mensaje:
-        'Código enviado correctamente. Revisa tu correo electrónico.',
-      verificationToken,
+        'Correo de verificación enviado. Revisa tu correo electrónico para continuar.',
     };
   }
 
   async create(createExternoDto: CreateExternoDto) {
     const {
-      codigoVerificacion,
       verificationToken,
       ...datosRegistro
     } = createExternoDto;
@@ -73,9 +65,8 @@ export class ExternosService {
     const correoNormalizado =
       datosRegistro.correo.trim().toLowerCase();
 
-    this.validarCodigoVerificacion(
+    this.validarTokenVerificacion(
       verificationToken,
-      codigoVerificacion,
       correoNormalizado,
     );
 
@@ -134,22 +125,14 @@ export class ExternosService {
     return await this.externoRepository.remove(externo);
   }
 
-  private crearTokenCodigo(
-    correo: string,
-    codigo: string,
-  ) {
+  private crearTokenVerificacion(correo: string) {
     const secret =
       this.configService.get<string>('EMAIL_VERIFICATION_SECRET') ||
       'clave_temporal_desarrollo';
 
-    const codigoHash = createHmac('sha256', secret)
-      .update(codigo)
-      .digest('base64url');
-
     const payload = {
       correo,
-      codigoHash,
-      expiraEn: Date.now() + 1000 * 60 * 10,
+      expiraEn: Date.now() + 1000 * 60 * 30,
     };
 
     const payloadBase64 = Buffer
@@ -163,14 +146,13 @@ export class ExternosService {
     return `${payloadBase64}.${firma}`;
   }
 
-  private validarCodigoVerificacion(
+  private validarTokenVerificacion(
     token: string,
-    codigo: string,
     correo: string,
   ) {
-    if (!token || !codigo) {
+    if (!token) {
       throw new BadRequestException(
-        'Código de verificación requerido.',
+        'Por favor ingresa a tu correo electrónico y verifica tu registro antes de continuar.',
       );
     }
 
@@ -182,7 +164,7 @@ export class ExternosService {
 
     if (partes.length !== 2) {
       throw new BadRequestException(
-        'Código incorrecto. Verifica tu correo electrónico o vuelve a intentarlo.',
+        'Verificación de correo inválida. Solicita un nuevo enlace.',
       );
     }
 
@@ -203,7 +185,7 @@ export class ExternosService {
       )
     ) {
       throw new BadRequestException(
-        'Código incorrecto. Verifica tu correo electrónico o vuelve a intentarlo.',
+        'Verificación de correo inválida. Solicita un nuevo enlace.',
       );
     }
 
@@ -211,36 +193,25 @@ export class ExternosService {
       Buffer.from(payloadBase64, 'base64url').toString('utf8'),
     ) as {
       correo: string;
-      codigoHash: string;
       expiraEn: number;
     };
 
     if (payload.correo !== correo) {
       throw new BadRequestException(
-        'El código no corresponde a este correo electrónico.',
+        'El enlace de verificación no corresponde a este correo.',
       );
     }
 
     if (payload.expiraEn < Date.now()) {
       throw new BadRequestException(
-        'El código ha expirado. Solicita uno nuevo.',
-      );
-    }
-
-    const codigoHashRecibido = createHmac('sha256', secret)
-      .update(codigo.trim())
-      .digest('base64url');
-
-    if (payload.codigoHash !== codigoHashRecibido) {
-      throw new BadRequestException(
-        'Código incorrecto. Verifica tu correo electrónico o vuelve a intentarlo.',
+        'El enlace de verificación expiró. Solicita uno nuevo.',
       );
     }
   }
 
-  private async enviarCorreoCodigo(
+  private async enviarCorreoVerificacion(
     correo: string,
-    codigo: string,
+    verificationToken: string,
   ) {
     const mailHost = this.configService.get<string>('MAIL_HOST');
     const mailPort = Number(
@@ -251,9 +222,17 @@ export class ExternosService {
     const mailFrom =
       this.configService.get<string>('MAIL_FROM') || mailUser;
 
+    const frontendUrl =
+      this.configService.get<string>('FRONTEND_URL') ||
+      'http://localhost:9000';
+
+    const enlace =
+      `${frontendUrl}/#/registro-externo?correo=${encodeURIComponent(correo)}&verificationToken=${encodeURIComponent(verificationToken)}`;
+
     if (!mailHost || !mailUser || !mailPass) {
       console.warn(
-        `Correo no configurado. Código para ${correo}: ${codigo}`,
+        'Correo no configurado. Enlace de verificación:',
+        enlace,
       );
 
       return;
@@ -272,36 +251,38 @@ export class ExternosService {
     await transporter.sendMail({
       from: mailFrom,
       to: correo,
-      subject: 'Código de verificación - Congreso UTVM',
+      subject: 'Confirmación de correo para tu registro al Congreso UTVM',
       html: `
         <div style="font-family: Arial, sans-serif; color: #1d2b28;">
-          <h2>Código de verificación</h2>
+          <h2>Verificación de correo</h2>
 
           <p>
             Recibimos una solicitud de registro para el Congreso UTVM.
           </p>
 
           <p>
-            Ingresa el siguiente código en el formulario para confirmar tu registro:
+            Para continuar con tu registro, verifica tu correo electrónico dando clic en el siguiente botón:
           </p>
 
-          <div
-            style="
-              display: inline-block;
-              padding: 14px 22px;
-              background: #031f1d;
-              color: #00e0a4;
-              border-radius: 8px;
-              font-size: 28px;
-              font-weight: bold;
-              letter-spacing: 4px;
-            "
-          >
-            ${codigo}
-          </div>
+          <p>
+            <a
+              href="${enlace}"
+              style="
+                display: inline-block;
+                padding: 12px 18px;
+                background: #00e0a4;
+                color: #031f1d;
+                text-decoration: none;
+                border-radius: 6px;
+                font-weight: bold;
+              "
+            >
+              Verificar correo
+            </a>
+          </p>
 
           <p>
-            Este código estará disponible durante 10 minutos.
+            Este enlace estará disponible durante 30 minutos.
           </p>
 
           <p>

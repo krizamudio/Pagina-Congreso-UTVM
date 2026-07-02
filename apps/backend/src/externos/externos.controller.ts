@@ -57,13 +57,12 @@ function normalizarDias(
 
 @Controller('externos')
 export class ExternosController {
-
   constructor(
     private readonly externosService: ExternosService,
   ) {}
 
-  @Post('enviar-codigo')
-  enviarCodigo(
+  @Post('enviar-verificacion')
+  enviarVerificacion(
     @Body('correo') correo: string,
   ) {
     if (!correo) {
@@ -72,7 +71,7 @@ export class ExternosController {
       );
     }
 
-    return this.externosService.enviarCodigoVerificacion(correo);
+    return this.externosService.enviarVerificacionCorreo(correo);
   }
 
   @Post()
@@ -128,11 +127,10 @@ export class ExternosController {
       apellidoMaterno: body.apellidoMaterno || '',
       correo: body.correo,
       telefono: body.telefono,
-      institucion: body.institucion,
+      institucion: body.institucion || null,
       dias: normalizarDias(body.dias),
       total: Number(body.total),
       comprobante: rutaRelativa,
-      codigoVerificacion: body.codigoVerificacion,
       verificationToken: body.verificationToken,
     };
 

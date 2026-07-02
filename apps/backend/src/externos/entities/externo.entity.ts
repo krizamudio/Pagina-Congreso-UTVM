@@ -8,7 +8,6 @@ import {
 
 @Entity('externos')
 export class Externo {
-
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
@@ -44,11 +43,12 @@ export class Externo {
   })
   telefono!: string;
 
-  @Column({
-    type: 'varchar',
-    length: 150,
-  })
-  institucion!: string;
+@Column({
+  type: 'varchar',
+  length: 150,
+  nullable: true,
+})
+institucion!: string | null;
 
   @Column('simple-array')
   dias!: string[];

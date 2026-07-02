@@ -8,7 +8,6 @@ import {
 } from 'class-validator';
 
 export class CreateExternoDto {
-
   @IsString()
   @IsNotEmpty()
   nombre!: string;
@@ -28,9 +27,9 @@ export class CreateExternoDto {
   @IsNotEmpty()
   telefono!: string;
 
-  @IsString()
-  @IsNotEmpty()
-  institucion!: string;
+  @IsOptional()
+@IsString()
+institucion?: string; 
 
   @IsArray()
   dias!: string[];
@@ -41,10 +40,6 @@ export class CreateExternoDto {
   @IsString()
   @IsNotEmpty()
   comprobante!: string;
-
-  @IsString()
-  @IsNotEmpty()
-  codigoVerificacion!: string;
 
   @IsString()
   @IsNotEmpty()
