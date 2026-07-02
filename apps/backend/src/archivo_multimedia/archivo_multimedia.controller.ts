@@ -1,20 +1,21 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
-  UseInterceptors,
+  FileTypeValidator,
+  Get,
+  MaxFileSizeValidator,
+  Param,
+  ParseFilePipe,
+  Patch,
+  Post,
   UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import { ArchivoMultimediaService } from './archivo_multimedia.service';
 import { CreateArchivoMultimediaDto } from './dto/create-archivo_multimedia.dto';
 import { UpdateArchivoMultimediaDto } from './dto/update-archivo_multimedia.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-
-
 
 @Controller('archivo-multimedia')
 export class ArchivoMultimediaController {
@@ -26,21 +27,24 @@ export class ArchivoMultimediaController {
   @UseInterceptors(
     FileInterceptor('foto', {
       limits: {
-        fileSize: 5 * 1024 * 1024, // 5 MB
-      },
-      fileFilter: (req, file, callback) => {
-        const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp'];
-        callback(null, allowedMimeTypes.includes(file.mimetype));
+        fileSize: 5 * 1024 * 1024,
       },
     }),
   )
-  async uploadPhoto(@UploadedFile() foto: Express.Multer.File) {
+  async uploadPhoto(
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 5 * 1024 * 1024 }),
+          new FileTypeValidator({
+            fileType: /^(image\/jpeg|image\/png|image\/webp)$/,
+          }),
+        ],
+      }),
+    )
+    foto: Express.Multer.File,
+  ) {
     return this.archivoMultimediaService.uploadPhoto(foto);
-  }
-
-  @Post()
-  create(@Body() createArchivoMultimediaDto: CreateArchivoMultimediaDto) {
-    return this.archivoMultimediaService.create(createArchivoMultimediaDto);
   }
 
   @Get()

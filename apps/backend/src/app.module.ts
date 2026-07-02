@@ -5,7 +5,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConferenciasModule } from './conferencia/conferencia.module';
 import { TallerModule } from './taller/taller.module';
 import { PonenteModule } from './ponente/ponente.module';
-import { FotoModule } from './foto/foto.module';
 import { ArchivoMultimediaModule } from './archivo_multimedia/archivo_multimedia.module';
 import { CommonModule } from '../common/common.module';
 
@@ -27,7 +26,6 @@ import { CommonModule } from '../common/common.module';
     ConferenciasModule,
     TallerModule,
     PonenteModule,
-    FotoModule,
     ArchivoMultimediaModule,
     CommonModule
   ],
