@@ -9,6 +9,9 @@ export class ParticipanteNsu {
   @Column({ type: 'boolean', default: false })
   es_tutor!: boolean;
 
+  @Column({ type: 'boolean', default: false })
+  correo_verificado!: boolean;
+
   @Column({ type: 'varchar', length: 200 })
   nombre_completo!: string;
 

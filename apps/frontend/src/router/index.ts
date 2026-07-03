@@ -21,7 +21,11 @@ const routes = [
   {
   path: '/registro_utvm',
   component: () => import('../pages/registro_utvm.vue'),
-},
+  },
+  {
+  path: '/registro_nsu/verificar',
+  component: () => import("../pages/verificar_correo_nsu.vue")
+ },
 
 
   ...autoRoutes,

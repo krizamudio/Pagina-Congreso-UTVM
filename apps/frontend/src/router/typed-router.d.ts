@@ -89,6 +89,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/verificar_correo_nsu': RouteRecordInfo<
+      '/verificar_correo_nsu',
+      '/verificar_correo_nsu',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
   }
 
   /**
@@ -164,6 +171,14 @@ declare module 'vue-router/auto-routes' {
     'src/pages/registro_utvm.vue': {
       routes:
         | '/registro_utvm'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/verificar_correo_nsu.vue': {
+      routes:
+        | '/verificar_correo_nsu'
       views:
         | never
       pathParamNames:

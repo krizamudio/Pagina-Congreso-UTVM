@@ -1,11 +1,15 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
   Param,
+  ParseFilePipe,
   Post,
   UploadedFile,
   UseInterceptors,
+  MaxFileSizeValidator,
+  FileTypeValidator,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 
@@ -18,22 +22,49 @@ import type { CreateParticipanteNsuDto } from './dto/create-registro-nsu.dto';
 export class RegistroNsuController {
   constructor(private readonly registroNsuService: RegistroNsuService) {}
 
+  @Get('verificar-correo/:token')
+  verificarCorreo(@Param('token') token: string) {
+    return this.registroNsuService.verificarCorreoParticipante(token);
+  }
+
   @Post()
   @UseInterceptors(FileInterceptor('comprobante'))
   create(
     @Body('participantes') participantes: string | CreateParticipanteNsuDto[],
-    @UploadedFile() comprobante: UploadedFileType,
+    @UploadedFile(
+      new ParseFilePipe({
+        fileIsRequired: true,
+        validators: [
+          new MaxFileSizeValidator({
+            maxSize: 10 * 1024 * 1024,
+          }),
+          new FileTypeValidator({
+            fileType: /(pdf|jpg|jpeg|png)$/i,
+          }),
+        ],
+      }),
+    )
+    comprobante: UploadedFileType,
   ) {
-    const participantesParseados =
-      typeof participantes === 'string'
-        ? (JSON.parse(participantes) as CreateParticipanteNsuDto[])
-        : participantes;
+    let participantesParseados: CreateParticipanteNsuDto[];
+
+    try {
+      participantesParseados =
+        typeof participantes === 'string'
+          ? (JSON.parse(participantes) as CreateParticipanteNsuDto[])
+          : participantes;
+    } catch {
+      throw new BadRequestException(
+        'El campo participantes no tiene un formato JSON válido.',
+      );
+    }
 
     return this.registroNsuService.create({
       participantes: participantesParseados,
       comprobante,
     });
   }
+
   @Get()
   findAll() {
     return this.registroNsuService.findAll();
