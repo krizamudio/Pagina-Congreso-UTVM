@@ -31,3 +31,11 @@ export async function guardarRegistroNsu(
 
   return response.data;
 }
+
+export async function verificarCorreoParticipante(token: string) {
+  const response = await api.get(
+    `/registro-nsu/verificar-correo/${encodeURIComponent(token)}`,
+  );
+
+  return response.data;
+}

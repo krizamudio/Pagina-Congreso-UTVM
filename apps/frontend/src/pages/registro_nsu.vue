@@ -202,11 +202,59 @@
             class="btn-primary-blue"
             icon="save"
             label="GUARDAR PARTICIPANTES"
-            @click="guardarParticipantes"
+            @click="abrirResumenRegistro"
           />
         </div>
       </div>
     </section>
+    <q-dialog v-model="mostrarResumenRegistro" persistent>
+      <q-card class="modal-resumen-nsu">
+        <q-card-section class="modal-header">
+          <div class="text-h6 text-weight-bold">Confirmar registro NSU</div>
+          <div class="text-caption">
+            Revisa la información antes de guardar.
+          </div>
+        </q-card-section>
+
+        <q-card-section class="modal-info">
+          <div><strong>Participantes:</strong> {{ participantes.length }}</div>
+          <div><strong>Total:</strong> ${{ totalGeneral.toFixed(2) }}</div>
+          <div><strong>Comprobante:</strong> {{ form.comprobante?.name }}</div>
+        </q-card-section>
+
+        <q-card-section>
+          <q-table
+            flat
+            bordered
+            dense
+            :rows="participantes"
+            :columns="columnsResumen"
+            row-key="id"
+            class="tabla-resumen-nsu"
+            :rows-per-page-options="[5]"
+          />
+        </q-card-section>
+
+        
+          <q-card-actions align="right" class="modal-actions">
+            <q-btn
+              flat
+              label="Cancelar"
+              class="btn-modal-cancel"
+              v-close-popup
+            />
+
+            <q-btn
+              class="btn-primary-blue"
+              icon="save"
+              label="Confirmar y guardar"
+              :loading="guardando"
+              @click="guardarParticipantes"
+            />
+          </q-card-actions>
+        
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
@@ -387,6 +435,7 @@ function calcularMontoDesdeDias(dias: string) {
   return cantidadDias * costoPorDia;
 }
 async function guardarParticipantes() {
+  guardando.value = true;
   if (participantes.value.length === 0) {
     Notify.create({
       type: "warning",
@@ -421,6 +470,7 @@ async function guardarParticipantes() {
 
     console.log("Registro guardado:", respuesta);
 
+    mostrarResumenRegistro.value = false;
     participantes.value = [];
     archivoCsv.value = null;
 
@@ -447,6 +497,8 @@ async function guardarParticipantes() {
       type: "negative",
       message: "Ocurrió un error al guardar el registro.",
     });
+  } finally {
+    guardando.value = false;
   }
 }
 function eliminarParticipante(id: number) {
@@ -461,5 +513,27 @@ function eliminarParticipante(id: number) {
     type: "positive",
     message: "Participante eliminado correctamente.",
   });
+}
+const mostrarResumenRegistro = ref(false);
+const guardando = ref(false);
+const columnsResumen = columns.filter((column) => column.name !== "acciones");
+function abrirResumenRegistro() {
+  if (participantes.value.length === 0) {
+    Notify.create({
+      type: "warning",
+      message: "Agrega al menos un participante antes de guardar.",
+    });
+    return;
+  }
+
+  if (!form.value.comprobante) {
+    Notify.create({
+      type: "warning",
+      message: "Debes cargar el comprobante de pago.",
+    });
+    return;
+  }
+
+  mostrarResumenRegistro.value = true;
 }
 </script>
