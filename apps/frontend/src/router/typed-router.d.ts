@@ -68,6 +68,90 @@ declare module 'vue-router/auto-routes' {
       { path: ParamValue<false> },
       | never
     >,
+    '/dashboards/ConferenciasPage': RouteRecordInfo<
+      '/dashboards/ConferenciasPage',
+      '/dashboards/ConferenciasPage',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/dashboards/EditarConferenciaPage': RouteRecordInfo<
+      '/dashboards/EditarConferenciaPage',
+      '/dashboards/EditarConferenciaPage',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/dashboards/EditarPanelPage': RouteRecordInfo<
+      '/dashboards/EditarPanelPage',
+      '/dashboards/EditarPanelPage',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/dashboards/EditarPonentePage': RouteRecordInfo<
+      '/dashboards/EditarPonentePage',
+      '/dashboards/EditarPonentePage',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/dashboards/EditarTallerPage': RouteRecordInfo<
+      '/dashboards/EditarTallerPage',
+      '/dashboards/EditarTallerPage',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/dashboards/NuevaConferenciaPage': RouteRecordInfo<
+      '/dashboards/NuevaConferenciaPage',
+      '/dashboards/NuevaConferenciaPage',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/dashboards/NuevaPanelPage': RouteRecordInfo<
+      '/dashboards/NuevaPanelPage',
+      '/dashboards/NuevaPanelPage',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/dashboards/NuevaPonentePage': RouteRecordInfo<
+      '/dashboards/NuevaPonentePage',
+      '/dashboards/NuevaPonentePage',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/dashboards/NuevaTallerPage': RouteRecordInfo<
+      '/dashboards/NuevaTallerPage',
+      '/dashboards/NuevaTallerPage',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/dashboards/PanelesPage': RouteRecordInfo<
+      '/dashboards/PanelesPage',
+      '/dashboards/PanelesPage',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/dashboards/PonentesPage': RouteRecordInfo<
+      '/dashboards/PonentesPage',
+      '/dashboards/PonentesPage',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/dashboards/TalleresPage': RouteRecordInfo<
+      '/dashboards/TalleresPage',
+      '/dashboards/TalleresPage',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/registro_ems': RouteRecordInfo<
       '/registro_ems',
       '/registro_ems',
@@ -151,6 +235,102 @@ declare module 'vue-router/auto-routes' {
         | never
       pathParamNames:
         | 'path'
+    }
+    'src/pages/dashboards/ConferenciasPage.vue': {
+      routes:
+        | '/dashboards/ConferenciasPage'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/dashboards/EditarConferenciaPage.vue': {
+      routes:
+        | '/dashboards/EditarConferenciaPage'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/dashboards/EditarPanelPage.vue': {
+      routes:
+        | '/dashboards/EditarPanelPage'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/dashboards/EditarPonentePage.vue': {
+      routes:
+        | '/dashboards/EditarPonentePage'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/dashboards/EditarTallerPage.vue': {
+      routes:
+        | '/dashboards/EditarTallerPage'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/dashboards/NuevaConferenciaPage.vue': {
+      routes:
+        | '/dashboards/NuevaConferenciaPage'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/dashboards/NuevaPanelPage.vue': {
+      routes:
+        | '/dashboards/NuevaPanelPage'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/dashboards/NuevaPonentePage.vue': {
+      routes:
+        | '/dashboards/NuevaPonentePage'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/dashboards/NuevaTallerPage.vue': {
+      routes:
+        | '/dashboards/NuevaTallerPage'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/dashboards/PanelesPage.vue': {
+      routes:
+        | '/dashboards/PanelesPage'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/dashboards/PonentesPage.vue': {
+      routes:
+        | '/dashboards/PonentesPage'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/dashboards/TalleresPage.vue': {
+      routes:
+        | '/dashboards/TalleresPage'
+      views:
+        | never
+      pathParamNames:
+        | never
     }
     'src/pages/registro_ems.vue': {
       routes:

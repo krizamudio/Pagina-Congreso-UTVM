@@ -1,5 +1,4 @@
 import { defineRouter } from '#q-app';
-import { handleHotUpdate } from 'vue-router/auto-routes';
 import { routes as autoRoutes } from 'vue-router/auto-routes';
 import {
   createMemoryHistory,
@@ -7,58 +6,40 @@ import {
   createWebHashHistory,
   createWebHistory,
 } from 'vue-router';
+
 const routes = [
   {
     path: '/registro_nsu',
-    component: () => import('../pages/registro_nsu.vue')
+    component: () => import('../pages/registro_nsu.vue'),
   },
-
   {
     path: '/registro_ems',
     component: () => import('../pages/registro_ems.vue'),
   },
-
   {
-  path: '/registro_utvm',
-  component: () => import('../pages/registro_utvm.vue'),
+    path: '/registro_utvm',
+    component: () => import('../pages/registro_utvm.vue'),
   },
   {
-  path: '/registro_nsu/verificar',
-  component: () => import("../pages/verificar_correo_nsu.vue")
- },
-
+    path: '/registro_nsu/verificar',
+    component: () => import('../pages/verificar_correo_nsu.vue'),
+  },
 
   ...autoRoutes,
 ];
 
-/*
- * If not building with SSR mode, you can
- * directly export the Router instantiation;
- *
- * The function below can be async too; either use
- * async/await or return a Promise which resolves
- * with the Router instance.
- */
-
 export default defineRouter((/* { store, ssrContext } */) => {
   const createHistory = import.meta.env.QUASAR_SERVER
     ? createMemoryHistory
-    : (import.meta.env.QUASAR_VUE_ROUTER_MODE === 'history' ? createWebHistory : createWebHashHistory);
+    : import.meta.env.QUASAR_VUE_ROUTER_MODE === 'history'
+      ? createWebHistory
+      : createWebHashHistory;
 
   const Router = createRouter({
     scrollBehavior: () => ({ left: 0, top: 0 }),
     routes,
-
-    // Leave this as is and make changes in quasar.conf.js instead!
-    // quasar.conf.js -> build -> vueRouterMode
-    // quasar.conf.js -> build -> publicPath
-    history: createHistory(import.meta.env.QUASAR_VUE_ROUTER_BASE)
+    history: createHistory(import.meta.env.QUASAR_VUE_ROUTER_BASE),
   });
-
-  // enable HMR for it
-  if (import.meta.hot) {
-    handleHotUpdate(Router);
-  }
 
   return Router;
 });

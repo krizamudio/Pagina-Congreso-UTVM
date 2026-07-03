@@ -1,6 +1,6 @@
 <template>
   <q-layout view="lHh Lpr lFf">
-    <q-header elevated>
+    <q-header elevated class="app-header">
       <q-toolbar>
         <q-btn
           flat
@@ -11,15 +11,17 @@
           @click="toggleLeftDrawer"
         />
 
-        <q-toolbar-title> Quasar App </q-toolbar-title>
-
-        <q-toolbar-title> Congreso UTVM </q-toolbar-title>
+        <q-toolbar-title class="text-h6">
+          Congreso UTVM
+        </q-toolbar-title>
       </q-toolbar>
     </q-header>
 
-    <q-drawer v-model="leftDrawerOpen" show-if-above bordered>
-      <q-list>
-        <q-item-label header> Essential Links </q-item-label>
+    <q-drawer v-model="leftDrawerOpen" show-if-above bordered class="app-drawer">
+      <q-list padding>
+        <q-item-label header class="drawer-title">
+          Menú de Administrador
+        </q-item-label>
 
         <EssentialLink
           v-for="link in linksList"
@@ -29,17 +31,15 @@
       </q-list>
     </q-drawer>
 
-    <q-page-container>
+    <q-page-container class="page-content">
       <router-view />
     </q-page-container>
   </q-layout>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import EssentialLink, {
-  type EssentialLinkProps
-} from "@/components/EssentialLink.vue";
+import { ref } from 'vue';
+import EssentialLink, { type EssentialLinkProps } from '@/components/EssentialLink.vue';
 
 const linksList: EssentialLinkProps[] = [
   {
@@ -65,6 +65,30 @@ const linksList: EssentialLinkProps[] = [
     caption: 'Participantes UTVM',
     icon: 'account_balance',
     link: '/registro_utvm',
+  },
+  {
+    label: 'Conferencias',
+    caption: 'Gestión de conferencias',
+    icon: 'code',
+    link: '/conferencias',
+  },
+  {
+    label: 'Talleres',
+    caption: 'Gestión de talleres',
+    icon: 'chat',
+    link: '/talleres',
+  },
+  {
+    label: 'Ponentes',
+    caption: 'Gestión de ponentes',
+    icon: 'record_voice_over',
+    link: '/ponentes',
+  },
+  {
+    label: 'Paneles',
+    caption: 'Gestión de panelistas',
+    icon: 'rss_feed',
+    link: '/paneles',
   },
 ];
 

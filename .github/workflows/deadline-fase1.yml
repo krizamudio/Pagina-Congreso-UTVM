@@ -1,4 +1,4 @@
-name: 🔒 Deadline Fase 1 - 30 Jun 2026
+name: 🔒 Deadline Fase 2 - 07 Jul 2026
 
 on:
   push:
@@ -18,19 +18,19 @@ jobs:
       - name: Comprobar si estamos dentro del plazo
         run: |
           # ─────────────────────────────────────────────
-          # FASE 1  →  30 de junio de 2026 a las 12:00 (hora Ciudad de México, UTC-6)
-          # En UTC equivale a las 18:00
+          # FASE 2  →  07 de julio de 2026 a las 13:00 (hora Ciudad de México, UTC-6)
+          # En UTC equivale a las 19:00
           # ─────────────────────────────────────────────
-          DEADLINE="2026-06-30T19:00:00"
+          DEADLINE="2026-07-07T19:00:00"
           NOW=$(date -u +"%Y-%m-%dT%H:%M:%S")
 
           echo "🕐 Fecha/hora actual (UTC): $NOW"
-          echo "📅 Fecha límite Fase 1 (UTC): $DEADLINE"
+          echo "📅 Fecha límite Fase 2 (UTC): $DEADLINE"
 
           if [[ "$NOW" > "$DEADLINE" ]]; then
             echo ""
             echo "╔══════════════════════════════════════════════════╗"
-            echo "║  ❌  FECHA LÍMITE DE FASE 1 SUPERADA             ║"
+            echo "║  ❌  FECHA LÍMITE DE FASE 2 SUPERADA             ║"
             echo "║                                                  ║"
             echo "║  No se aceptan nuevos commits en develop.        ║"
             echo "║  Contacta al administrador del repositorio       ║"
@@ -47,10 +47,10 @@ jobs:
 
             echo ""
             echo "╔══════════════════════════════════════════════════╗"
-            echo "║  ✅  DENTRO DEL PLAZO — FASE 1                   ║"
+            echo "║  ✅  DENTRO DEL PLAZO — FASE 2                   ║"
             echo "║                                                  ║"
             printf "║  ⏳  Tiempo restante: %3d horas %2d minutos       ║\n" $HOURS $MINUTES
-            echo "║  📌  Límite: 30 Jun 2026 · 12:00 CDMX            ║"
+            echo "║  📌  Límite: 07 Jul 2026 · 13:00 CDMX            ║"
             echo "╚══════════════════════════════════════════════════╝"
           fi
 

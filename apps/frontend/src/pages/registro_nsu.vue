@@ -537,3 +537,6 @@ function abrirResumenRegistro() {
   mostrarResumenRegistro.value = true;
 }
 </script>
+<style lang="scss">
+@import "../../css/registro-nsu.scss";
+</style>

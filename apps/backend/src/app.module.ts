@@ -10,6 +10,8 @@ import { TallerModule } from './taller/taller.module';
 import { PonenteModule } from './ponente/ponente.module';
 import { EmsModule } from './ems/ems.module';
 import { UtvmModule } from './utvm/utvm.module';
+import { ArchivoMultimediaModule } from './archivo_multimedia/archivo_multimedia.module';
+import { CommonModule } from '../common/common.module';
 
 @Module({
   imports: [
@@ -30,14 +32,16 @@ import { UtvmModule } from './utvm/utvm.module';
       synchronize: true,
     }),
 
+    ExternosModule,
     UserModule,
     RegistroNsuModule,
     ConferenciasModule,
     TallerModule,
     PonenteModule,
-    ExternosModule,
     EmsModule,
     UtvmModule,
+    ArchivoMultimediaModule,
+    CommonModule,
   ],
   controllers: [],
   providers: [],
