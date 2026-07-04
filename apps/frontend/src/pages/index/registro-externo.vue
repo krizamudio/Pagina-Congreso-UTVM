@@ -1,5 +1,5 @@
 <template>
-  <div class="registro-externo-page">
+  <q-page class="registro-externo-page">
     <section class="registro-externo-header">
 
       <div>
@@ -579,7 +579,7 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
-  </div>
+  </q-page>
 </template>
 
 <script setup>
@@ -959,5 +959,5 @@ async function confirmarRegistro() {
 </script>
 
 <style lang="scss">
-@import "@/css/registro-externo.scss";
+@import "../../css/registro-externo.scss";
 </style>
