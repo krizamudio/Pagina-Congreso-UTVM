@@ -1,14 +1,15 @@
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, ConflictException, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
 import { createHmac, randomUUID, timingSafeEqual } from 'crypto';
 import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import { extname, join } from 'path';
-import { In, Repository } from 'typeorm';
+import { In, Repository, IsNull, Not } from 'typeorm';
 import { CreateRegistroNsuDto } from './dto/create-registro-nsu.dto';
 import { ArchivoComprobante } from './entities/archivo-comprobante.entity';
 import { ParticipanteNsu } from './entities/participante-nsu.entity';
 import { RegistroNsu } from './entities/registro-nsu.entity';
+import { GeneradorCommon } from '../../common/generador.common';
 
 @Injectable()
 export class RegistroNsuService {
@@ -23,6 +24,7 @@ export class RegistroNsuService {
     private readonly archivoRepository: Repository<ArchivoComprobante>,
 
     private readonly configService: ConfigService,
+    private readonly generador: GeneradorCommon,
   ) {}
 
   async create(createRegistroNsuDto: CreateRegistroNsuDto) {
@@ -49,6 +51,7 @@ export class RegistroNsuService {
     const participantesExistentes = await this.participanteRepository.find({
       where: {
         correo: In(correos),
+        deleted_at: IsNull(),
       },
       select: {
         correo: true,
@@ -203,6 +206,7 @@ export class RegistroNsuService {
       where: {
         id: payload.participanteId,
         correo: payload.correo,
+        deleted_at: IsNull(),
       },
     });
 
@@ -361,6 +365,7 @@ export class RegistroNsuService {
 
   async findAll() {
     return this.registroRepository.find({
+      where: { deleted_at: IsNull() },
       relations: {
         participantes: true,
         comprobante: true,
@@ -373,11 +378,111 @@ export class RegistroNsuService {
 
   async findOne(id: string) {
     return this.registroRepository.findOne({
-      where: { id },
+      where: { id, deleted_at: IsNull() },
       relations: {
         participantes: true,
         comprobante: true,
       },
     });
+  }
+
+  //Equipo 2 -> funcion de eliminar y restaurar RF-13
+
+  async remove(id: string) {
+    const registro = await this.findOne(id);
+
+    if (!registro) {
+      throw new BadRequestException('Registro NSU no encontrado');
+    }
+
+    const participantes = await this.participanteRepository.find({
+      where: {
+        registro: { id },
+        deleted_at: IsNull(),
+      },
+    });
+
+    const participantesAnonimizados = participantes.map((participante) => {
+      participante.correo_original =
+        participante.correo_original ?? participante.correo;
+      participante.correo = this.generador.CorreoEliminado();
+      return participante;
+    });
+
+    if (participantesAnonimizados.length > 0) {
+      await this.participanteRepository.save(participantesAnonimizados);
+      await this.participanteRepository.softDelete({
+        id: In(participantesAnonimizados.map((participante) => participante.id)),
+      });
+    }
+
+    await this.registroRepository.softDelete(id);
+
+    return registro;
+  }
+
+  async restore(id: string) {
+    const registro = await this.registroRepository.findOne({
+      where: { id },
+      relations: {
+        participantes: true,
+        comprobante: true,
+      },
+      withDeleted: true,
+    });
+
+    if (!registro) {
+      throw new BadRequestException('Registro NSU no encontrado');
+    }
+
+    const participantes = await this.participanteRepository.find({
+      where: { registro: { id } },
+      withDeleted: true,
+    });
+
+    const participanteIds = participantes.map((participante) => participante.id);
+    const correosRestaurados = participantes
+      .map((participante) => participante.correo_original ?? participante.correo)
+      .filter(Boolean);
+
+    if (correosRestaurados.length > 0) {
+      const correosEnUso = await this.participanteRepository.find({
+        where: {
+          id: Not(In(participanteIds)),
+          correo: In(correosRestaurados),
+          deleted_at: IsNull(),
+        },
+        select: {
+          correo: true,
+        },
+      });
+
+      if (correosEnUso.length > 0) {
+        const correosDuplicados = [
+          ...new Set(correosEnUso.map((participante) => participante.correo)),
+        ];
+
+        throw new ConflictException(
+          `No se puede restaurar el registro porque estos correos ya están en uso: ${correosDuplicados.join(', ')}`,
+        );
+      }
+    }
+
+    await this.registroRepository.restore(id);
+
+    if (participanteIds.length > 0) {
+      await this.participanteRepository.restore({ id: In(participanteIds) });
+
+      const participantesRestaurados = participantes.map((participante) => {
+        participante.correo = participante.correo_original ?? participante.correo;
+        participante.correo_original = null;
+        participante.deleted_at = undefined;
+        return participante;
+      });
+
+      await this.participanteRepository.save(participantesRestaurados);
+    }
+
+    return this.findOne(id);
   }
 }

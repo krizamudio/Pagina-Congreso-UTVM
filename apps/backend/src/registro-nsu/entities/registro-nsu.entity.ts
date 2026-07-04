@@ -6,6 +6,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
   ManyToOne,
+  DeleteDateColumn,
 } from 'typeorm';
 import { ParticipanteNsu } from './participante-nsu.entity';
 import { ArchivoComprobante } from './archivo-comprobante.entity';
@@ -37,4 +38,7 @@ export class RegistroNsu {
 
   @UpdateDateColumn()
   updated_at!: Date;
+
+  @DeleteDateColumn({ type: 'timestamp', name: 'deleted_at', nullable: true })
+  deleted_at?: Date;
 }

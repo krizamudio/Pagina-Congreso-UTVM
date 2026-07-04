@@ -14,4 +14,8 @@ export class GeneradorCommon {
     const timestamp = Date.now();
     return `${timestamp}_${aleatorio}`;
   }
+
+  CorreoEliminado(): string {
+    return 'eliminado_' + this.CadenasAleatorias() + '@soft-delete.local';
+  }
 }

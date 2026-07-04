@@ -7,7 +7,7 @@ import {
 
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, IsNull, Not } from 'typeorm';
 import * as nodemailer from 'nodemailer';
 
 import {
@@ -31,6 +31,7 @@ import { Externo } from './entities/externo.entity';
 import { CreateExternoDto } from './dto/create-externo.dto';
 import { UpdateExternoDto } from './dto/update-externo.dto';
 import { ArchivoComprobante } from '../registro-nsu/entities/archivo-comprobante.entity';
+import { GeneradorCommon } from '../../common/generador.common';
 
 @Injectable()
 export class ExternosService {
@@ -42,6 +43,7 @@ export class ExternosService {
     private readonly archivoRepository: Repository<ArchivoComprobante>,
 
     private readonly configService: ConfigService,
+    private readonly generador: GeneradorCommon,
   ) {}
 
   async create(
@@ -54,6 +56,7 @@ export class ExternosService {
     const correoExistente = await this.externoRepository.findOne({
       where: {
         correo: correoNormalizado,
+        deleted_at: IsNull(),
       },
     });
 
@@ -132,6 +135,7 @@ export class ExternosService {
 
   async findAll() {
     return await this.externoRepository.find({
+      where: { deleted_at: IsNull() },
       relations: {
         comprobante: true,
       },
@@ -143,7 +147,7 @@ export class ExternosService {
 
   async findOne(id: string) {
     const externo = await this.externoRepository.findOne({
-      where: { id },
+      where: { id, deleted_at: IsNull() },
       relations: {
         comprobante: true,
       },
@@ -170,7 +174,48 @@ export class ExternosService {
   async remove(id: string) {
     const externo = await this.findOne(id);
 
-    return await this.externoRepository.remove(externo);
+    externo.correoOriginal = externo.correoOriginal ?? externo.correo;
+    externo.correo = this.generador.CorreoEliminado();
+
+    await this.externoRepository.save(externo);
+    await this.externoRepository.softDelete(id);
+
+    return externo;
+  }
+
+  async restore(id: string) {
+    const externo = await this.externoRepository.findOne({
+      where: { id },
+      relations: { comprobante: true },
+      withDeleted: true,
+    });
+
+    if (!externo) {
+      throw new NotFoundException('Externo no encontrado');
+    }
+
+    const correoRestaurado = externo.correoOriginal ?? externo.correo;
+    const correoEnUso = await this.externoRepository.findOne({
+      where: {
+        id: Not(id),
+        correo: correoRestaurado,
+        deleted_at: IsNull(),
+      },
+    });
+
+    if (correoEnUso) {
+      throw new ConflictException(
+        `No se puede restaurar el externo porque el correo ${correoRestaurado} ya está en uso.`,
+      );
+    }
+
+    await this.externoRepository.restore(id);
+
+    externo.correo = correoRestaurado;
+    externo.correoOriginal = null;
+    externo.deleted_at = undefined;
+
+    return this.externoRepository.save(externo);
   }
 
   private async guardarArchivoComprobante(

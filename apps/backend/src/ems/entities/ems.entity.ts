@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, DeleteDateColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 
 @Entity('ems')
 export class Ems {
@@ -20,6 +20,9 @@ export class Ems {
   })
   correo!: string;
 
+  @Column({ length: 150, nullable: true })
+  correo_original!: string | null;
+
   @Column({ length: 150 })
   institucion!: string;
 
@@ -28,4 +31,13 @@ export class Ems {
 
   @Column({ length: 15 })
   telefono!: string;
+
+  @CreateDateColumn({ type: 'timestamp', name: 'created_at' })
+  created_at!: Date;
+
+  @UpdateDateColumn({ type: 'timestamp', name: 'updated_at' })
+  updated_at!: Date;
+
+  @DeleteDateColumn({ type: 'timestamp', name: 'deleted_at', nullable: true })
+  deleted_at?: Date;
 }

@@ -45,4 +45,9 @@ export class UtvmController {
   remove(@Param('id') id: string) {
     return this.utvmService.remove(+id);
   }
+
+  @Patch(':id/restore')
+  restore(@Param('id') id: string) {
+    return this.utvmService.restore(+id);
+  }
 }

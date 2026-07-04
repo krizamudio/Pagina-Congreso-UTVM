@@ -81,13 +81,27 @@ export class ConferenciasService {
     }
   }
 
-  async remove(id: string): Promise<void> {
+  async remove(id: string): Promise<Conferencia> {
     const conferenciaEliminada = await this.findOneConferencia(id);
 
     if (conferenciaEliminada) {
-      await this.conferenciaRepository.remove(conferenciaEliminada);
+      await this.conferenciaRepository.softDelete(id);
+      return conferenciaEliminada;
     } else {
       throw new Error(`Conferencia con id ${id} no encontrada`);
     }
+  }
+
+  async restore(id: string): Promise<Conferencia | null> {
+    const conferencia = await this.conferenciaRepository.findOne({
+      where: { id },
+    });
+
+    if (!conferencia) {
+      throw new NotFoundException(`Conferencia con id ${id} no encontrada`);
+    }
+
+    await this.conferenciaRepository.restore(id);
+    return conferencia;
   }
 }

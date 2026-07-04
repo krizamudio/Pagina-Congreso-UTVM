@@ -77,7 +77,22 @@ export class PonenteService {
     const ponente = await this.findOnePonente(id);
 
     try {
-      await this.ponenteRepository.remove(ponente);
+      await this.ponenteRepository.softDelete(id);
+      return ponente;
+    } catch (err) {
+      throw new InternalServerErrorException('No se pudo realizar la accion');
+    }
+  }
+
+  async restorePonente(id: string): Promise<Ponente> {
+    try {
+      await this.ponenteRepository.restore(id);
+      const ponente = await this.ponenteRepository.findOneBy({ id });
+      if (!ponente) {
+        throw new NotFoundException(
+          `No se encontro ningun ponente con el id ${id}`,
+        );
+      }
       return ponente;
     } catch (err) {
       throw new InternalServerErrorException('No se pudo realizar la accion');

@@ -2,13 +2,14 @@ import {
   BadRequestException,
   Injectable,
   InternalServerErrorException,
+  NotFoundException,
 } from '@nestjs/common';
 import { CreateArchivoMultimediaDto } from './dto/create-archivo_multimedia.dto';
 import { UpdateArchivoMultimediaDto } from './dto/update-archivo_multimedia.dto';
 import { GeneradorCommon } from '../../common/generador.common';
 import { SupabaseService } from './supabase.service';
 import { SupabaseClient } from '@supabase/supabase-js';
-import { Repository } from 'typeorm';
+import { Repository, IsNull } from 'typeorm';
 import { ArchivoMultimedia } from './entities/archivo_multimedia.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IFoto } from './interfaces';
@@ -83,19 +84,33 @@ export class ArchivoMultimediaService {
 
 
   findAll() {
-    return `This action returns all archivoMultimedia`;
+    return this.archivoMimeRepository.find({
+      where: { deleted_at: IsNull() },
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} archivoMultimedia`;
+  findOne(id: string) {
+    return this.archivoMimeRepository.findOne({
+      where: { id, deleted_at: IsNull() },
+    });
   }
 
-  update(id: number, updateArchivoMultimediaDto: UpdateArchivoMultimediaDto) {
+  update(id: string, updateArchivoMultimediaDto: UpdateArchivoMultimediaDto) {
     return `This action updates a #${id} archivoMultimedia`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} archivoMultimedia`;
+  async remove(id: string) {
+    const archivo = await this.findOne(id);
+    if (!archivo) {
+      throw new NotFoundException('Archivo no encontrado');
+    }
+    await this.archivoMimeRepository.softDelete(id);
+    return archivo;
+  }
+
+  async restore(id: string) {
+    await this.archivoMimeRepository.restore(id);
+    return this.findOne(id);
   }
 
   private obtenerExtension(nombreArchivo: string, mimetype: string): string {

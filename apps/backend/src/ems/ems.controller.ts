@@ -45,4 +45,9 @@ export class EmsController {
   remove(@Param('id') id: string) {
     return this.emsService.remove(+id);
   }
+
+  @Patch(':id/restore')
+  restore(@Param('id') id: string) {
+    return this.emsService.restore(+id);
+  }
 }

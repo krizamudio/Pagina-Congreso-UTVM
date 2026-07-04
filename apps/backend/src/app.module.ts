@@ -3,7 +3,6 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { ExternosModule } from './externos/externos.module';
-import { UserModule } from './user/user.module';
 import { RegistroNsuModule } from './registro-nsu/registro-nsu.module';
 import { ConferenciasModule } from './conferencia/conferencia.module';
 import { TallerModule } from './taller/taller.module';
@@ -23,7 +22,7 @@ import { CommonModule } from '../common/common.module';
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.POSTGRES_HOST,
-      port: Number(process.env.POSTGRES_PORT),
+      port: +process.env.POSTGRES_PORT!,
       username: process.env.POSTGRES_USER,
       password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DB,
@@ -36,7 +35,6 @@ import { CommonModule } from '../common/common.module';
     }),
 
     ExternosModule,
-    UserModule,
     RegistroNsuModule,
     ConferenciasModule,
     TallerModule,
