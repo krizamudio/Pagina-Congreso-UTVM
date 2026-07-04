@@ -10,6 +10,10 @@ const routes: RouteRecordRaw[] = [
         component: () => import("@/pages/public_home.vue"),
       },
       {
+        path: "agenda",
+        component: () => import("@/pages/agenda/AgendaPage.vue"),
+      },
+      {
         path: "registro-externo",
         component: () => import("@/pages/index/registro-externo.vue"),
       },
