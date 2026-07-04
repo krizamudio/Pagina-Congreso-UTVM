@@ -538,5 +538,5 @@ function abrirResumenRegistro() {
 }
 </script>
 <style lang="scss">
-@import "../../css/registro-nsu.scss";
+@import "../css/registro-nsu.scss";
 </style>

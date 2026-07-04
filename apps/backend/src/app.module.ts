@@ -30,6 +30,9 @@ import { CommonModule } from '../common/common.module';
       entities: ['dist/**/*.entity{.ts,.js}'],
       autoLoadEntities: true,
       synchronize: true,
+      extra: {
+      options: '-c timezone=America/Mexico_City',
+      },
     }),
 
     ExternosModule,
