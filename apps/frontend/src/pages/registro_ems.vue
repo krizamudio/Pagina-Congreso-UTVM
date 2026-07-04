@@ -265,7 +265,7 @@ async function guardarParticipantes() {
 </script>
 
 <style lang="scss">
-@import "../css/registro-externo.scss";
+@import "../css/registro-ems-utvm.scss";
 </style>
 
 
