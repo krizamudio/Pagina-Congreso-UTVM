@@ -4,7 +4,11 @@ import {
   PrimaryGeneratedColumn,
   CreateDateColumn,
   UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
+
+import { ArchivoComprobante } from '../../registro-nsu/entities/archivo-comprobante.entity';
 
 @Entity('externos')
 export class Externo {
@@ -28,7 +32,7 @@ export class Externo {
     length: 100,
     nullable: true,
   })
-  apellidoMaterno!: string;
+  apellidoMaterno!: string | null;
 
   @Column({
     type: 'varchar',
@@ -43,12 +47,12 @@ export class Externo {
   })
   telefono!: string;
 
-@Column({
-  type: 'varchar',
-  length: 150,
-  nullable: true,
-})
-institucion!: string | null;
+  @Column({
+    type: 'varchar',
+    length: 150,
+    nullable: true,
+  })
+  institucion!: string | null;
 
   @Column('simple-array')
   dias!: string[];
@@ -60,11 +64,13 @@ institucion!: string | null;
   })
   total!: number;
 
-  @Column({
-    type: 'varchar',
-    length: 255,
+  @ManyToOne(() => ArchivoComprobante, {
+    nullable: true,
   })
-  comprobante!: string;
+  @JoinColumn({
+    name: 'comprobanteId',
+  })
+  comprobante!: ArchivoComprobante | null;
 
   @Column({
     type: 'boolean',
