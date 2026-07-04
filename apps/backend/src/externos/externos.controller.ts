@@ -7,10 +7,12 @@ import {
   Param,
   Patch,
   Post,
+  Res,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
 
+import type { Response } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
 
@@ -48,17 +50,30 @@ export class ExternosController {
     private readonly externosService: ExternosService,
   ) {}
 
-  @Post('enviar-verificacion')
-  enviarVerificacion(
-    @Body('correo') correo: string,
+  @Get('verificar-correo/:token')
+  async verificarCorreo(
+    @Param('token') token: string,
+    @Res() res: Response,
   ) {
-    if (!correo) {
-      throw new BadRequestException(
-        'El correo es obligatorio.',
+    const frontendUrl =
+      process.env.FRONTEND_URL || 'http://localhost:9000';
+
+    try {
+      await this.externosService.verificarCorreo(token);
+
+      return res.redirect(
+        `${frontendUrl}/#/registro-externo?registro=verificado`,
+      );
+    } catch (error) {
+      const mensaje =
+        error instanceof Error
+          ? error.message
+          : 'No se pudo verificar el correo.';
+
+      return res.redirect(
+        `${frontendUrl}/#/registro-externo?registro=error&mensaje=${encodeURIComponent(mensaje)}`,
       );
     }
-
-    return this.externosService.enviarVerificacionCorreo(correo);
   }
 
   @Post()
@@ -110,7 +125,6 @@ export class ExternosController {
       institucion: body.institucion || null,
       dias: normalizarDias(body.dias),
       total: Number(body.total),
-      verificationToken: body.verificationToken,
     };
 
     return this.externosService.create(

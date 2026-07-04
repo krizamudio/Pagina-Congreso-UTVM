@@ -36,8 +36,4 @@ export class CreateExternoDto {
 
   @IsNumber()
   total!: number;
-
-  @IsString()
-  @IsNotEmpty()
-  verificationToken!: string;
 }

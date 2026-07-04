@@ -44,51 +44,12 @@ export class ExternosService {
     private readonly configService: ConfigService,
   ) {}
 
-  async enviarVerificacionCorreo(correo: string) {
-    const correoNormalizado = correo.trim().toLowerCase();
-
-    const correoExistente = await this.externoRepository.findOne({
-      where: {
-        correo: correoNormalizado,
-      },
-    });
-
-    if (correoExistente) {
-      throw new ConflictException(
-        'Este correo ya fue registrado anteriormente.',
-      );
-    }
-
-    const verificationToken =
-      this.crearTokenVerificacion(correoNormalizado);
-
-    await this.enviarCorreoVerificacion(
-      correoNormalizado,
-      verificationToken,
-    );
-
-    return {
-      mensaje:
-        'Correo de verificación enviado. Revisa tu correo electrónico para continuar.',
-    };
-  }
-
   async create(
     createExternoDto: CreateExternoDto,
     comprobante: Express.Multer.File,
   ) {
-    const {
-      verificationToken,
-      ...datosRegistro
-    } = createExternoDto;
-
     const correoNormalizado =
-      datosRegistro.correo.trim().toLowerCase();
-
-    this.validarTokenVerificacion(
-      verificationToken,
-      correoNormalizado,
-    );
+      createExternoDto.correo.trim().toLowerCase();
 
     const correoExistente = await this.externoRepository.findOne({
       where: {
@@ -98,7 +59,7 @@ export class ExternosService {
 
     if (correoExistente) {
       throw new ConflictException(
-        'Este correo ya fue registrado anteriormente.',
+        'Este correo ya fue registrado anteriormente. Revisa tu correo electrónico o usa uno diferente.',
       );
     }
 
@@ -106,16 +67,67 @@ export class ExternosService {
       await this.guardarArchivoComprobante(comprobante);
 
     const externo = this.externoRepository.create({
-      ...datosRegistro,
+      ...createExternoDto,
       correo: correoNormalizado,
-      institucion: datosRegistro.institucion || null,
-      apellidoMaterno: datosRegistro.apellidoMaterno || null,
+      institucion: createExternoDto.institucion || null,
+      apellidoMaterno: createExternoDto.apellidoMaterno || null,
       comprobante: archivoGuardado,
-      correoVerificado: true,
-      status: 'pendiente',
+      correoVerificado: false,
+      status: 'pendiente_verificacion',
     });
 
-    return await this.externoRepository.save(externo);
+    const externoGuardado =
+      await this.externoRepository.save(externo);
+
+    const verificationToken = this.crearTokenVerificacion(
+      externoGuardado.id,
+      externoGuardado.correo,
+    );
+
+    await this.enviarCorreoVerificacion(
+      externoGuardado.correo,
+      verificationToken,
+    );
+
+    return {
+      mensaje:
+        'Registro recibido. Revisa tu correo electrónico para verificarlo y finalizar el proceso.',
+      id: externoGuardado.id,
+      status: externoGuardado.status,
+      correoVerificado: externoGuardado.correoVerificado,
+    };
+  }
+
+  async verificarCorreo(token: string) {
+    const payload = this.validarTokenVerificacion(token);
+
+    const externo = await this.externoRepository.findOne({
+      where: {
+        id: payload.externoId,
+        correo: payload.correo,
+      },
+    });
+
+    if (!externo) {
+      throw new BadRequestException(
+        'No se encontró el registro asociado al enlace de verificación.',
+      );
+    }
+
+    if (externo.correoVerificado) {
+      return {
+        mensaje: 'El correo ya se encontraba verificado.',
+      };
+    }
+
+    externo.correoVerificado = true;
+    externo.status = 'pendiente';
+
+    await this.externoRepository.save(externo);
+
+    return {
+      mensaje: 'Correo verificado correctamente. Registro finalizado.',
+    };
   }
 
   async findAll() {
@@ -179,20 +191,13 @@ export class ExternosService {
     const extension = extname(comprobante.originalname);
     const nombreGuardado = `${randomUUID()}${extension}`;
 
-    /*
-      Esta ruta se usa solo para guardar físicamente el archivo.
-      Puede ser absoluta porque es para el servidor.
-    */
     const rutaArchivoFisica = join(
       uploadDir,
       nombreGuardado,
     );
 
-    /*
-      Esta ruta es la que se guarda en la base de datos.
-      Es relativa para no depender de C:\Users\brian\...
-    */
-    const rutaRelativa = `uploads/comprobantes/${nombreGuardado}`;
+    const rutaRelativa =
+      `uploads/comprobantes/${nombreGuardado}`;
 
     writeFileSync(
       rutaArchivoFisica,
@@ -210,14 +215,18 @@ export class ExternosService {
     return await this.archivoRepository.save(archivo);
   }
 
-  private crearTokenVerificacion(correo: string) {
+  private crearTokenVerificacion(
+    externoId: string,
+    correo: string,
+  ) {
     const secret =
       this.configService.get<string>('EMAIL_VERIFICATION_SECRET') ||
       'clave_temporal_desarrollo';
 
     const payload = {
+      externoId,
       correo,
-      expiraEn: Date.now() + 1000 * 60 * 30,
+      expiraEn: Date.now() + 1000 * 60 * 60 * 24,
     };
 
     const payloadBase64 = Buffer
@@ -231,13 +240,14 @@ export class ExternosService {
     return `${payloadBase64}.${firma}`;
   }
 
-  private validarTokenVerificacion(
-    token: string,
-    correo: string,
-  ) {
+  private validarTokenVerificacion(token: string): {
+    externoId: string;
+    correo: string;
+    expiraEn: number;
+  } {
     if (!token) {
       throw new BadRequestException(
-        'Por favor ingresa a tu correo electrónico y verifica tu registro antes de continuar.',
+        'El enlace de verificación no es válido.',
       );
     }
 
@@ -249,7 +259,7 @@ export class ExternosService {
 
     if (partes.length !== 2) {
       throw new BadRequestException(
-        'Verificación de correo inválida. Solicita un nuevo enlace.',
+        'Enlace de verificación inválido.',
       );
     }
 
@@ -270,28 +280,25 @@ export class ExternosService {
       )
     ) {
       throw new BadRequestException(
-        'Verificación de correo inválida. Solicita un nuevo enlace.',
+        'Enlace de verificación inválido.',
       );
     }
 
     const payload = JSON.parse(
       Buffer.from(payloadBase64, 'base64url').toString('utf8'),
     ) as {
+      externoId: string;
       correo: string;
       expiraEn: number;
     };
 
-    if (payload.correo !== correo) {
+    if (payload.expiraEn < Date.now()) {
       throw new BadRequestException(
-        'El enlace de verificación no corresponde a este correo.',
+        'El enlace de verificación expiró.',
       );
     }
 
-    if (payload.expiraEn < Date.now()) {
-      throw new BadRequestException(
-        'El enlace de verificación expiró. Solicita uno nuevo.',
-      );
-    }
+    return payload;
   }
 
   private async enviarCorreoVerificacion(
@@ -310,12 +317,12 @@ export class ExternosService {
     const mailFrom =
       this.configService.get<string>('MAIL_FROM') || mailUser;
 
-    const frontendUrl =
-      this.configService.get<string>('FRONTEND_URL') ||
-      'http://localhost:9000';
+    const backendUrl =
+      this.configService.get<string>('BACKEND_URL') ||
+      'http://localhost:3000';
 
     const enlace =
-      `${frontendUrl}/#/registro-externo?correo=${encodeURIComponent(correo)}&verificationToken=${encodeURIComponent(verificationToken)}`;
+      `${backendUrl}/api/externos/verificar-correo/${encodeURIComponent(verificationToken)}`;
 
     if (!mailHost || !mailUser || !mailPass) {
       console.warn(
@@ -339,17 +346,17 @@ export class ExternosService {
     await transporter.sendMail({
       from: mailFrom,
       to: correo,
-      subject: 'Confirmación de correo para tu registro al Congreso UTVM',
+      subject: 'Confirma tu registro al Congreso UTVM',
       html: `
         <div style="font-family: Arial, sans-serif; color: #1d2b28;">
           <h2>Verificación de correo</h2>
 
           <p>
-            Recibimos una solicitud de registro para el Congreso UTVM.
+            Recibimos tu solicitud de registro para el Congreso UTVM.
           </p>
 
           <p>
-            Para continuar con tu registro, verifica tu correo electrónico dando clic en el siguiente botón:
+            Para finalizar tu registro, confirma tu correo electrónico dando clic en el siguiente botón:
           </p>
 
           <p>
@@ -365,12 +372,12 @@ export class ExternosService {
                 font-weight: bold;
               "
             >
-              Verificar correo
+              Confirmar registro
             </a>
           </p>
 
           <p>
-            Este enlace estará disponible durante 30 minutos.
+            Este enlace estará disponible durante 24 horas.
           </p>
 
           <p>

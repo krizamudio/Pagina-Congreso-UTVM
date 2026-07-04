@@ -1,7 +1,6 @@
 <template>
-  <q-page class="registro-externo-page">
+  <div class="registro-externo-page">
     <section class="registro-externo-header">
-
       <div>
         <h1>Registro de Participantes Externos</h1>
 
@@ -98,22 +97,22 @@
         />
 
         <q-input
-  outlined
-  dense
-  hide-bottom-space
-  color="positive"
-  class="externo-light-input"
-  v-model="form.institucion"
-  label="Institución o Empresa"
-  placeholder="Nombre de la institución o empresa"
-/>
+          outlined
+          dense
+          hide-bottom-space
+          color="positive"
+          class="externo-light-input"
+          v-model="form.institucion"
+          label="Institución o Empresa"
+          placeholder="Nombre de la institución o empresa"
+        />
 
         <div
-          v-if="correoVerificado"
+          v-if="registroVerificado"
           class="correo-verificado-box"
         >
           <q-icon name="verified" />
-          <span>Correo verificado correctamente</span>
+          <span>Registro verificado correctamente</span>
         </div>
 
         <div class="externo-dark-box">
@@ -187,7 +186,11 @@
 
               <div class="externo-upload-text">
                 <strong>
-                  {{ form.comprobante ? 'Comprobante seleccionado' : 'Arrastra tu archivo aquí o selecciona' }}
+                  {{
+                    form.comprobante
+                      ? 'Comprobante seleccionado'
+                      : 'Arrastra tu archivo aquí o selecciona'
+                  }}
                 </strong>
 
                 <span v-if="!form.comprobante">
@@ -305,7 +308,7 @@
                 </div>
 
                 <div class="text-weight-medium">
-                  {{ form.institucion }}
+                  {{ form.institucion || 'No especificado' }}
                 </div>
               </q-item-section>
             </q-item>
@@ -392,51 +395,56 @@
       </q-card>
     </q-dialog>
 
-    <!-- Diálogo de correo duplicado -->
-    <q-dialog
-      v-model="mostrarCorreoDuplicado"
-      persistent
-    >
-      <q-card
-        class="resumen-externo-card"
-        style="width:500px;max-width:90vw"
-      >
-        <q-card-section class="dialog-header dialog-header-warning">
-          <div class="text-h6 text-weight-bold">
-            Correo ya registrado
-          </div>
+    <!-- Diálogo de registro ya recibido -->
+<q-dialog
+  v-model="mostrarCorreoDuplicado"
+  persistent
+>
+  <q-card
+    class="resumen-externo-card"
+    style="width:560px;max-width:90vw"
+  >
+    <q-card-section class="dialog-header">
+      <div class="text-h6 text-weight-bold">
+        Registro ya recibido
+      </div>
 
-          <div class="text-caption">
-            No se pudo completar el registro.
-          </div>
-        </q-card-section>
+      <div class="text-caption">
+        Tu solicitud ya se encuentra en proceso.
+      </div>
+    </q-card-section>
 
-        <q-card-section class="text-center q-pa-lg">
-          <q-icon
-            name="warning"
-            class="dialog-warning-icon"
-            size="64px"
-          />
+    <q-card-section class="text-center q-pa-lg">
+      <q-icon
+        name="assignment_turned_in"
+        class="dialog-main-icon"
+        size="72px"
+      />
 
-          <div class="text-h6 q-mt-md">
-            Este correo ya fue registrado anteriormente
-          </div>
+      <div class="text-h6 q-mt-md">
+        Tus datos serán revisados
+      </div>
 
-          <div class="text-grey-7 q-mt-sm">
-            Verifica el correo ingresado o utiliza uno diferente para continuar.
-          </div>
-        </q-card-section>
+      <div class="text-grey-7 q-mt-sm">
+        Este correo ya tiene un registro asociado. Si ya verificaste tu correo,
+        tu solicitud quedó pendiente para revisión de pago.
+      </div>
 
-        <q-card-actions align="right">
-          <q-btn
-            flat
-            label="Cerrar"
-            class="dialog-btn-flat"
-            v-close-popup
-          />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
+      <div class="text-grey-7 q-mt-sm">
+        Si aún no lo has verificado, revisa tu bandeja de entrada o spam para
+        finalizar el proceso.
+      </div>
+    </q-card-section>
+
+    <q-card-actions align="right">
+      <q-btn
+        label="Entendido"
+        class="dialog-btn-primary"
+        v-close-popup
+      />
+    </q-card-actions>
+  </q-card>
+</q-dialog>
 
     <!-- Diálogo de verificación enviada -->
     <q-dialog
@@ -453,7 +461,7 @@
           </div>
 
           <div class="text-caption">
-            Aún no se ha guardado el registro.
+            Tu registro quedó pendiente de verificación.
           </div>
         </q-card-section>
 
@@ -470,11 +478,11 @@
 
           <div class="text-grey-7 q-mt-sm">
             Ingresa a tu correo electrónico y da clic en el enlace de verificación.
-            Después vuelve a esta pantalla para finalizar el registro.
+            Al confirmarlo, tu registro quedará finalizado automáticamente.
           </div>
 
           <div class="dialog-email q-mt-md">
-            {{ form.correo }}
+            {{ correoVerificacionEnviado }}
           </div>
         </q-card-section>
 
@@ -499,11 +507,11 @@
       >
         <q-card-section class="dialog-header">
           <div class="text-h6 text-weight-bold">
-            Correo verificado
+            Registro verificado
           </div>
 
           <div class="text-caption">
-            Ya puedes finalizar tu registro.
+            Tu registro fue finalizado correctamente.
           </div>
         </q-card-section>
 
@@ -519,54 +527,8 @@
           </div>
 
           <div class="text-grey-7 q-mt-sm">
-            Ahora confirma tu registro. Si el comprobante no aparece,
-            vuelve a adjuntarlo antes de continuar.
-          </div>
-        </q-card-section>
-
-        <q-card-actions align="right">
-          <q-btn
-            label="Continuar"
-            class="dialog-btn-primary"
-            v-close-popup
-          />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
-
-    <!-- Diálogo de registro exitoso -->
-    <q-dialog
-      v-model="mostrarRegistroExitoso"
-      persistent
-    >
-      <q-card
-        class="resumen-externo-card"
-        style="width:560px;max-width:90vw"
-      >
-        <q-card-section class="dialog-header">
-          <div class="text-h6 text-weight-bold">
-            Registro enviado correctamente
-          </div>
-
-          <div class="text-caption">
-            Tu solicitud fue recibida.
-          </div>
-        </q-card-section>
-
-        <q-card-section class="text-center q-pa-lg">
-          <q-icon
-            name="mark_email_read"
-            class="dialog-main-icon"
-            size="72px"
-          />
-
-          <div class="text-h6 q-mt-md">
-            Tu registro fue completado correctamente
-          </div>
-
-          <div class="text-grey-7 q-mt-sm">
-            El comité revisará tu información y comprobante de pago.
-            Espera el correo de confirmación para continuar con el proceso.
+            Tu correo fue verificado y tu registro ya quedó en estado pendiente
+            para revisión de pago.
           </div>
         </q-card-section>
 
@@ -579,19 +541,16 @@
         </q-card-actions>
       </q-card>
     </q-dialog>
-  </q-page>
+  </div>
 </template>
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 
 const API_EXTERNOS = 'http://localhost:3000/api/externos'
-const API_ENVIAR_VERIFICACION =
-  'http://localhost:3000/api/externos/enviar-verificacion'
 
 const COSTO_DIA = 250
 const MAX_SIZE = 5 * 1024 * 1024
-const BORRADOR_KEY = 'registro_externo_borrador'
 
 const TIPOS_VALIDOS = [
   'application/pdf',
@@ -606,14 +565,12 @@ const fileInput = ref(null)
 const mostrarResumen = ref(false)
 const cargando = ref(false)
 const mostrarCorreoDuplicado = ref(false)
-const mostrarRegistroExitoso = ref(false)
 const mostrarVerificacionEnviada = ref(false)
 const mostrarCorreoVerificado = ref(false)
 
 const mensajeError = ref('')
-const verificationToken = ref('')
-const correoVerificado = ref(false)
-const correoVerificadoPara = ref('')
+const correoVerificacionEnviado = ref('')
+const registroVerificado = ref(false)
 
 const dias = [
   { label: 'Día 1', value: 'dia1' },
@@ -667,21 +624,8 @@ const accionLabel = computed(() =>
 )
 
 onMounted(() => {
-  restaurarBorradorRegistro()
-  leerVerificacionDesdeUrl()
+  leerResultadoVerificacionDesdeUrl()
 })
-
-function normalizarCorreo(correo) {
-  return correo.trim().toLowerCase()
-}
-
-function correoEstaVerificado() {
-  return (
-    correoVerificado.value &&
-    verificationToken.value &&
-    correoVerificadoPara.value === normalizarCorreo(form.value.correo)
-  )
-}
 
 function abrirSelector() {
   fileInput.value?.pickFiles()
@@ -737,46 +681,7 @@ function validarDias() {
   return true
 }
 
-function guardarBorradorRegistro() {
-  const borrador = {
-    nombre: form.value.nombre,
-    apellidoPaterno: form.value.apellidoPaterno,
-    apellidoMaterno: form.value.apellidoMaterno,
-    correo: form.value.correo,
-    telefono: form.value.telefono,
-    institucion: form.value.institucion,
-    dias: form.value.dias
-  }
-
-  localStorage.setItem(
-    BORRADOR_KEY,
-    JSON.stringify(borrador)
-  )
-}
-
-function restaurarBorradorRegistro() {
-  const borradorGuardado = localStorage.getItem(BORRADOR_KEY)
-
-  if (!borradorGuardado) return
-
-  try {
-    const borrador = JSON.parse(borradorGuardado)
-
-    form.value.nombre = borrador.nombre || ''
-    form.value.apellidoPaterno = borrador.apellidoPaterno || ''
-    form.value.apellidoMaterno = borrador.apellidoMaterno || ''
-    form.value.correo = borrador.correo || ''
-    form.value.telefono = borrador.telefono || ''
-    form.value.institucion = borrador.institucion || ''
-    form.value.dias = Array.isArray(borrador.dias)
-      ? borrador.dias
-      : []
-  } catch {
-    localStorage.removeItem(BORRADOR_KEY)
-  }
-}
-
-function leerVerificacionDesdeUrl() {
+function leerResultadoVerificacionDesdeUrl() {
   const hash = window.location.hash || ''
   const queryString = hash.includes('?')
     ? hash.split('?')[1]
@@ -785,16 +690,18 @@ function leerVerificacionDesdeUrl() {
   if (!queryString) return
 
   const params = new URLSearchParams(queryString)
-  const correo = params.get('correo')
-  const token = params.get('verificationToken')
+  const resultado = params.get('registro')
+  const mensaje = params.get('mensaje')
 
-  if (!correo || !token) return
+  if (resultado === 'verificado') {
+    registroVerificado.value = true
+    mostrarCorreoVerificado.value = true
+  }
 
-  form.value.correo = correo
-  verificationToken.value = token
-  correoVerificado.value = true
-  correoVerificadoPara.value = normalizarCorreo(correo)
-  mostrarCorreoVerificado.value = true
+  if (resultado === 'error') {
+    mensajeError.value =
+      mensaje || 'No se pudo verificar el registro.'
+  }
 
   window.history.replaceState(
     null,
@@ -818,43 +725,9 @@ function limpiarFormulario() {
   archivoError.value = ''
   diasError.value = ''
   mensajeError.value = ''
-  verificationToken.value = ''
-  correoVerificado.value = false
-  correoVerificadoPara.value = ''
   isDragging.value = false
 
-  localStorage.removeItem(BORRADOR_KEY)
   formRef.value?.resetValidation()
-}
-
-async function enviarCorreoVerificacion() {
-  guardarBorradorRegistro()
-
-  const response = await fetch(API_ENVIAR_VERIFICACION, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-      correo: form.value.correo
-    })
-  })
-
-  const data = await response.json().catch(() => null)
-
-  if (response.status === 409) {
-    mostrarCorreoDuplicado.value = true
-    return
-  }
-
-  if (!response.ok) {
-    throw new Error(
-      data?.message ||
-      'No se pudo enviar el correo de verificación.'
-    )
-  }
-
-  mostrarVerificacionEnviada.value = true
 }
 
 async function registrar() {
@@ -874,38 +747,12 @@ async function registrar() {
   }
 
   mensajeError.value = ''
-
-  if (!correoEstaVerificado()) {
-    try {
-      cargando.value = true
-      await enviarCorreoVerificacion()
-    } catch (error) {
-      mensajeError.value =
-        error.message ||
-        'Por favor ingresa a tu correo electrónico y verifica tu registro antes de continuar.'
-
-      console.error('Error al enviar verificación:', error)
-    } finally {
-      cargando.value = false
-    }
-
-    return
-  }
-
   mostrarResumen.value = true
 }
 
 async function confirmarRegistro() {
   cargando.value = true
   mensajeError.value = ''
-
-  if (!correoEstaVerificado()) {
-    mensajeError.value =
-      'Por favor ingresa a tu correo electrónico y verifica tu registro antes de continuar.'
-    mostrarResumen.value = false
-    cargando.value = false
-    return
-  }
 
   try {
     const formData = new FormData()
@@ -915,9 +762,8 @@ async function confirmarRegistro() {
     formData.append('apellidoMaterno', form.value.apellidoMaterno || '')
     formData.append('correo', form.value.correo)
     formData.append('telefono', form.value.telefono)
-    formData.append('institucion', form.value.institucion)
+    formData.append('institucion', form.value.institucion || '')
     formData.append('total', String(total.value))
-    formData.append('verificationToken', verificationToken.value)
 
     form.value.dias.forEach((dia) => {
       formData.append('dias', dia)
@@ -944,8 +790,9 @@ async function confirmarRegistro() {
       )
     }
 
+    correoVerificacionEnviado.value = form.value.correo
     mostrarResumen.value = false
-    mostrarRegistroExitoso.value = true
+    mostrarVerificacionEnviada.value = true
     limpiarFormulario()
   } catch (error) {
     mensajeError.value =
@@ -959,5 +806,5 @@ async function confirmarRegistro() {
 </script>
 
 <style lang="scss">
-@import "../../css/registro-externo.scss";
+@import "@/css/registro-externo.scss";
 </style>

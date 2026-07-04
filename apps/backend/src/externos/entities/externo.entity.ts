@@ -74,14 +74,14 @@ export class Externo {
 
   @Column({
     type: 'boolean',
-    default: true,
+    default: false,
   })
   correoVerificado!: boolean;
 
   @Column({
     type: 'varchar',
     length: 30,
-    default: 'pendiente',
+    default: 'pendiente_verificacion',
   })
   status!: string;
 
