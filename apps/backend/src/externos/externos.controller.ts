@@ -13,23 +13,10 @@ import {
 
 import { FileInterceptor } from '@nestjs/platform-express';
 import { memoryStorage } from 'multer';
-import { extname, join } from 'path';
-import {
-  existsSync,
-  mkdirSync,
-  writeFileSync,
-} from 'fs';
 
 import { ExternosService } from './externos.service';
 import { CreateExternoDto } from './dto/create-externo.dto';
 import { UpdateExternoDto } from './dto/update-externo.dto';
-
-const uploadPath = join(
-  process.cwd(),
-  'uploads',
-  'comprobantes',
-  'externos',
-);
 
 function normalizarDias(
   dias: string | string[] | undefined,
@@ -114,41 +101,22 @@ export class ExternosController {
       );
     }
 
-    const extension = extname(file.originalname);
-    const nombreArchivo =
-      `comprobante-${Date.now()}${extension}`;
-
-    const rutaRelativa =
-      `uploads/comprobantes/externos/${nombreArchivo}`;
-
     const createExternoDto: CreateExternoDto = {
       nombre: body.nombre,
       apellidoPaterno: body.apellidoPaterno,
-      apellidoMaterno: body.apellidoMaterno || '',
+      apellidoMaterno: body.apellidoMaterno || null,
       correo: body.correo,
       telefono: body.telefono,
       institucion: body.institucion || null,
       dias: normalizarDias(body.dias),
       total: Number(body.total),
-      comprobante: rutaRelativa,
       verificationToken: body.verificationToken,
     };
 
-    const registro =
-      await this.externosService.create(createExternoDto);
-
-    if (!existsSync(uploadPath)) {
-      mkdirSync(uploadPath, {
-        recursive: true,
-      });
-    }
-
-    writeFileSync(
-      join(uploadPath, nombreArchivo),
-      file.buffer,
+    return this.externosService.create(
+      createExternoDto,
+      file,
     );
-
-    return registro;
   }
 
   @Get()

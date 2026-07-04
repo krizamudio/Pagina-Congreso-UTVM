@@ -18,7 +18,7 @@ export class CreateExternoDto {
 
   @IsOptional()
   @IsString()
-  apellidoMaterno?: string;
+  apellidoMaterno?: string | null;
 
   @IsEmail()
   correo!: string;
@@ -28,18 +28,14 @@ export class CreateExternoDto {
   telefono!: string;
 
   @IsOptional()
-@IsString()
-institucion?: string; 
+  @IsString()
+  institucion?: string | null;
 
   @IsArray()
   dias!: string[];
 
   @IsNumber()
   total!: number;
-
-  @IsString()
-  @IsNotEmpty()
-  comprobante!: string;
 
   @IsString()
   @IsNotEmpty()

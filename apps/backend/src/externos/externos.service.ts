@@ -9,20 +9,37 @@ import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as nodemailer from 'nodemailer';
+
 import {
   createHmac,
+  randomUUID,
   timingSafeEqual,
 } from 'crypto';
+
+import {
+  existsSync,
+  mkdirSync,
+  writeFileSync,
+} from 'fs';
+
+import {
+  extname,
+  join,
+} from 'path';
 
 import { Externo } from './entities/externo.entity';
 import { CreateExternoDto } from './dto/create-externo.dto';
 import { UpdateExternoDto } from './dto/update-externo.dto';
+import { ArchivoComprobante } from '../registro-nsu/entities/archivo-comprobante.entity';
 
 @Injectable()
 export class ExternosService {
   constructor(
     @InjectRepository(Externo)
     private readonly externoRepository: Repository<Externo>,
+
+    @InjectRepository(ArchivoComprobante)
+    private readonly archivoRepository: Repository<ArchivoComprobante>,
 
     private readonly configService: ConfigService,
   ) {}
@@ -56,7 +73,10 @@ export class ExternosService {
     };
   }
 
-  async create(createExternoDto: CreateExternoDto) {
+  async create(
+    createExternoDto: CreateExternoDto,
+    comprobante: Express.Multer.File,
+  ) {
     const {
       verificationToken,
       ...datosRegistro
@@ -82,9 +102,15 @@ export class ExternosService {
       );
     }
 
+    const archivoGuardado =
+      await this.guardarArchivoComprobante(comprobante);
+
     const externo = this.externoRepository.create({
       ...datosRegistro,
       correo: correoNormalizado,
+      institucion: datosRegistro.institucion || null,
+      apellidoMaterno: datosRegistro.apellidoMaterno || null,
+      comprobante: archivoGuardado,
       correoVerificado: true,
       status: 'pendiente',
     });
@@ -93,12 +119,22 @@ export class ExternosService {
   }
 
   async findAll() {
-    return await this.externoRepository.find();
+    return await this.externoRepository.find({
+      relations: {
+        comprobante: true,
+      },
+      order: {
+        createdAt: 'DESC',
+      },
+    });
   }
 
   async findOne(id: string) {
     const externo = await this.externoRepository.findOne({
       where: { id },
+      relations: {
+        comprobante: true,
+      },
     });
 
     if (!externo) {
@@ -123,6 +159,55 @@ export class ExternosService {
     const externo = await this.findOne(id);
 
     return await this.externoRepository.remove(externo);
+  }
+
+  private async guardarArchivoComprobante(
+    comprobante: Express.Multer.File,
+  ) {
+    const uploadDir = join(
+      process.cwd(),
+      'uploads',
+      'comprobantes',
+    );
+
+    if (!existsSync(uploadDir)) {
+      mkdirSync(uploadDir, {
+        recursive: true,
+      });
+    }
+
+    const extension = extname(comprobante.originalname);
+    const nombreGuardado = `${randomUUID()}${extension}`;
+
+    /*
+      Esta ruta se usa solo para guardar físicamente el archivo.
+      Puede ser absoluta porque es para el servidor.
+    */
+    const rutaArchivoFisica = join(
+      uploadDir,
+      nombreGuardado,
+    );
+
+    /*
+      Esta ruta es la que se guarda en la base de datos.
+      Es relativa para no depender de C:\Users\brian\...
+    */
+    const rutaRelativa = `uploads/comprobantes/${nombreGuardado}`;
+
+    writeFileSync(
+      rutaArchivoFisica,
+      comprobante.buffer,
+    );
+
+    const archivo = this.archivoRepository.create({
+      nombre_original: comprobante.originalname,
+      nombre_guardado: nombreGuardado,
+      ruta: rutaRelativa,
+      mime_type: comprobante.mimetype,
+      size: comprobante.size,
+    });
+
+    return await this.archivoRepository.save(archivo);
   }
 
   private crearTokenVerificacion(correo: string) {
@@ -214,11 +299,14 @@ export class ExternosService {
     verificationToken: string,
   ) {
     const mailHost = this.configService.get<string>('MAIL_HOST');
+
     const mailPort = Number(
       this.configService.get<string>('MAIL_PORT') || 465,
     );
+
     const mailUser = this.configService.get<string>('MAIL_USER');
     const mailPass = this.configService.get<string>('MAIL_PASS');
+
     const mailFrom =
       this.configService.get<string>('MAIL_FROM') || mailUser;
 
