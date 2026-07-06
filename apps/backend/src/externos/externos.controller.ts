@@ -159,4 +159,11 @@ export class ExternosController {
   ) {
     return this.externosService.remove(id);
   }
+
+  @Patch(':id/restore')
+  restore(
+    @Param('id') id: string,
+  ) {
+    return this.externosService.restore(id);
+  }
 }

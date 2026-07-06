@@ -93,7 +93,22 @@ export class TallerService {
     const taller: Taller = await this.findOneTaller(id);
 
     try {
-      await this.tallerRepository.delete(id);
+      await this.tallerRepository.softDelete(id);
+      return taller;
+    } catch (err) {
+      throw new InternalServerErrorException(err);
+    }
+  }
+
+  async restoreTaller(id: string): Promise<Taller> {
+    try {
+      await this.tallerRepository.restore(id);
+      const taller = await this.tallerRepository.findOneBy({ id });
+      if (!taller) {
+        throw new NotFoundException(
+          `No se encontro ningun taller con el id ${id}`,
+        );
+      }
       return taller;
     } catch (err) {
       throw new InternalServerErrorException(err);

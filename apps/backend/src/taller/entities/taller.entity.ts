@@ -4,6 +4,7 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
+  DeleteDateColumn,
 } from 'typeorm';
 
 @Entity()
@@ -49,15 +50,18 @@ export class Taller {
 
   @CreateDateColumn({
     type: 'timestamp',
-    name: 'fecha_creacion',
+    name: 'created_at',
     default: () => 'CURRENT_TIMESTAMP',
   })
-  fecha_creacion!: Date;
+  created_at!: Date;
 
   @UpdateDateColumn({
     type: 'timestamp',
-    name: 'fecha_actualizacion',
+    name: 'updated_at',
     nullable: true,
   })
-  fecha_actualizacion?: Date;
+  updated_at?: Date;
+
+  @DeleteDateColumn({ type: 'timestamp', name: 'deleted_at', nullable: true })
+  deleted_at?: Date;
 }

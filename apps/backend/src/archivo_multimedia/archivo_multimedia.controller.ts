@@ -54,7 +54,7 @@ export class ArchivoMultimediaController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.archivoMultimediaService.findOne(+id);
+    return this.archivoMultimediaService.findOne(id);
   }
 
   @Patch(':id')
@@ -63,13 +63,13 @@ export class ArchivoMultimediaController {
     @Body() updateArchivoMultimediaDto: UpdateArchivoMultimediaDto,
   ) {
     return this.archivoMultimediaService.update(
-      +id,
+      id,
       updateArchivoMultimediaDto,
     );
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.archivoMultimediaService.remove(+id);
+    return this.archivoMultimediaService.remove(id);
   }
 }
