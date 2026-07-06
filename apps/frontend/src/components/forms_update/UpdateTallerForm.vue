@@ -180,6 +180,7 @@ const defaultForm = (): TallerPayload => ({
 
 const { formData: form, hydrateForm } = useFormPersistence<TallerPayload>('update-taller-form', defaultForm(), {
   hydrateOnMounted: false,
+  mergeStrategy: 'base-over-saved',
 });
 
 const syncForm = () => {
