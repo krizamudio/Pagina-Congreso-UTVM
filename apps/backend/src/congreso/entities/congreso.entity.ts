@@ -1,44 +1,43 @@
-import { Column, Entity, PrimaryGeneratedColumn, DeleteDateColumn, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+  Entity,
+} from 'typeorm';
 import { Conferencia } from '../../conferencia/entities/conferencia.entity';
+import { Ubicacion } from '../../ubicacion/entities/ubicacion.entity';
 
 @Entity()
-export class Ponente {
+export class Congreso {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  //TODO: KS
-  @Column('uuid')
-  usuario_id!: string;
-
   @Column({
     type: 'varchar',
-    length: 200,
+    length: 150,
   })
   nombre!: string;
 
-  //TODO: FK
-  @Column('uuid')
-  archivo_foto_id!: string;
-
   @Column({
     type: 'varchar',
     length: 200,
   })
-  institucion!: string;
-
-  @Column('text')
-  semblanza!: string;
+  eslogan!: string;
 
   @Column({
     type: 'varchar',
     length: 255,
   })
-  tema!: string;
+  ubicacion!: string;
 
-  @Column('boolean', {
-    default: true,
-  })
-  visible_publico?: boolean;
+  @Column('timestamp')
+  fecha_inicio!: Date;
+
+  @Column('timestamp')
+  fecha_fin!: Date;
 
   @CreateDateColumn({ type: 'timestamp', name: 'created_at' })
   created_at!: Date;
@@ -49,7 +48,9 @@ export class Ponente {
   @DeleteDateColumn({ type: 'timestamp', name: 'deleted_at', nullable: true })
   deleted_at?: Date;
 
-  //Relaciones
-  @OneToMany(() => Conferencia, (conf)=> conf.ponente)
+  @OneToMany(() => Conferencia, (conferencia) => conferencia.congreso)
   conferencias!: Conferencia[];
+
+  @OneToMany( () => Ubicacion, (ubicacion) => ubicacion.congreso)
+  ubicaciones!: Ubicacion[];
 }

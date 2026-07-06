@@ -11,6 +11,8 @@ import { EmsModule } from './ems/ems.module';
 import { UtvmModule } from './utvm/utvm.module';
 import { ArchivoMultimediaModule } from './archivo_multimedia/archivo_multimedia.module';
 import { CommonModule } from '../common/common.module';
+import { CongresoModule } from './congreso/congreso.module';
+import { UbicacionModule } from './ubicacion/ubicacion.module';
 
 @Module({
   imports: [
@@ -43,6 +45,8 @@ import { CommonModule } from '../common/common.module';
     UtvmModule,
     ArchivoMultimediaModule,
     CommonModule,
+    CongresoModule,
+    UbicacionModule,
   ],
   controllers: [],
   providers: [],
