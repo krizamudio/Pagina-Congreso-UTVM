@@ -12,7 +12,14 @@
     </q-item>
   </router-link>
 
-  <q-item v-else clickable tag="a" :href="link" target="_blank" class="essential-link">
+  <q-item
+    v-else
+    clickable
+    tag="a"
+    :href="link"
+    target="_blank"
+    class="essential-link"
+  >
     <q-item-section v-if="icon" avatar>
       <q-icon :name="icon" />
     </q-item-section>
@@ -37,7 +44,7 @@ export interface EssentialLinkProps {
 
 const props = withDefaults(defineProps<EssentialLinkProps>(), {
   caption: '',
-  link: '#',
+  link: '/',
   icon: '',
 });
 
@@ -48,7 +55,9 @@ const isInternal = computed(() => {
 });
 
 const activeClass = computed(() => {
-  return isInternal.value && route.path === props.link ? 'essential-link--active' : '';
+  return isInternal.value && route.path === props.link
+    ? 'essential-link--active'
+    : '';
 });
 </script>
 

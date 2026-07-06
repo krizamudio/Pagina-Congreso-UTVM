@@ -6,17 +6,33 @@ import { existsSync, mkdirSync } from 'fs';
 
 async function main() {
   const app = await NestFactory.create(AppModule);
+
+  app.setGlobalPrefix('api');
+
+  app.enableCors({
+    origin: true,
+    credentials: true,
+  });
+
   const uploadDir = join(process.cwd(), 'uploads');
-  if ( !existsSync(uploadDir)){
+
+  if (!existsSync(uploadDir)) {
     mkdirSync(uploadDir);
   }
-  app.setGlobalPrefix('api/');
+
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,
+      forbidNonWhitelisted: true,
       transform: true,
     }),
   );
+
   await app.listen(process.env.PORT ?? 3000);
+
+  console.log(
+    `🚀 Backend ejecutándose en: http://localhost:${process.env.PORT ?? 3000}/api`,
+  );
 }
-main();
+
+void main();
