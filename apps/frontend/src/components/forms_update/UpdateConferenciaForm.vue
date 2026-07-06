@@ -161,6 +161,7 @@ const defaultForm = (): ConferenciaPayload => ({
 
 const { formData: form, hydrateForm } = useFormPersistence<ConferenciaPayload>('update-conferencia-form', defaultForm(), {
   hydrateOnMounted: false,
+  mergeStrategy: 'base-over-saved',
 });
 
 const syncForm = () => {
