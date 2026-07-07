@@ -67,6 +67,12 @@ const linksList: EssentialLinkProps[] = [
     link: '/registro_utvm',
   },
   {
+    label: 'Participantes',
+    caption: 'Administración y validación',
+    icon: 'badge',
+    link: '/participantes',
+  },
+  {
     label: 'Conferencias',
     caption: 'Gestión de conferencias',
     icon: 'code',

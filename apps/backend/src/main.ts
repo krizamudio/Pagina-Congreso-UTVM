@@ -29,10 +29,6 @@ async function main() {
   );
 
   await app.listen(process.env.PORT ?? 3000);
-
-  console.log(
-    `🚀 Backend ejecutándose en: http://localhost:${process.env.PORT ?? 3000}/api`,
-  );
 }
 
 void main();

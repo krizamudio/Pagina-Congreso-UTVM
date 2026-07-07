@@ -47,6 +47,17 @@ const routes: RouteRecordRaw[] = [
       },
 
       {
+        path: "participantes",
+        alias: "/participantes",
+        component: () => import("@/pages/dashboards/ParticipantesPage.vue"),
+      },
+      {
+        path: "participantes/nsu/:id",
+        alias: "/participantes/nsu/:id",
+        component: () => import("@/pages/dashboards/RegistroNsuDetallePage.vue"),
+      },
+
+      {
         path: "conferencias",
         alias: "/conferencias",
         component: () => import("@/pages/dashboards/ConferenciasPage.vue"),
@@ -118,10 +129,10 @@ const routes: RouteRecordRaw[] = [
     ],
   },
 
- {
-  path: "/:catchAll(.*)*",
-  redirect: "/",
-},
+  {
+    path: "/:catchAll(.*)*",
+    redirect: "/",
+  },
 ];
 
 export default routes;

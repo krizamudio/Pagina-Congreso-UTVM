@@ -18,6 +18,8 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { RegistroNsuService } from './registro-nsu.service';
 
 import type { UploadedFile as UploadedFileType } from './types/uploaded-file.type';
+import { UpdateRegistroNsuDto } from './dto/update-registro-nsu.dto';
+import { UpdateParticipanteNsuStatusDto } from './dto/update-participante-nsu-status.dto';
 import type { CreateParticipanteNsuDto } from './dto/create-registro-nsu.dto';
 
 @Controller('registro-nsu')
@@ -75,6 +77,35 @@ export class RegistroNsuController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.registroNsuService.findOne(id);
+  }
+
+  @Patch(':id')
+  update(
+    @Param('id') id: string,
+    @Body() updateRegistroNsuDto: UpdateRegistroNsuDto,
+  ) {
+    return this.registroNsuService.update(id, updateRegistroNsuDto);
+  }
+
+  @Patch(':id/participantes/:participanteId')
+  updateParticipanteStatus(
+    @Param('id') id: string,
+    @Param('participanteId') participanteId: string,
+    @Body() updateParticipanteNsuStatusDto: UpdateParticipanteNsuStatusDto,
+  ) {
+    return this.registroNsuService.updateParticipanteStatus(
+      id,
+      participanteId,
+      updateParticipanteNsuStatusDto,
+    );
+  }
+
+  @Delete(':id/participantes/:participanteId')
+  removeParticipante(
+    @Param('id') id: string,
+    @Param('participanteId') participanteId: string,
+  ) {
+    return this.registroNsuService.removeParticipante(id, participanteId);
   }
 
   @Delete(':id')
