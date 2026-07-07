@@ -28,40 +28,51 @@ import type { TallerPayload } from '../../types';
 
 const router = useRouter();
 const $q = useQuasar();
-const { create } = useTalleresQuery();
+const { create, uploadImagen } = useTalleresQuery();
 const isPending = ref(false);
 
 const notify = (type: 'positive' | 'negative', message: string) => {
-  if (typeof $q.notify === 'function') {
-    $q.notify({
-      type,
-      message,
-      position: 'top',
-      timeout: 3200,
-      multiLine: true,
-      progress: true,
-      textColor: type === 'negative' ? 'white' : 'black',
-      classes: `app-notify app-notify-${type}`,
-    });
-    return;
-  }
-
-  console.warn(`[${type}] ${message}`);
+  $q.notify({
+    type,
+    message,
+    position: 'top',
+    timeout: 3200,
+    multiLine: true,
+    progress: true,
+    textColor: type === 'negative' ? 'white' : 'black',
+    classes: `app-notify app-notify-${type}`,
+  });
 };
 
 const goBack = () => {
   void router.push('/talleres');
 };
 
-const handleSubmit = async (payload: TallerPayload) => {
+const handleSubmit = async (payload: TallerPayload & { imagen?: File | null }) => {
   isPending.value = true;
 
   try {
-    await create(payload);
+    const { imagen, ...tallerPayload } = payload;
+
+    console.log(
+      'PAYLOAD QUE SE ENVÍA A /taller:',
+      JSON.stringify(tallerPayload, null, 2),
+    );
+
+    const tallerCreado = await create(tallerPayload);
+
+    if (imagen && tallerCreado?.id) {
+      await uploadImagen(tallerCreado.id, imagen);
+    }
+
     notify('positive', 'Taller creado exitosamente.');
     void router.push('/talleres');
-  } catch (err) {
-    console.error(err);
+  } catch (err: any) {
+    console.error(
+      'RESPUESTA BACKEND:',
+      JSON.stringify(err?.response?.data, null, 2),
+    );
+
     notify('negative', 'No se pudo crear el taller.');
   } finally {
     isPending.value = false;

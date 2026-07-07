@@ -10,6 +10,7 @@
         <q-btn flat no-caps label="Registro NSU" to="/registro_nsu" />
         <q-btn flat no-caps label="Registro EMS" to="/registro_ems" />
         <q-btn flat no-caps label="Registro UTVM" to="/registro_utvm" />
+        <q-btn flat no-caps label="talleres" to="/talleres_u" />
       </q-toolbar>
     </q-header>
 

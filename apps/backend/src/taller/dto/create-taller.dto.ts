@@ -3,6 +3,7 @@ import {
   IsISO8601,
   IsInt,
   IsNotEmpty,
+  IsOptional,
   IsString,
   IsUUID,
   Matches,
@@ -14,10 +15,12 @@ function sanitizeString(value: any) {
   if (typeof value !== 'string') return value;
 
   let s = value.replace(/<[^>]*>/g, '').trim();
+
   s = s.replace(
     /(\b)(SELECT|INSERT|UPDATE|DELETE|DROP|ALTER|CREATE|TRUNCATE|EXEC|UNION|--|AND|OR)(\b)/gi,
     '',
   );
+
   s = s.replace(
     /(--|;|\/\*|\*\/|@@|@|char\(|nchar\(|varchar\(|nvarchar\(|cast\(|convert\()/gi,
     '',
@@ -64,8 +67,6 @@ export class CreateTallerDto {
   @IsNotEmpty({ message: 'El campo "fecha" es obligatorio.' })
   fecha!: string;
 
-  // TODO: No mostrar todo el error al momento de que manden algo como
-  // 28:00:00
   @Matches(/^([01]\d|2[0-3]):([0-5]\d)(:([0-5]\d))?$/, {
     message: 'El campo "hora_inicio" debe tener formato HH:MM o HH:MM:SS.',
   })
@@ -89,4 +90,18 @@ export class CreateTallerDto {
   })
   @Transform(({ value }) => sanitizeString(value))
   requisitos!: string;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt({ message: 'El campo "inscritos" debe ser un número entero.' })
+  @Min(0, { message: 'El campo "inscritos" debe ser mayor o igual a 0.' })
+  inscritos?: number;
+
+  @IsOptional()
+  @IsString({ message: 'El campo "imagen_url" debe ser texto.' })
+  @MaxLength(500, {
+    message: 'El campo "imagen_url" no puede exceder $constraint1 caracteres.',
+  })
+  @Transform(({ value }) => sanitizeString(value))
+  imagen_url?: string;
 }
