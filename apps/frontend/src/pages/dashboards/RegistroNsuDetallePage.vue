@@ -23,7 +23,7 @@
     <template v-else-if="registro">
       <div class="row q-col-gutter-md q-mb-md">
         <div class="col-12 col-md-3">
-          <q-card flat bordered class="summary-card">
+          <q-card flat bordered class="summary-card dashboard-card">
             <q-card-section>
               <div class="text-caption text-grey-7">Participantes</div>
               <div class="text-h5 text-weight-bold">{{ registro.total_participantes }}</div>
@@ -32,7 +32,7 @@
         </div>
 
         <div class="col-12 col-md-3">
-          <q-card flat bordered class="summary-card">
+          <q-card flat bordered class="summary-card dashboard-card">
             <q-card-section>
               <div class="text-caption text-grey-7">Total</div>
               <div class="text-h5 text-weight-bold">{{ money(registro.total_general) }}</div>
@@ -41,7 +41,7 @@
         </div>
 
         <div class="col-12 col-md-3">
-          <q-card flat bordered class="summary-card">
+          <q-card flat bordered class="summary-card dashboard-card">
             <q-card-section>
               <div class="text-caption text-grey-7">Estatus grupal</div>
               <q-badge :color="statusColor(mapNsuStatus(registro.estado_pago))">
@@ -52,16 +52,16 @@
         </div>
 
         <div class="col-12 col-md-3">
-          <q-card flat bordered class="summary-card">
+          <q-card flat bordered class="summary-card dashboard-card">
             <q-card-section>
               <div class="text-caption text-grey-7">Comprobante</div>
-              <div class="text-body2 ellipsis">{{ registro.comprobante?.nombre_original ?? 'Sin comprobante' }}</div>
+              <div class="text-body2 ellipsis">{{ normalizeText(registro.comprobante?.nombre_original) || 'Sin comprobante' }}</div>
             </q-card-section>
           </q-card>
         </div>
       </div>
 
-      <q-card flat bordered class="detail-card q-mb-md">
+      <q-card flat bordered class="detail-card dashboard-card q-mb-md">
         <q-card-section class="row justify-between items-center q-gutter-sm">
           <div>
             <div class="text-h6">Validación grupal</div>
@@ -76,11 +76,11 @@
         </q-card-section>
       </q-card>
 
-      <q-card flat bordered class="detail-card">
+      <q-card flat bordered class="detail-card dashboard-card">
         <q-card-section>
           <div class="text-h6 q-mb-md">Integrantes</div>
 
-          <q-table :rows="registro.participantes" :columns="participantColumns" row-key="id" flat bordered :loading="isSaving">
+          <q-table class="dashboard-table" :rows="registro.participantes" :columns="participantColumns" row-key="id" flat bordered :loading="isSaving">
             <template #body-cell-estado_pago="props">
               <q-td align="center">
                 <q-badge :color="statusColor(mapNsuStatus(props.row.estado_pago))">
@@ -90,11 +90,11 @@
             </template>
 
             <template #body-cell-acciones="props">
-              <q-td align="center">
-                <q-btn dense flat round icon="pending" color="orange" :disable="isSaving || isLoading" @click="setParticipantStatus(props.row.id, 'PENDIENTE')" />
-                <q-btn dense flat round icon="check_circle" color="positive" :disable="isSaving || isLoading" @click="setParticipantStatus(props.row.id, 'VALIDADO')" />
-                <q-btn dense flat round icon="cancel" color="warning" :disable="isSaving || isLoading" @click="setParticipantStatus(props.row.id, 'RECHAZADO')" />
-                <q-btn dense flat round icon="delete" color="negative" :disable="isSaving || isLoading" @click="deleteParticipant(props.row.id)" />
+              <q-td align="center" class="actions-cell">
+                <q-btn class="nsu-action-btn nsu-action-pending" dense flat round icon="pending" color="orange" :disable="isSaving || isLoading" @click="setParticipantStatus(props.row.id, 'PENDIENTE')" />
+                <q-btn class="nsu-action-btn nsu-action-valid" dense flat round icon="check_circle" color="positive" :disable="isSaving || isLoading" @click="setParticipantStatus(props.row.id, 'VALIDADO')" />
+                <q-btn class="nsu-action-btn nsu-action-reject" dense flat round icon="cancel" color="negative" :disable="isSaving || isLoading" @click="setParticipantStatus(props.row.id, 'RECHAZADO')" />
+                <q-btn class="nsu-action-btn nsu-action-delete" dense flat round icon="delete" color="grey-7" :disable="isSaving || isLoading" @click="deleteParticipant(props.row.id)" />
               </q-td>
             </template>
           </q-table>
@@ -137,11 +137,32 @@ const participantColumns: QTableColumn[] = [
   { name: 'monto_individual', label: 'Monto', field: (row: ParticipanteNsuDetalle) => money(row.monto_individual), align: 'right' },
   { name: 'correo_verificado', label: 'Correo verificado', field: (row: ParticipanteNsuDetalle) => (row.correo_verificado ? 'Sí' : 'No'), align: 'center' },
   { name: 'estado_pago', label: 'Estatus', field: 'estado_pago', align: 'center' },
-  { name: 'acciones', label: 'Acciones', field: 'acciones', align: 'center' },
+  {
+    name: 'acciones',
+    label: 'Acciones',
+    field: 'acciones',
+    align: 'center',
+    style: 'min-width: 180px; width: 180px;',
+    headerStyle: 'min-width: 180px; width: 180px;',
+  },
 ];
 
 function notify(type: 'positive' | 'negative', message: string) {
-  $q.notify({ type, message, position: 'top', timeout: 2800 });
+  if (typeof $q.notify === 'function') {
+    $q.notify({
+      type,
+      message,
+      position: 'top',
+      timeout: 3200,
+      multiLine: true,
+      progress: true,
+      textColor: type === 'negative' ? 'white' : 'black',
+      classes: `app-notify app-notify-${type}`,
+    });
+    return;
+  }
+
+  console.warn(`[${type}] ${message}`);
 }
 
 function money(value: number | string) {
@@ -171,6 +192,21 @@ function statusLabel(status: ParticipanteEstatus) {
     validado: 'Validado',
     rechazado: 'Rechazado',
   }[status];
+}
+
+function normalizeText(value?: string | null) {
+  const text = value ?? '';
+  if (!text) return '';
+  if (!/[ÃÂÐ]/.test(text)) return text;
+
+  try {
+    const bytes = Uint8Array.from(text, (char) => char.charCodeAt(0));
+    const decoded = new TextDecoder('utf-8').decode(bytes);
+
+    return decoded.includes('�') ? text : decoded;
+  } catch {
+    return text;
+  }
 }
 
 async function load() {
@@ -241,6 +277,72 @@ onMounted(() => {
 
 .summary-card,
 .detail-card {
-  border-radius: 8px;
+  border-radius: 20px;
+}
+
+.registro-nsu-detalle-page :deep(.dashboard-table .nsu-action-btn .q-icon) {
+  color: #ffffff !important;
+}
+
+.registro-nsu-detalle-page :deep(.dashboard-table .nsu-action-btn) {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  opacity: 1 !important;
+}
+
+.registro-nsu-detalle-page :deep(.dashboard-table .nsu-action-btn .q-btn__content),
+.registro-nsu-detalle-page :deep(.dashboard-table .nsu-action-btn .q-icon),
+.registro-nsu-detalle-page :deep(.dashboard-table .nsu-action-btn .material-icons),
+.registro-nsu-detalle-page :deep(.dashboard-table .nsu-action-btn .material-symbols-outlined) {
+  opacity: 1 !important;
+  visibility: visible !important;
+  font-size: 20px !important;
+}
+
+.registro-nsu-detalle-page :deep(.dashboard-table .nsu-action-btn.q-btn--disabled) {
+  opacity: 0.72 !important;
+}
+
+.registro-nsu-detalle-page :deep(.dashboard-table .actions-cell) {
+  white-space: nowrap;
+  overflow: visible !important;
+}
+
+.registro-nsu-detalle-page :deep(.dashboard-table .actions-cell .q-btn) {
+  margin: 0 2px;
+}
+
+.registro-nsu-detalle-page :deep(.dashboard-table .nsu-action-pending) {
+  color: #ffffff !important;
+  background: #ef6c00 !important;
+  border-color: #e65100 !important;
+  box-shadow: 0 6px 14px rgba(239, 108, 0, 0.38) !important;
+}
+
+.registro-nsu-detalle-page :deep(.dashboard-table .nsu-action-valid) {
+  color: #ffffff !important;
+  background: #1b8f3c !important;
+  border-color: #0f6e2b !important;
+  box-shadow: 0 6px 14px rgba(27, 143, 60, 0.4) !important;
+}
+
+.registro-nsu-detalle-page :deep(.dashboard-table .nsu-action-reject) {
+  color: #ffffff !important;
+  background: #d81b60 !important;
+  border-color: #ad1457 !important;
+  box-shadow: 0 6px 14px rgba(216, 27, 96, 0.4) !important;
+}
+
+.registro-nsu-detalle-page :deep(.dashboard-table .nsu-action-delete) {
+  color: #ffffff !important;
+  background: #455a64 !important;
+  border-color: #37474f !important;
+  box-shadow: 0 6px 14px rgba(55, 71, 79, 0.36) !important;
 }
 </style>

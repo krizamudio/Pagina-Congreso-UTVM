@@ -148,14 +148,6 @@ const emit = defineEmits<{
   (e: 'submit', payload: TallerPayload): void;
 }>();
 
-function generateUUID() {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-    const r = (Math.random() * 16) | 0;
-    const v = c === 'x' ? r : (r & 0x3) | 0x8;
-    return v.toString(16);
-  });
-}
-
 const error = ref<string | null>(null);
 const { useGetPonentes } = usePonente();
 const {
@@ -166,7 +158,7 @@ const {
 } = useGetPonentes();
 
 const defaultForm = (): TallerPayload => ({
-  congreso_id: generateUUID(),
+  congreso_id: '',
   titulo: '',
   descripcion: '',
   tallerista_id: '',
@@ -174,7 +166,7 @@ const defaultForm = (): TallerPayload => ({
   fecha: '',
   hora_inicio: '',
   hora_fin: '',
-  ubicacion_id: generateUUID(),
+  ubicacion_id: '',
   requisitos: '',
 });
 
@@ -209,13 +201,48 @@ const selectedTalleristaLabel = computed(() => {
   return talleristaOptions.value.find((option) => option.value === form.value.tallerista_id)?.label ?? form.value.tallerista_id;
 });
 
+const isUuid = (value: string) => {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
+};
+
+const resolveTalleristaId = (value: string) => {
+  const trimmed = value.trim();
+  if (!trimmed) return trimmed;
+  if (isUuid(trimmed)) return trimmed;
+
+  const match = talleristaOptions.value.find((option) => {
+    return option.label.trim().toLowerCase() === trimmed.toLowerCase();
+  });
+
+  return match?.value ?? trimmed;
+};
+
 const requiredRule = (value: string | number) => value !== '' && value !== null && value !== undefined || 'Este campo es obligatorio';
 const positiveIntRule = (value: number) => Number.isInteger(value) && value > 0 || 'Debe ser un entero mayor a 0';
 
 const submit = () => {
   error.value = null;
+  form.value.tallerista_id = resolveTalleristaId(form.value.tallerista_id);
+
+  if (!isUuid(form.value.tallerista_id)) {
+    error.value = 'El tallerista debe ser un registro existente.';
+    return;
+  }
+
   form.value.cupo_maximo = Number(form.value.cupo_maximo) || 1;
-  emit('submit', { ...form.value });
+
+  emit('submit', {
+    congreso_id: form.value.congreso_id,
+    titulo: form.value.titulo,
+    descripcion: form.value.descripcion,
+    tallerista_id: form.value.tallerista_id,
+    cupo_maximo: form.value.cupo_maximo,
+    fecha: form.value.fecha,
+    hora_inicio: form.value.hora_inicio,
+    hora_fin: form.value.hora_fin,
+    ubicacion_id: form.value.ubicacion_id,
+    requisitos: form.value.requisitos,
+  });
 };
 
 onMounted(() => {

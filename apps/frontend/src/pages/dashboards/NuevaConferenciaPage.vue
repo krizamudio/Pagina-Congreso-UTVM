@@ -21,6 +21,7 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
 import { ref } from 'vue';
+import { isAxiosError } from 'axios';
 import { useQuasar } from 'quasar';
 import NewConferenciaForm from '../../components/forms/NewConferenciaForm.vue';
 import { useConferenciasQuery } from '../../composables/useConferenciasQuery';
@@ -62,7 +63,11 @@ const handleSubmit = async (payload: ConferenciaPayload) => {
     void router.push('/conferencias');
   } catch (err) {
     console.error(err);
-    notify('negative', 'No se pudo crear la conferencia.');
+    const message = isAxiosError(err)
+      ? ((err.response?.data as { message?: string | string[] } | undefined)?.message ?? 'No se pudo crear la conferencia.')
+      : 'No se pudo crear la conferencia.';
+
+    notify('negative', Array.isArray(message) ? message.join(' ') : message);
   } finally {
     isPending.value = false;
   }

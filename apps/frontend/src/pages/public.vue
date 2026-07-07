@@ -4,6 +4,15 @@
       <q-toolbar>
         <q-toolbar-title>Congreso UTVM</q-toolbar-title>
 
+        <q-btn
+          flat
+          dense
+          round
+          :icon="isLight ? 'dark_mode' : 'light_mode'"
+          :aria-label="isLight ? 'Activar modo oscuro' : 'Activar modo claro'"
+          @click="toggleTheme"
+        />
+
         <q-btn flat no-caps label="Inicio" to="/" />
         <q-btn flat no-caps label="Registro Externo" to="/registro-externo" />
       </q-toolbar>
@@ -14,6 +23,12 @@
     </q-page-container>
   </q-layout>
 </template>
+
+<script setup lang="ts">
+import { useThemeMode } from '@/composables/useThemeMode';
+
+const { isLight, toggleTheme } = useThemeMode();
+</script>
 
 <style scoped>
 .public-layout {

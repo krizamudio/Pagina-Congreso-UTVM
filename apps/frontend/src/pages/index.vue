@@ -14,6 +14,15 @@
         <q-toolbar-title class="text-h6">
           Congreso UTVM
         </q-toolbar-title>
+
+        <q-btn
+          flat
+          dense
+          round
+          :icon="isLight ? 'dark_mode' : 'light_mode'"
+          :aria-label="isLight ? 'Activar modo oscuro' : 'Activar modo claro'"
+          @click="toggleTheme"
+        />
       </q-toolbar>
     </q-header>
 
@@ -40,6 +49,9 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import EssentialLink, { type EssentialLinkProps } from '@/components/EssentialLink.vue';
+import { useThemeMode } from '@/composables/useThemeMode';
+
+const { isLight, toggleTheme } = useThemeMode();
 
 const linksList: EssentialLinkProps[] = [
   {
