@@ -6,6 +6,8 @@ import { existsSync, mkdirSync, writeFileSync } from 'fs';
 import { extname, join } from 'path';
 import { In, Repository, IsNull, Not } from 'typeorm';
 import { CreateRegistroNsuDto } from './dto/create-registro-nsu.dto';
+import { UpdateRegistroNsuDto } from './dto/update-registro-nsu.dto';
+import { UpdateParticipanteNsuStatusDto } from './dto/update-participante-nsu-status.dto';
 import { ArchivoComprobante } from './entities/archivo-comprobante.entity';
 import { ParticipanteNsu } from './entities/participante-nsu.entity';
 import { RegistroNsu } from './entities/registro-nsu.entity';
@@ -13,6 +15,7 @@ import { GeneradorCommon } from '../../common/generador.common';
 
 @Injectable()
 export class RegistroNsuService {
+  private readonly registroActionLocks = new Map<string, Promise<void>>();
   constructor(
     @Inject('REGISTRO_NSU_REPOSITORY')
     private readonly registroRepository: Repository<RegistroNsu>,
@@ -178,6 +181,7 @@ export class RegistroNsuService {
         telefono: participante.telefono.trim(),
         dias: participante.dias,
         monto_individual: participante.montoNumero,
+        estado_pago: 'PENDIENTE',
       });
     });
 
@@ -364,32 +368,217 @@ export class RegistroNsuService {
   }
 
   async findAll() {
-    return this.registroRepository.find({
-      where: { deleted_at: IsNull() },
-      relations: {
-        participantes: true,
-        comprobante: true,
-      },
-      order: {
-        created_at: 'DESC',
+    return this.registroRepository
+      .createQueryBuilder('registro')
+      .leftJoinAndSelect('registro.participantes', 'participante', 'participante.deleted_at IS NULL')
+      .leftJoinAndSelect('registro.comprobante', 'comprobante')
+      .where('registro.deleted_at IS NULL')
+      .orderBy('registro.created_at', 'DESC')
+      .getMany();
+  }
+
+  async findOne(id: string) {
+    return this.registroRepository
+      .createQueryBuilder('registro')
+      .leftJoinAndSelect('registro.participantes', 'participante', 'participante.deleted_at IS NULL')
+      .leftJoinAndSelect('registro.comprobante', 'comprobante')
+      .where('registro.id = :id', { id })
+      .andWhere('registro.deleted_at IS NULL')
+      .getOne();
+  }
+
+  private async runRegistroAction<T>(registroId: string, action: () => Promise<T>) {
+    const previousAction = this.registroActionLocks.get(registroId) ?? Promise.resolve();
+    let releaseCurrentAction!: () => void;
+
+    const currentAction = new Promise<void>((resolve) => {
+      releaseCurrentAction = resolve;
+    });
+
+    const queuedAction = previousAction
+      .catch(() => undefined)
+      .then(() => currentAction);
+
+    this.registroActionLocks.set(registroId, queuedAction);
+
+    await previousAction.catch(() => undefined);
+
+    try {
+      return await action();
+    } finally {
+      releaseCurrentAction();
+
+      if (this.registroActionLocks.get(registroId) === queuedAction) {
+        this.registroActionLocks.delete(registroId);
+      }
+    }
+  }
+
+  async update(id: string, updateRegistroNsuDto: UpdateRegistroNsuDto) {
+    return this.runRegistroAction(id, async () => {
+      await this.ensureRegistroExists(id);
+
+      if (updateRegistroNsuDto.estado_pago) {
+        await this.aplicarEstadoATodosParticipantes(
+          id,
+          updateRegistroNsuDto.estado_pago,
+        );
+
+        await this.registroRepository.update(id, {
+          estado_pago: updateRegistroNsuDto.estado_pago,
+        });
+      }
+
+      return this.findOne(id);
+    });
+  }
+
+  async updateParticipanteStatus(
+    registroId: string,
+    participanteId: string,
+    updateParticipanteNsuStatusDto: UpdateParticipanteNsuStatusDto,
+  ) {
+    return this.runRegistroAction(registroId, async () => {
+      await this.ensureRegistroExists(registroId);
+
+      const participante = await this.participanteRepository.findOne({
+        where: {
+          id: participanteId,
+          registro: { id: registroId },
+          deleted_at: IsNull(),
+        },
+      });
+
+      if (!participante) {
+        throw new BadRequestException('Participante NSU no encontrado');
+      }
+
+      await this.participanteRepository.update(participante.id, {
+        estado_pago: updateParticipanteNsuStatusDto.estado_pago,
+      });
+      await this.sincronizarEstadoRegistro(registroId);
+
+      return this.findOne(registroId);
+    });
+  }
+
+  async removeParticipante(registroId: string, participanteId: string) {
+    return this.runRegistroAction(registroId, async () => {
+      await this.ensureRegistroExists(registroId);
+
+      const participante = await this.participanteRepository.findOne({
+        where: {
+          id: participanteId,
+          registro: { id: registroId },
+          deleted_at: IsNull(),
+        },
+      });
+
+      if (!participante) {
+        throw new BadRequestException('Participante NSU no encontrado');
+      }
+
+      await this.participanteRepository.update(participante.id, {
+        correo_original: participante.correo_original ?? participante.correo,
+        correo: this.generador.CorreoEliminado(),
+      });
+      await this.participanteRepository.softDelete(participante.id);
+      await this.recalcularTotalesRegistro(registroId);
+      await this.sincronizarEstadoRegistro(registroId);
+
+      return this.findOne(registroId);
+    });
+  }
+
+  private async aplicarEstadoATodosParticipantes(
+    registroId: string,
+    estadoPago: string,
+  ) {
+    const participantes = await this.getParticipantesActivos(registroId);
+
+    if (participantes.length === 0) {
+      return;
+    }
+
+    await this.participanteRepository.update(
+      { id: In(participantes.map((participante) => participante.id)) },
+      { estado_pago: estadoPago },
+    );
+  }
+
+  private async sincronizarEstadoRegistro(id: string) {
+    const registro = await this.ensureRegistroExists(id);
+    const participantes = await this.getParticipantesActivos(id);
+
+    await this.registroRepository.update(id, {
+      estado_pago: this.calcularEstadoRegistro(participantes),
+    });
+  }
+
+  private async getParticipantesActivos(registroId: string) {
+    return this.participanteRepository.find({
+      where: {
+        registro: { id: registroId },
+        deleted_at: IsNull(),
       },
     });
   }
 
-  async findOne(id: string) {
-    return this.registroRepository.findOne({
+  private calcularEstadoRegistro(participantes: ParticipanteNsu[]) {
+    if (participantes.length === 0) {
+      return 'PENDIENTE';
+    }
+
+    const estados = new Set(
+      participantes.map((participante) => participante.estado_pago),
+    );
+
+    if (estados.size === 1) {
+      return estados.values().next().value as string;
+    }
+
+    return 'PENDIENTE';
+  }
+
+  private async ensureRegistroExists(id: string) {
+    const registro = await this.registroRepository.findOne({
       where: { id, deleted_at: IsNull() },
-      relations: {
-        participantes: true,
-        comprobante: true,
+      select: { id: true },
+    });
+
+    if (!registro) {
+      throw new BadRequestException('Registro NSU no encontrado');
+    }
+
+    return registro;
+  }
+
+  private async recalcularTotalesRegistro(id: string) {
+    const registro = await this.ensureRegistroExists(id);
+
+    const participantes = await this.participanteRepository.find({
+      where: {
+        registro: { id },
+        deleted_at: IsNull(),
       },
+    });
+
+    registro.total_participantes = participantes.length;
+    registro.total_general = participantes.reduce((total, participante) => {
+      return total + Number(participante.monto_individual || 0);
+    }, 0);
+
+    await this.registroRepository.update(id, {
+      total_participantes: registro.total_participantes,
+      total_general: registro.total_general,
     });
   }
 
   //Equipo 2 -> funcion de eliminar y restaurar RF-13
 
   async remove(id: string) {
-    const registro = await this.findOne(id);
+    return this.runRegistroAction(id, async () => {
+      const registro = await this.findOne(id);
 
     if (!registro) {
       throw new BadRequestException('Registro NSU no encontrado');
@@ -402,26 +591,27 @@ export class RegistroNsuService {
       },
     });
 
-    const participantesAnonimizados = participantes.map((participante) => {
-      participante.correo_original =
-        participante.correo_original ?? participante.correo;
-      participante.correo = this.generador.CorreoEliminado();
-      return participante;
-    });
+    if (participantes.length > 0) {
+      for (const participante of participantes) {
+        await this.participanteRepository.update(participante.id, {
+          correo_original: participante.correo_original ?? participante.correo,
+          correo: this.generador.CorreoEliminado(),
+        });
+      }
 
-    if (participantesAnonimizados.length > 0) {
-      await this.participanteRepository.save(participantesAnonimizados);
       await this.participanteRepository.softDelete({
-        id: In(participantesAnonimizados.map((participante) => participante.id)),
+        id: In(participantes.map((participante) => participante.id)),
       });
     }
 
     await this.registroRepository.softDelete(id);
 
-    return registro;
+      return registro;
+    });
   }
 
   async restore(id: string) {
+    return this.runRegistroAction(id, async () => {
     const registro = await this.registroRepository.findOne({
       where: { id },
       relations: {
@@ -473,16 +663,15 @@ export class RegistroNsuService {
     if (participanteIds.length > 0) {
       await this.participanteRepository.restore({ id: In(participanteIds) });
 
-      const participantesRestaurados = participantes.map((participante) => {
-        participante.correo = participante.correo_original ?? participante.correo;
-        participante.correo_original = null;
-        participante.deleted_at = undefined;
-        return participante;
-      });
-
-      await this.participanteRepository.save(participantesRestaurados);
+      for (const participante of participantes) {
+        await this.participanteRepository.update(participante.id, {
+          correo: participante.correo_original ?? participante.correo,
+          correo_original: null,
+        });
+      }
     }
 
-    return this.findOne(id);
+      return this.findOne(id);
+    });
   }
 }

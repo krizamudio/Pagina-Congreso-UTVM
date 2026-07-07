@@ -1,44 +1,59 @@
-import { Column, Entity, PrimaryGeneratedColumn, DeleteDateColumn, CreateDateColumn, UpdateDateColumn } from "typeorm";
+import {
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+  DeleteDateColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
+import { Congreso } from '../../congreso/entities/congreso.entity';
+import { Ubicacion } from '../../ubicacion/entities/ubicacion.entity';
+import { Ponente } from '../../ponente/entities/ponente.entity';
 
 @Entity()
 export class Conferencia {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
 
-    @PrimaryGeneratedColumn('uuid')
-    id!: string;
+  @Column({ type: 'varchar', length: 200 })
+  titulo!: string;
 
-    //TODO: FK
-    @Column('uuid')
-    congreso_id!: string;
+  @Column('text')
+  resumen!: string;
 
-    @Column({type: 'varchar', length: 200})
-    titulo!: string;
+  @Column('date')
+  fecha!: Date;
 
-    //TODO: FK
-    @Column('uuid')
-    ponente_id!: string;
+  @Column('time')
+  hora_inicio!: string;
 
-    @Column('text')
-    resumen!: string;
+  @Column('time')
+  hora_fin!: string;
 
-    @Column('date')
-    fecha!: Date;
 
-    @Column('time')
-    hora_inicio!: string;
+  @CreateDateColumn({ type: 'timestamp', name: 'created_at' })
+  created_at!: Date;
 
-    @Column('time')
-    hora_fin!: string;
+  @UpdateDateColumn({ type: 'timestamp', name: 'updated_at' })
+  updated_at!: Date;
 
-    //TODO: FK
-    @Column('uuid')
-    ubicacion_id!: string;
+  @DeleteDateColumn({ type: 'timestamp', name: 'deleted_at', nullable: true })
+  deleted_at?: Date;
 
-    @CreateDateColumn({ type: 'timestamp', name: 'created_at' })
-    created_at!: Date;
+  //Relaciones
+  @ManyToOne(() => Congreso, (congreso) => congreso.conferencias)
+  @JoinColumn({ name: 'congreso_id' })
+  congreso!: Congreso;
 
-    @UpdateDateColumn({ type: 'timestamp', name: 'updated_at' })
-    updated_at!: Date;
+  @ManyToOne(() => Ubicacion, (ubi) => ubi.conferencias)
+  @JoinColumn({name: 'ubicacion_id'})
+  ubicacion!: Ubicacion;
 
-    @DeleteDateColumn({ type: 'timestamp', name: 'deleted_at', nullable: true })
-    deleted_at?: Date;
+  @ManyToOne(() => Ponente, (p) => p.conferencias)
+  @JoinColumn({
+    name: 'ponente_id'
+  })
+  ponente!: Ponente;
 }

@@ -1,10 +1,12 @@
-import { Column, Entity, PrimaryGeneratedColumn, DeleteDateColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn, DeleteDateColumn, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import { Conferencia } from '../../conferencia/entities/conferencia.entity';
 
 @Entity()
 export class Ponente {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
+  //TODO: KS
   @Column('uuid')
   usuario_id!: string;
 
@@ -14,6 +16,7 @@ export class Ponente {
   })
   nombre!: string;
 
+  //TODO: FK
   @Column('uuid')
   archivo_foto_id!: string;
 
@@ -45,4 +48,8 @@ export class Ponente {
 
   @DeleteDateColumn({ type: 'timestamp', name: 'deleted_at', nullable: true })
   deleted_at?: Date;
+
+  //Relaciones
+  @OneToMany(() => Conferencia, (conf)=> conf.ponente)
+  conferencias!: Conferencia[];
 }
