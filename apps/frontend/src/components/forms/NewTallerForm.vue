@@ -2,25 +2,11 @@
   <q-form @submit.prevent="submit" class="new-taller-form">
     <div class="row q-col-gutter-md">
       <div class="col-12 col-md-6">
-        <q-input
-          v-model="form.titulo"
-          label="Título"
-          :rules="[requiredRule]"
-          dense
-          autofocus
-          dark
-        />
+        <q-input v-model="form.titulo" label="Título" :rules="[requiredRule]" dense autofocus dark />
       </div>
 
       <div class="col-12 col-md-6">
-        <q-input
-          v-model="form.congreso_id"
-          label="Congreso ID (autogenerado)"
-          :rules="[requiredRule]"
-          readonly
-          dense
-          dark
-        />
+        <q-input v-model="form.congreso_id" label="Congreso ID (autogenerado)" :rules="[requiredRule]" readonly dense dark />
       </div>
 
       <div class="col-12 col-md-6">
@@ -38,11 +24,7 @@
           :display-value="selectedTalleristaLabel"
           dense
           dark
-        >
-          <template #selected>
-            <span>{{ selectedTalleristaLabel }}</span>
-          </template>
-        </q-select>
+        />
       </div>
 
       <div class="col-12 col-md-6">
@@ -62,64 +44,43 @@
       </div>
 
       <div class="col-12">
-        <q-input
-          v-model="form.descripcion"
-          label="Descripción"
-          type="textarea"
-          autogrow
-          dense
-          dark
-        />
+        <q-input v-model="form.descripcion" label="Descripción" type="textarea" autogrow dense dark />
       </div>
 
       <div class="col-12 col-md-4">
-        <q-input
-          type="date"
-          v-model="form.fecha"
-          label="Fecha"
-          :rules="[requiredRule]"
-          dense
-          dark
-        />
+        <q-input type="date" v-model="form.fecha" label="Fecha" :rules="[requiredRule]" dense dark />
       </div>
 
       <div class="col-12 col-md-4">
-        <q-input
-          v-model="form.hora_inicio"
-          label="Hora de inicio"
-          mask="time"
-          placeholder="HH:MM"
-          :rules="[requiredRule]"
-          dense
-          dark
-        />
+        <q-input v-model="form.hora_inicio" label="Hora de inicio" mask="time" placeholder="HH:MM" :rules="[requiredRule]" dense dark />
       </div>
 
       <div class="col-12 col-md-4">
-        <q-input
-          v-model="form.hora_fin"
-          label="Hora de fin"
-          mask="time"
-          placeholder="HH:MM"
-          :rules="[requiredRule]"
-          dense
-          dark
-        />
+        <q-input v-model="form.hora_fin" label="Hora de fin" mask="time" placeholder="HH:MM" :rules="[requiredRule]" dense dark />
       </div>
 
       <div class="col-12">
-        <q-input
-          v-model="form.ubicacion_id"
-          label="Ubicacion ID (autogenerado)"
-          :rules="[requiredRule]"
-          readonly
-          dense
-          dark
-        />
+        <q-input v-model="form.ubicacion_id" label="Ubicación ID (autogenerado)" :rules="[requiredRule]" readonly dense dark />
       </div>
 
       <div class="col-12">
         <q-input v-model="form.requisitos" label="Requisitos" type="textarea" autogrow dense dark />
+      </div>
+
+      <div class="col-12">
+        <q-file
+          v-model="imagen"
+          label="Imagen del taller"
+          accept=".jpg,.jpeg,.png,.webp,image/*"
+          outlined
+          dense
+          dark
+          clearable
+        >
+          <template #prepend>
+            <q-icon name="image" />
+          </template>
+        </q-file>
       </div>
     </div>
 
@@ -141,15 +102,21 @@ interface Props {
   loading?: boolean;
 }
 
+type TallerPayloadConImagen = TallerPayload & {
+  imagen?: File | null;
+};
+
 const props = withDefaults(defineProps<Props>(), {
   loading: false,
 });
 
 const emit = defineEmits<{
-  (e: 'submit', payload: TallerPayload): void;
+  (e: 'submit', payload: TallerPayloadConImagen): void;
 }>();
 
 const error = ref<string | null>(null);
+const imagen = ref<File | null>(null);
+
 const { useGetPonentes } = usePonente();
 const {
   data: talleristas,
@@ -191,11 +158,16 @@ const talleristaOptions = computed(() => {
 });
 
 const selectedTalleristaLabel = computed(() => {
-  return talleristaOptions.value.find((option) => option.value === form.value.tallerista_id)?.label ?? form.value.tallerista_id;
+  return (
+    talleristaOptions.value.find((option) => option.value === form.value.tallerista_id)
+      ?.label ?? form.value.tallerista_id
+  );
 });
 
 const requiredRule = (value: string) => !!value || 'Este campo es obligatorio';
-const positiveIntRule = (value: number) => Number.isInteger(value) && value > 0 || 'Debe ser un entero mayor a 0';
+
+const positiveIntRule = (value: number) =>
+  (Number.isInteger(value) && value > 0) || 'Debe ser un entero mayor a 0';
 
 const submit = () => {
   error.value = null;
@@ -210,7 +182,10 @@ const submit = () => {
 
   form.value.cupo_maximo = Number(form.value.cupo_maximo) || 1;
 
-  emit('submit', { ...form.value });
+  emit('submit', {
+    ...form.value,
+    imagen: imagen.value,
+  });
 };
 
 onMounted(() => {

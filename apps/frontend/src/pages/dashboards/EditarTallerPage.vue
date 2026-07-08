@@ -25,7 +25,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
 import UpdateTallerForm from '../../components/forms_update/UpdateTallerForm.vue';
 import { useTalleresQuery } from '../../composables/useTalleresQuery';
@@ -33,14 +33,19 @@ import type { TallerPayload } from '../../types';
 
 const router = useRouter();
 const $q = useQuasar();
-const { getById, update } = useTalleresQuery();
+const { getById, update, uploadImagen } = useTalleresQuery();
+
 const recordId = computed(() => {
   const hashSegments = window.location.hash.split('/').filter(Boolean);
   return hashSegments[2] ?? '';
 });
 
 const data = ref<TallerPayload | null>(null);
-const initialTallerData = computed<Partial<TallerPayload>>(() => (data.value ? { ...data.value } : {}));
+
+const initialTallerData = computed<Partial<TallerPayload>>(() =>
+  data.value ? { ...data.value } : {},
+);
+
 const isLoading = ref(false);
 const error = ref<string | null>(null);
 const isPending = ref(false);
@@ -80,16 +85,38 @@ const load = async () => {
     isLoading.value = false;
   }
 };
-
-const handleSubmit = async (payload: TallerPayload) => {
+const handleSubmit = async (payload: {
+  taller: TallerPayload;
+  imagen: File | null;
+}) => {
   isPending.value = true;
 
   try {
-    await update(recordId.value, payload);
+    const tallerPayload = {
+      congreso_id: payload.taller.congreso_id,
+      titulo: payload.taller.titulo,
+      descripcion: payload.taller.descripcion,
+      tallerista_id: payload.taller.tallerista_id,
+      cupo_maximo: payload.taller.cupo_maximo,
+      fecha: payload.taller.fecha,
+      hora_inicio: payload.taller.hora_inicio,
+      hora_fin: payload.taller.hora_fin,
+      ubicacion_id: payload.taller.ubicacion_id,
+      requisitos: payload.taller.requisitos,
+    };
+
+    console.log('PAYLOAD QUE SE ENVÍA A PATCH /taller:', tallerPayload);
+
+    await update(recordId.value, tallerPayload);
+
+    if (payload.imagen) {
+      await uploadImagen(recordId.value, payload.imagen);
+    }
+
     notify('positive', 'Taller actualizado correctamente.');
     void router.push('/talleres');
-  } catch (err) {
-    console.error(err);
+  } catch (err: any) {
+    console.error('RESPUESTA BACKEND:', err?.response?.data || err);
     notify('negative', 'No se pudo actualizar el taller.');
   } finally {
     isPending.value = false;

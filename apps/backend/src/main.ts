@@ -3,6 +3,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
 import { join } from 'path';
 import { existsSync, mkdirSync } from 'fs';
+import * as express from 'express';
 
 async function main() {
   const app = await NestFactory.create(AppModule);
@@ -17,8 +18,10 @@ async function main() {
   const uploadDir = join(process.cwd(), 'uploads');
 
   if (!existsSync(uploadDir)) {
-    mkdirSync(uploadDir);
+    mkdirSync(uploadDir, { recursive: true });
   }
+
+  app.use('/uploads', express.static(uploadDir));
 
   app.useGlobalPipes(
     new ValidationPipe({
@@ -33,6 +36,7 @@ async function main() {
   console.log(
     `🚀 Backend ejecutándose en: http://localhost:${process.env.PORT ?? 3000}/api`,
   );
+  console.log(`📁 Archivos públicos en: ${uploadDir}`);
 }
 
 void main();
