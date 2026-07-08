@@ -20,7 +20,7 @@ export class Utvm {
   })
   correo!: string;
 
-  @Column({ length: 150, nullable: true })
+  @Column({type: 'varchar', length: 150, nullable: true })
   correo_original!: string | null;
 
   @Column()

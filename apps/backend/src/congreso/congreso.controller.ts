@@ -19,7 +19,7 @@ export class CongresoController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.congresoService.findOne(+id);
+    return this.congresoService.findOne(id);
   }
 
   @Patch(':id')

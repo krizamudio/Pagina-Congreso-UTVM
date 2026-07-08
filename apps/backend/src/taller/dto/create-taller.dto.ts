@@ -28,8 +28,7 @@ function sanitizeString(value: any) {
 
 export class CreateTallerDto {
   @IsUUID('4', { message: 'El campo "congreso_id" debe ser un UUID válido.' })
-  @IsNotEmpty({ message: 'El campo "congreso_id" es obligatorio.' })
-  congreso_id!: string;
+  congreso_id?: string;
 
   @IsString({ message: 'El campo "titulo" debe ser texto.' })
   @IsNotEmpty({ message: 'El campo "titulo" es obligatorio.' })
@@ -48,8 +47,7 @@ export class CreateTallerDto {
   descripcion!: string;
 
   @IsUUID('4', { message: 'El campo "tallerista_id" debe ser un UUID válido.' })
-  @IsNotEmpty({ message: 'El campo "tallerista_id" es obligatorio.' })
-  tallerista_id!: string;
+  tallerista_id?: string;
 
   @Type(() => Number)
   @IsInt({ message: 'El campo "cupo_maximo" debe ser un número entero.' })
@@ -79,8 +77,7 @@ export class CreateTallerDto {
   hora_fin!: string;
 
   @IsUUID('4', { message: 'El campo "ubicacion_id" debe ser un UUID válido.' })
-  @IsNotEmpty({ message: 'El campo "ubicacion_id" es obligatorio.' })
-  ubicacion_id!: string;
+  ubicacion_id?: string;
 
   @IsString({ message: 'El campo "requisitos" debe ser texto.' })
   @IsNotEmpty({ message: 'El campo "requisitos" es obligatorio.' })

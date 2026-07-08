@@ -19,6 +19,7 @@ El backend usa validacion global con `ValidationPipe`, `whitelist: true` y `tran
 | Variable | Valor inicial sugerido |
 | --- | --- |
 | `base_url` | `http://localhost:3000/api` |
+| `congreso_id` | Se llena con el `id` devuelto al crear un congreso |
 | `ponente_id` | Se llena con el `id` devuelto al crear un ponente |
 | `taller_id` | Se llena con el `id` devuelto al crear un taller |
 | `conferencia_id` | Se llena con el `id` devuelto al crear una conferencia |
@@ -193,6 +194,111 @@ Respuesta esperada: `200 OK`.
   "tema": "Etica y gobernanza de la inteligencia artificial",
   "visible_publico": false
 }
+```
+
+## Congresos
+
+Ruta base:
+
+```text
+{{base_url}}/congreso
+```
+
+### Campos
+
+| Campo | Tipo | Requerido | Reglas |
+| --- | --- | --- | --- |
+| `nombre` | string | Si | Maximo 150 caracteres |
+| `eslogan` | string | Si | Maximo 200 caracteres |
+| `ubicacion` | string | Si | Maximo 255 caracteres |
+| `fecha_inicio` | string | Si | ISO 8601 |
+| `fecha_fin` | string | Si | ISO 8601 |
+
+### POST /congreso
+
+Crea un congreso.
+
+```http
+POST {{base_url}}/congreso
+```
+
+Body:
+
+```json
+{
+  "nombre": "Congreso Internacional de Tecnologia Educativa 2026",
+  "eslogan": "Innovacion que conecta conocimiento y futuro",
+  "ubicacion": "Universidad Tecnologica del Valle del Mezquital",
+  "fecha_inicio": "2026-09-17T09:00:00.000Z",
+  "fecha_fin": "2026-09-19T18:00:00.000Z"
+}
+```
+
+Respuesta esperada: `201 Created`.
+
+```json
+{
+  "id": "{{congreso_id}}",
+  "nombre": "Congreso Internacional de Tecnologia Educativa 2026",
+  "eslogan": "Innovacion que conecta conocimiento y futuro",
+  "ubicacion": "Universidad Tecnologica del Valle del Mezquital",
+  "fecha_inicio": "2026-09-17T09:00:00.000Z",
+  "fecha_fin": "2026-09-19T18:00:00.000Z",
+  "created_at": "2026-07-07T18:00:00.000Z",
+  "updated_at": "2026-07-07T18:00:00.000Z",
+  "deleted_at": null
+}
+```
+
+### GET /congreso
+
+Lista todos los congresos.
+
+```http
+GET {{base_url}}/congreso
+```
+
+### GET /congreso/:id
+
+Obtiene un congreso por ID.
+
+```http
+GET {{base_url}}/congreso/{{congreso_id}}
+```
+
+Respuesta si no existe: `404 Not Found`.
+
+```json
+{
+  "message": "No se encontro ningun congreso con el id {{congreso_id}}",
+  "error": "Not Found",
+  "statusCode": 404
+}
+```
+
+### PATCH /congreso/:id
+
+Actualiza parcialmente un congreso.
+
+```http
+PATCH {{base_url}}/congreso/{{congreso_id}}
+```
+
+Body ejemplo:
+
+```json
+{
+  "eslogan": "Tecnologia, investigacion e innovacion para transformar",
+  "fecha_fin": "2026-09-20T18:00:00.000Z"
+}
+```
+
+### DELETE /congreso/:id
+
+Elimina un congreso.
+
+```http
+DELETE {{base_url}}/congreso/{{congreso_id}}
 ```
 
 ## Talleres

@@ -13,3 +13,5 @@ apps/backend/uploads/
 .env
 .env.*
 !.env.example
+
+agent.md

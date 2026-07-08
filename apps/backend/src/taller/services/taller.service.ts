@@ -3,12 +3,12 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateTallerDto } from './dto/create-taller.dto';
-import { UpdateTallerDto } from './dto/update-taller.dto';
-import { Taller } from './entities/taller.entity';
+import { CreateTallerDto } from '../dto/create-taller.dto';
+import { UpdateTallerDto } from '../dto/update-taller.dto';
+import { Taller } from '../entities/taller.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ValidadorCommon } from '../../common/validador.common';
+import { ValidadorCommon } from '../../../common/validador.common';
 
 @Injectable()
 export class TallerService {
