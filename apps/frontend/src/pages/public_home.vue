@@ -3,22 +3,10 @@
     <section class="public-home-content">
       <h1>Congreso UTVM</h1>
 
-<<<<<<< HEAD
       <p>
         Bienvenido al portal oficial del congreso. Consulta la agenda,
         regístrate y revisa la información del evento.
       </p>
-=======
-        <q-btn flat no-caps label="Inicio" to="/" />
-        <q-btn flat no-caps label="Registro Externo" to="/registro-externo" />
-        <q-btn outline no-caps label="Admin" to="/admin/dashboard" />
-        <q-btn flat no-caps label="Registro NSU" to="/registro_nsu" />
-        <q-btn flat no-caps label="Registro EMS" to="/registro_ems" />
-        <q-btn flat no-caps label="Registro UTVM" to="/registro_utvm" />
-        <q-btn flat no-caps label="talleres" to="/talleres_u" />
-      </q-toolbar>
-    </q-header>
->>>>>>> feature/talleres_usuarios
 
       <div class="home-actions">
         <q-btn
