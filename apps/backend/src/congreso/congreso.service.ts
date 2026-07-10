@@ -6,42 +6,83 @@ import { Congreso } from './entities/congreso.entity';
 import { Repository } from 'typeorm';
 import { CongresoFindOneResponseDto } from './dto/congreso-find-one.dto';
 import { CongresoMapper } from './mappers/congreso.mapper';
+import { ValidadorCommon } from '../../common/validador.provider';
+import { DatabaseErrorHandlerService } from '../../common/database/handle-database-error';
 
 @Injectable()
 export class CongresoService {
-
   constructor(
     @InjectRepository(Congreso)
     private readonly congresoRepository: Repository<Congreso>,
-  ){}
+    private readonly validator: ValidadorCommon,
+    private readonly databaseError: DatabaseErrorHandlerService,
+  ) {}
 
-  create(createCongresoDto: CreateCongresoDto) {
-    //TODO: Hacer bien esta parte
+  async create(createCongresoDto: CreateCongresoDto): Promise<string> {
+    const { fecha_inicio, fecha_fin, nombre } = createCongresoDto;
+    this.validator.ValidarRangoFechas(fecha_inicio, fecha_fin);
+
     const congreso = this.congresoRepository.create(createCongresoDto);
-    this.congresoRepository.save(congreso);
 
+    try {
+      await this.congresoRepository.save(congreso);
+      return `Congreso -> ${nombre} creado correctamente`;
+    } catch (err) {
+      this.databaseError.handle(err);
+    }
   }
 
-  findAll() {
-    return `This action returns all congreso`;
+  async findAll(): Promise<CongresoFindOneResponseDto[]> {
+    const congresos: Congreso[] = await this.congresoRepository.find();
+
+    return CongresoMapper.toFindAllResponse(congresos);
   }
 
   async findOne(id: string): Promise<CongresoFindOneResponseDto> {
-    const congreso:  Congreso| null = await this.congresoRepository.findOneBy({
-      id
+    const congreso: Congreso | null = await this.congresoRepository.findOneBy({
+      id,
     });
 
-    if( !congreso ){
-      throw new NotFoundException(`No se encontro ningun congreso con el id ${id}`);
+    if (!congreso) {
+      throw new NotFoundException(
+        `No se encontro ningun congreso con el id ${id}`,
+      );
     }
 
     return CongresoMapper.toFindOneReponse(congreso);
   }
 
-  update(id: number, updateCongresoDto: UpdateCongresoDto) {
-    return `This action updates a #${id} congreso`;
+  async update(id: string, updateCongresoDto: UpdateCongresoDto) {
+    const { fecha_inicio, fecha_fin } = updateCongresoDto;
+    const { fechaInicio, fechaFin } = await this.findOne(id);
+    this.validator.ValidarFechasActualizacion(
+      fechaInicio.toISOString(),
+      fechaFin.toISOString(),
+      fecha_inicio,
+      fecha_fin,
+    );
+
+    const congreso: Congreso | undefined = await this.congresoRepository.preload({
+      id,
+      ...updateCongresoDto
+    });
+
+    if(congreso === undefined){
+      throw new NotFoundException(`El congreso con ID ${id} no fue encontrado`);
+    }
+    
+    try {
+
+      await this.congresoRepository.save(congreso);
+      return `El congreso: ${congreso.nombre}, se actualizo correctamente`;
+
+    }catch( err ){
+      this.databaseError.handle( err );
+    }
+
   }
 
+  //TODO: IMplementar remove y restore teniendo en cuenta el softdelete
   remove(id: number) {
     return `This action removes a #${id} congreso`;
   }
