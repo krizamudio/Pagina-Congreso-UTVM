@@ -38,7 +38,7 @@ export class CongresoService {
     return CongresoMapper.toFindAllResponse(congresos);
   }
 
-  async findOne(id: string): Promise<CongresoFindOneResponseDto> {
+  async findOne(id: string): Promise<Congreso> {
     const congreso: Congreso | null = await this.congresoRepository.findOneBy({
       id,
     });
@@ -49,12 +49,13 @@ export class CongresoService {
       );
     }
 
-    return CongresoMapper.toFindOneReponse(congreso);
+    return congreso;
   }
 
   async update(id: string, updateCongresoDto: UpdateCongresoDto) {
     const { fecha_inicio, fecha_fin } = updateCongresoDto;
-    const { fechaInicio, fechaFin } = await this.findOne(id);
+    const { fecha_inicio: fechaInicio, fecha_fin: fechaFin } =
+      await this.findOne(id);
     this.validator.ValidarFechasActualizacion(
       fechaInicio.toISOString(),
       fechaFin.toISOString(),
@@ -62,28 +63,35 @@ export class CongresoService {
       fecha_fin,
     );
 
-    const congreso: Congreso | undefined = await this.congresoRepository.preload({
-      id,
-      ...updateCongresoDto
-    });
+    const congreso: Congreso | undefined =
+      await this.congresoRepository.preload({
+        id,
+        ...updateCongresoDto,
+      });
 
-    if(congreso === undefined){
+    if (congreso === undefined) {
       throw new NotFoundException(`El congreso con ID ${id} no fue encontrado`);
     }
-    
-    try {
 
+    try {
       await this.congresoRepository.save(congreso);
       return `El congreso: ${congreso.nombre}, se actualizo correctamente`;
-
-    }catch( err ){
-      this.databaseError.handle( err );
+    } catch (err) {
+      this.databaseError.handle(err);
     }
-
   }
 
-  //TODO: IMplementar remove y restore teniendo en cuenta el softdelete
-  remove(id: number) {
-    return `This action removes a #${id} congreso`;
+  async remove(id: string) {
+    //Se usa para saber si existe o no el congreso con ese ID
+    const { nombre } = await this.findOne(id);
+
+    try {
+      await this.congresoRepository.softDelete(id);
+      return `Congreso: ${nombre} eliminado correctamente`;
+    } catch (err) {
+      this.databaseError.handle(err);
+    }
   }
+
+  //TODO: Implementar maybe el restore
 }

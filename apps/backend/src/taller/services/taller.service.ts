@@ -18,6 +18,7 @@ export class TallerService {
     private readonly validador: ValidadorCommon,
   ) {}
 
+  //TODO: La logica de aqui debe validar que si hay dos talleres en el mismo horario que no esten en la misma ubicacion
   async createTaller(createTallerDto: CreateTallerDto): Promise<Taller> {
     const { fecha, hora_fin, hora_inicio } = createTallerDto;
 

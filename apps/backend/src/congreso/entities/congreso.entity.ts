@@ -8,7 +8,6 @@ import {
   Entity,
 } from 'typeorm';
 import { Conferencia } from '../../conferencia/entities/conferencia.entity';
-import { Ubicacion } from '../../ubicacion/entities/ubicacion.entity';
 import { Taller } from '../../taller/entities/taller.entity';
 
 @Entity()
@@ -40,11 +39,12 @@ export class Congreso {
   @Column('timestamp')
   fecha_fin!: Date;
 
+
   @CreateDateColumn({ type: 'timestamp', name: 'created_at' })
   created_at!: Date;
 
-  @UpdateDateColumn({ type: 'timestamp', name: 'updated_at' })
-  updated_at!: Date;
+  @UpdateDateColumn({ type: 'timestamp', name: 'updated_at', nullable: true })
+  updated_at?: Date;
 
   @DeleteDateColumn({ type: 'timestamp', name: 'deleted_at', nullable: true })
   deleted_at?: Date;
