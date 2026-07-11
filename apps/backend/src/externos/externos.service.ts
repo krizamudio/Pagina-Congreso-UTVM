@@ -31,7 +31,7 @@ import { Externo } from './entities/externo.entity';
 import { CreateExternoDto } from './dto/create-externo.dto';
 import { UpdateExternoDto } from './dto/update-externo.dto';
 import { ArchivoComprobante } from '../registro-nsu/entities/archivo-comprobante.entity';
-import { GeneradorCommon } from '../../common/generador.common';
+import { GeneradorCommon } from '../common/generador.common';
 
 @Injectable()
 export class ExternosService {

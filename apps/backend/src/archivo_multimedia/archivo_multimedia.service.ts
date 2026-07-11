@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { CreateArchivoMultimediaDto } from './dto/create-archivo_multimedia.dto';
 import { UpdateArchivoMultimediaDto } from './dto/update-archivo_multimedia.dto';
-import { GeneradorCommon } from '../../common/generador.common';
+import { GeneradorCommon } from '../common/generador.common';
 import { SupabaseService } from './supabase.service';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { Repository, IsNull } from 'typeorm';

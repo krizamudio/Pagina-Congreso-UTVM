@@ -9,7 +9,7 @@ import { CreateRegistroNsuDto } from './dto/create-registro-nsu.dto';
 import { ArchivoComprobante } from './entities/archivo-comprobante.entity';
 import { ParticipanteNsu } from './entities/participante-nsu.entity';
 import { RegistroNsu } from './entities/registro-nsu.entity';
-import { GeneradorCommon } from '../../common/generador.common';
+import { GeneradorCommon } from '../common/generador.common';
 
 @Injectable()
 export class RegistroNsuService {
