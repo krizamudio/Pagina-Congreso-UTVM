@@ -18,11 +18,16 @@ export class CongresoMapper {
   ): CongresoFindOneResponseDto[] {
     const congresosMappeados: CongresoFindOneResponseDto[] = 
     congresos.map((c: Congreso) =>{
-      return {
-        ...c,
+
+      const congreso: CongresoFindOneResponseDto = {
+        id: c.id,
+        nombre: c.nombre,
+        eslogan: c.eslogan,
+        ubicacion: c.ubicacion,
         fechaInicio: c.fecha_inicio,
         fechaFin: c.fecha_fin,
-      };
+      }
+      return congreso;
     });
 
     return congresosMappeados;

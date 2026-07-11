@@ -22,6 +22,13 @@ export class CongresoService {
     const { fecha_inicio, fecha_fin, nombre } = createCongresoDto;
     this.validator.ValidarRangoFechas(fecha_inicio, fecha_fin);
 
+    const congresosExistentes = await this.congresoRepository.find();
+    this.validator.ValidarSolapamientoFechas(
+      fecha_inicio,
+      fecha_fin,
+      congresosExistentes,
+    );
+
     const congreso = this.congresoRepository.create(createCongresoDto);
 
     try {
@@ -38,7 +45,7 @@ export class CongresoService {
     return CongresoMapper.toFindAllResponse(congresos);
   }
 
-  async findOne(id: string): Promise<Congreso> {
+  async findOne(id: string): Promise<CongresoFindOneResponseDto> {
     const congreso: Congreso | null = await this.congresoRepository.findOneBy({
       id,
     });
@@ -49,18 +56,28 @@ export class CongresoService {
       );
     }
 
-    return congreso;
+    return CongresoMapper.toFindOneReponse(congreso);
   }
 
   async update(id: string, updateCongresoDto: UpdateCongresoDto) {
     const { fecha_inicio, fecha_fin } = updateCongresoDto;
-    const { fecha_inicio: fechaInicio, fecha_fin: fechaFin } =
+    const { fechaInicio,fechaFin } =
       await this.findOne(id);
     this.validator.ValidarFechasActualizacion(
       fechaInicio.toISOString(),
       fechaFin.toISOString(),
       fecha_inicio,
       fecha_fin,
+    );
+
+    const todosLosCongresos = await this.congresoRepository.find();
+    const otrosCongresos = todosLosCongresos.filter((c) => c.id !== id);
+    this.validator.ValidarSolapamientoFechasActualizacion(
+      fechaInicio,
+      fechaFin,
+      fecha_inicio,
+      fecha_fin,
+      otrosCongresos,
     );
 
     const congreso: Congreso | undefined =

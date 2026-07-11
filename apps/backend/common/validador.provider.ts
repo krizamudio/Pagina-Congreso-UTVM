@@ -44,6 +44,13 @@ import { BadRequestException, Injectable } from '@nestjs/common';
  *   - ValidarFechasActualizacion(fechaInicioActual, fechaFinActual, ...):
  *       Para PATCH/PUT: usa el valor nuevo si se proporcionó, si no usa el
  *       actual (con ??), y delega a ValidarRangoFechas.
+ *   - ValidarSolapamientoFechas(fechaInicio, fechaFin, congresosExistentes):
+ *       Para CREATE: valida que el nuevo rango de fechas no se solape con
+ *       ningún congreso existente. Dos rangos se solapan si:
+ *       nuevo_inicio <= existente_fin AND nuevo_fin >= existente_inicio.
+ *   - ValidarSolapamientoFechasActualizacion(...):
+ *       Para UPDATE: misma lógica pero el service pasa solo los congresos
+ *       que no sean el que se está editando.
  */
 @Injectable()
 export class ValidadorCommon {
@@ -113,9 +120,9 @@ export class ValidadorCommon {
       );
     }
 
-    if (fin.getTime() < inicio.getTime()) {
+    if (fin.getTime() <= inicio.getTime()) {
       throw new BadRequestException(
-        'La fecha de fin no puede ser anterior a la fecha de inicio',
+        'La fecha de fin no puede ser anterior ni igual a la fecha de inicio',
       );
     }
   }
@@ -144,5 +151,49 @@ export class ValidadorCommon {
     const fechaFin = fechaFinActualizada ?? fechaFinActual;
 
     this.ValidarRangoFechas(fechaInicio, fechaFin);
+  }
+
+  // Valida que el nuevo rango no se solape con ningún congreso existente.
+  ValidarSolapamientoFechas(
+    fechaInicio: string,
+    fechaFin: string,
+    congresosExistentes: Array<{
+      fecha_inicio: Date;
+      fecha_fin: Date;
+      nombre: string;
+    }>,
+  ): void {
+    const inicio = this.convertirFechaLocal(fechaInicio);
+    const fin = this.convertirFechaLocal(fechaFin);
+
+    for (const c of congresosExistentes) {
+      const exInicio = new Date(c.fecha_inicio);
+      const exFin = new Date(c.fecha_fin);
+
+      if (inicio <= exFin && fin >= exInicio) {
+        throw new BadRequestException(
+          `Las fechas se solapan con el congreso "${c.nombre}"`,
+        );
+      }
+    }
+  }
+
+  // Valida solapamiento durante actualizaciones (excluye el congreso actual).
+  ValidarSolapamientoFechasActualizacion(
+    fechaInicioActual: Date,
+    fechaFinActual: Date,
+    fechaInicioActualizada?: string,
+    fechaFinActualizada?: string,
+    congresosExistentes: Array<{
+      id: string;
+      fecha_inicio: Date;
+      fecha_fin: Date;
+      nombre: string;
+    }> = [],
+  ): void {
+    const fechaInicio = fechaInicioActualizada ?? fechaInicioActual.toISOString();
+    const fechaFin = fechaFinActualizada ?? fechaFinActual.toISOString();
+
+    this.ValidarSolapamientoFechas(fechaInicio, fechaFin, congresosExistentes);
   }
 }
