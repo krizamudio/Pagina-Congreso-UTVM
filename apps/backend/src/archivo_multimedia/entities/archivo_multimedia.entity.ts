@@ -1,4 +1,10 @@
-import { Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, DeleteDateColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 @Entity()
 export class ArchivoMultimedia {
@@ -11,6 +17,9 @@ export class ArchivoMultimedia {
   @Column('text')
   ruta_archivo!: string;
 
+  @Column('text')
+  path!: string;
+
   @Column({
     type: 'varchar',
     length: 50,
@@ -22,7 +31,4 @@ export class ArchivoMultimedia {
 
   @UpdateDateColumn({ type: 'timestamp', name: 'updated_at' })
   updated_at!: Date;
-
-  @DeleteDateColumn({ type: 'timestamp', name: 'deleted_at', nullable: true })
-  deleted_at?: Date;
 }

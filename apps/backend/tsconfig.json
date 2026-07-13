@@ -13,7 +13,6 @@
     "target": "ES2023",
     "types": ["node", "express", "multer"],
     "sourceMap": true,
-    "rootDir": "./src",
     "outDir": "./dist",
     "incremental": true,
     "skipLibCheck": true,

@@ -1,4 +1,12 @@
-import { Column, Entity, PrimaryGeneratedColumn, DeleteDateColumn, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import {
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+  DeleteDateColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+  OneToMany,
+} from 'typeorm';
 import { Conferencia } from '../../conferencia/entities/conferencia.entity';
 import { Taller } from '../../taller/entities/taller.entity';
 
@@ -51,9 +59,9 @@ export class Ponente {
   deleted_at?: Date;
 
   //Relaciones
-  @OneToMany(() => Conferencia, (conf)=> conf.ponente)
+  @OneToMany(() => Conferencia, (conf) => conf.ponente)
   conferencias!: Conferencia[];
 
-  @OneToMany( () => Taller, (t) => t.ponente)
+  @OneToMany(() => Taller, (t) => t.ponente)
   talleres!: Taller[];
 }

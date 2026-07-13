@@ -30,9 +30,10 @@ import { UbicacionModule } from './ubicacion/ubicacion.module';
       database: process.env.POSTGRES_DB,
       entities: ['dist/**/*.entity{.ts,.js}'],
       autoLoadEntities: true,
+      // TODO: Sustituir synchronize por migraciones antes de produccion.
       synchronize: true,
       extra: {
-      options: '-c timezone=America/Mexico_City',
+        options: '-c timezone=America/Mexico_City',
       },
     }),
 

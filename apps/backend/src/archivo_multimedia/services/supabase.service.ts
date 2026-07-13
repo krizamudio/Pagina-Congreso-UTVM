@@ -1,6 +1,6 @@
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { createClient } from '@supabase/supabase-js';
 
-export function SupabaseService(): SupabaseClient {
+export function SupabaseService() {
   const supabaseUrl = process.env.SUPABASE_URL;
   const supabaseKey = process.env.SUPABASE_SECRET_KEY;
 
@@ -9,7 +9,9 @@ export function SupabaseService(): SupabaseClient {
   }
 
   if (!supabaseUrl.includes('.supabase.co')) {
-    throw new Error('SUPABASE_URL debe tener formato https://TU-PROYECTO.supabase.co');
+    throw new Error(
+      'SUPABASE_URL debe tener formato https://TU-PROYECTO.supabase.co',
+    );
   }
 
   if (!esApiKeyValida(supabaseKey)) {

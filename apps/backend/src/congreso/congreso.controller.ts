@@ -11,23 +11,26 @@ import {
 import { CongresoService } from './congreso.service';
 import { CreateCongresoDto } from './dto/create-congreso.dto';
 import { UpdateCongresoDto } from './dto/update-congreso.dto';
+import { CongresoFindOneResponseDto } from './dto/congreso-find-one.dto';
 
 @Controller('congreso')
 export class CongresoController {
   constructor(private readonly congresoService: CongresoService) {}
 
   @Post()
-  create(@Body() createCongresoDto: CreateCongresoDto) {
+  create(@Body() createCongresoDto: CreateCongresoDto): Promise<string> {
     return this.congresoService.create(createCongresoDto);
   }
 
   @Get()
-  findAll() {
+  findAll(): Promise<CongresoFindOneResponseDto[]> {
     return this.congresoService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseUUIDPipe) id: string) {
+  findOne(
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<CongresoFindOneResponseDto> {
     return this.congresoService.findOne(id);
   }
 
@@ -35,12 +38,12 @@ export class CongresoController {
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateCongresoDto: UpdateCongresoDto,
-  ) {
+  ): Promise<string> {
     return this.congresoService.update(id, updateCongresoDto);
   }
 
   @Delete(':id')
-  remove(@Param('id', ParseUUIDPipe) id: string) {
+  remove(@Param('id', ParseUUIDPipe) id: string): Promise<string> {
     return this.congresoService.remove(id);
   }
 }
