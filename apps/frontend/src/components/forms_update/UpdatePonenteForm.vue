@@ -121,6 +121,7 @@ const defaultForm = (): PonentePayload => ({
 
 const { formData: form, hydrateForm } = useFormPersistence<PonentePayload>('update-ponente-form', defaultForm(), {
   hydrateOnMounted: false,
+  mergeStrategy: 'base-over-saved',
 });
 
 const syncForm = () => {

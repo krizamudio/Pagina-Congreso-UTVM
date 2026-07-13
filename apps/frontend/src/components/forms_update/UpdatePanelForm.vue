@@ -121,6 +121,7 @@ const defaultForm = (): PanelPayload => ({
 
 const { formData: form, hydrateForm } = useFormPersistence<PanelPayload>('update-panel-form', defaultForm(), {
   hydrateOnMounted: false,
+  mergeStrategy: 'base-over-saved',
 });
 
 const syncForm = () => {

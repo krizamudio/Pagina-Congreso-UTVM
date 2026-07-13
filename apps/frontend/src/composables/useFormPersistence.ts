@@ -3,6 +3,7 @@ import { useFormStore } from '../stores/form-store';
 
 interface UseFormPersistenceOptions {
   hydrateOnMounted?: boolean;
+  mergeStrategy?: 'saved-over-base' | 'base-over-saved';
 }
 
 export function useFormPersistence<T extends Record<string, unknown>>(
@@ -16,6 +17,13 @@ export function useFormPersistence<T extends Record<string, unknown>>(
   const mergeFormData = (baseData: T, savedData?: Record<string, unknown>) => {
     if (!savedData) {
       return baseData;
+    }
+
+    if (options.mergeStrategy === 'base-over-saved') {
+      return {
+        ...savedData,
+        ...baseData,
+      } as T;
     }
 
     const mergedData = { ...baseData } as Record<string, unknown>;

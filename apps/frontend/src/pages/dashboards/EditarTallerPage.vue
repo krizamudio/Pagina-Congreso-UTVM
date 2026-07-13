@@ -26,6 +26,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { isAxiosError } from 'axios';
 import { useQuasar } from 'quasar';
 import UpdateTallerForm from '../../components/forms_update/UpdateTallerForm.vue';
 import { useTalleresQuery } from '../../composables/useTalleresQuery';
@@ -40,7 +41,23 @@ const recordId = computed(() => {
 });
 
 const data = ref<TallerPayload | null>(null);
-const initialTallerData = computed<Partial<TallerPayload>>(() => (data.value ? { ...data.value } : {}));
+const initialTallerData = computed<Partial<TallerPayload>>(() => {
+  if (!data.value) return {};
+
+  const source = data.value as unknown as Record<string, unknown>;
+  return {
+    congreso_id: String(source.congreso_id ?? ''),
+    titulo: String(source.titulo ?? ''),
+    descripcion: String(source.descripcion ?? ''),
+    tallerista_id: String(source.tallerista_id ?? ''),
+    cupo_maximo: Number(source.cupo_maximo ?? 1),
+    fecha: String(source.fecha ?? ''),
+    hora_inicio: String(source.hora_inicio ?? ''),
+    hora_fin: String(source.hora_fin ?? ''),
+    ubicacion_id: String(source.ubicacion_id ?? ''),
+    requisitos: String(source.requisitos ?? ''),
+  };
+});
 const isLoading = ref(false);
 const error = ref<string | null>(null);
 const isPending = ref(false);
@@ -85,12 +102,29 @@ const handleSubmit = async (payload: TallerPayload) => {
   isPending.value = true;
 
   try {
-    await update(recordId.value, payload);
+    const cleanPayload: TallerPayload = {
+      congreso_id: payload.congreso_id,
+      titulo: payload.titulo,
+      descripcion: payload.descripcion,
+      tallerista_id: payload.tallerista_id,
+      cupo_maximo: payload.cupo_maximo,
+      fecha: payload.fecha,
+      hora_inicio: payload.hora_inicio,
+      hora_fin: payload.hora_fin,
+      ubicacion_id: payload.ubicacion_id,
+      requisitos: payload.requisitos,
+    };
+
+    await update(recordId.value, cleanPayload);
     notify('positive', 'Taller actualizado correctamente.');
     void router.push('/talleres');
   } catch (err) {
     console.error(err);
-    notify('negative', 'No se pudo actualizar el taller.');
+    const message = isAxiosError(err)
+      ? ((err.response?.data as { message?: string | string[] } | undefined)?.message ?? 'No se pudo actualizar el taller.')
+      : 'No se pudo actualizar el taller.';
+
+    notify('negative', Array.isArray(message) ? message.join(' ') : message);
   } finally {
     isPending.value = false;
   }
