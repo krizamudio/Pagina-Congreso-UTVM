@@ -2,7 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 
 const DEFAULT_TIMEOUT_MS = 15_000;
 
-export function SupabaseService() {
+export function createSupabaseClient() {
   const supabaseUrl = process.env.SUPABASE_URL;
   const supabaseKey = process.env.SUPABASE_SECRET_KEY;
 

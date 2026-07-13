@@ -5,8 +5,11 @@ import { ArchivoMultimedia } from './entities/archivo_multimedia.entity';
 import { ArchivoMultimediaController, FotoController } from './controllers';
 import {
   ArchivoConcurrencyInterceptor,
+  ArchivoLockService,
   ArchivoMultimediaService,
+  ArchivoRetryService,
   ArchivoStorageService,
+  SupabaseStorageService,
 } from './services';
 import { CommonModule } from '../common/common.module';
 
@@ -16,6 +19,9 @@ import { CommonModule } from '../common/common.module';
     ArchivoMultimediaService,
     ArchivoStorageService,
     ArchivoConcurrencyInterceptor,
+    ArchivoLockService,
+    ArchivoRetryService,
+    SupabaseStorageService,
   ],
   imports: [TypeOrmModule.forFeature([ArchivoMultimedia]), CommonModule],
 })
