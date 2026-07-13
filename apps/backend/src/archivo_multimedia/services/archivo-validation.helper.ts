@@ -97,7 +97,10 @@ export function perteneceACategoria(
   archivo: ArchivoMultimedia,
   categoria: ArchivoCategoria,
 ): boolean {
-  return Boolean(TIPOS_PERMITIDOS[categoria][archivo.tipo_mime]);
+  return (
+    Boolean(TIPOS_PERMITIDOS[categoria][archivo.tipo_mime]) &&
+    archivo.path.startsWith(`${categoria}/`)
+  );
 }
 
 function obtenerExtensionOriginal(nombre: string): string {

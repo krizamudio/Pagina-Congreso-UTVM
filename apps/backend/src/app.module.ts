@@ -25,23 +25,23 @@ import { APP_GUARD } from '@nestjs/core';
     ThrottlerModule.forRoot({
       throttlers: [
         {
-          //No mas de 3 llamadas en un segundo
+          // No mas de 3 llamadas en un segundo.
           name: 'short',
-          ttl: 1000,
+          ttl: seconds(1),
           limit: 3,
           blockDuration: seconds(30),
         },
         {
-          //No mas de 20 llamadas en 10 seg
+          // No mas de 20 llamadas en 10 segundos.
           name: 'medium',
-          ttl: 10000,
+          ttl: seconds(10),
           limit: 20,
           blockDuration: seconds(30),
         },
         {
-          //No mas de 100 llamadas en un minuto
+          // No mas de 100 llamadas en un minuto.
           name: 'long',
-          ttl: 60000,
+          ttl: seconds(60),
           limit: 100,
           blockDuration: seconds(60),
         },
@@ -80,8 +80,8 @@ import { APP_GUARD } from '@nestjs/core';
   providers: [
     {
       provide: APP_GUARD,
-      useClass: ThrottlerGuard
-    }
+      useClass: ThrottlerGuard,
+    },
   ],
 })
 export class AppModule {}

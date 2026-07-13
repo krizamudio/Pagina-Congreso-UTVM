@@ -22,8 +22,9 @@ URL publica.
 - `DELETE /archivos/:id`: elimina un PDF.
 
 Los parametros `:id` deben ser UUID validos. No existen endpoints de listado.
-El servidor valida el MIME declarado y la firma binaria del contenido; cambiar
-solo el nombre o el MIME de un archivo no permite evadir la validacion.
+El servidor valida el MIME declarado y la firma binaria esperada. Esta
+comprobacion identifica el formato permitido, pero no sustituye un analisis
+antivirus ni una validacion estructural completa del contenido.
 
 ## Respuestas
 

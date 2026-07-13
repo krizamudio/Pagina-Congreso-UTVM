@@ -1,8 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
-import { join } from 'path';
-import { existsSync, mkdirSync } from 'fs';
 
 async function main() {
   const app = await NestFactory.create(AppModule);
@@ -13,12 +11,6 @@ async function main() {
     origin: true,
     credentials: true,
   });
-
-  // const uploadDir = join(process.cwd(), 'uploads');
-
-  // if (!existsSync(uploadDir)) {
-  //   mkdirSync(uploadDir);
-  // }
 
   app.useGlobalPipes(
     new ValidationPipe({

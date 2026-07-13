@@ -1,6 +1,4 @@
 import {
-  HttpException,
-  HttpStatus,
   Injectable,
   InternalServerErrorException,
   Logger,
@@ -22,15 +20,15 @@ import {
 } from './archivo-validation.helper';
 import { SupabaseService } from './supabase.service';
 
-const MAX_OPERACIONES_CONCURRENTES = 3;
 const MAX_INTENTOS_COMPENSACION = 3;
+const RETRY_BASE_DELAY_MS = 100;
 
 @Injectable()
 export class ArchivoStorageService {
   private readonly logger = new Logger(ArchivoStorageService.name);
   private readonly supabase: SupabaseClient;
   private readonly bucket: string;
-  private operacionesActivas = 0;
+  private readonly operationLocks = new Map<string, Promise<void>>();
 
   constructor(
     private readonly generador: GeneradorCommon,
@@ -40,30 +38,28 @@ export class ArchivoStorageService {
     this.bucket = process.env.SUPABASE_BUCKET ?? 'congreso-imagenes';
   }
 
-  uploadFile(
+  async uploadFile(
     archivo: Express.Multer.File,
     categoria: ArchivoCategoria,
   ): Promise<string> {
-    return this.withOperationSlot(async () => {
-      const nuevoPath = this.crearPath(archivo, categoria);
-      await this.uploadObject(nuevoPath, archivo);
-      const datos = this.buildStorageData(nuevoPath, archivo.mimetype);
+    const nuevoPath = this.crearPath(archivo, categoria);
+    await this.uploadObject(nuevoPath, archivo);
+    const datos = this.buildStorageData(nuevoPath, archivo.mimetype);
 
-      try {
-        return await this.archivos.create({
-          // TODO: Sustituir este UUID por el usuario autenticado.
-          subido_por_usuario_id: 'e0efb875-4dc6-449b-8f45-832a728f2757',
-          ruta_archivo: datos.url,
-          path: datos.path,
-          tipo_mime: datos.tipoMime,
-        });
-      } catch (error) {
-        await this.compensate('limpiar archivo tras fallo de creacion', () =>
-          this.removeObject(nuevoPath),
-        );
-        throw error;
-      }
-    });
+    try {
+      return await this.archivos.create({
+        // TODO: Sustituir este UUID por el usuario autenticado.
+        subido_por_usuario_id: 'e0efb875-4dc6-449b-8f45-832a728f2757',
+        ruta_archivo: datos.url,
+        path: datos.path,
+        tipo_mime: datos.tipoMime,
+      });
+    } catch (error) {
+      await this.compensate('limpiar archivo tras fallo de creacion', () =>
+        this.removeObject(nuevoPath),
+      );
+      throw error;
+    }
   }
 
   async getFile(
@@ -79,7 +75,7 @@ export class ArchivoStorageService {
     archivo: Express.Multer.File,
     categoria: ArchivoCategoria,
   ): Promise<ArchivoResponseDto> {
-    return this.withOperationSlot(async () => {
+    return this.withFileLock(id, async () => {
       const registroOriginal = await this.getRegistro(id, categoria);
       const nuevoPath = this.crearPath(archivo, categoria);
       await this.uploadObject(nuevoPath, archivo);
@@ -111,12 +107,20 @@ export class ArchivoStorageService {
           ruta_archivo: registroOriginal.ruta_archivo,
           tipo_mime: registroOriginal.tipo_mime,
         };
-        await this.compensate('restaurar registro tras fallo de Supabase', () =>
-          this.archivos.update(id, original),
+        const registroRestaurado = await this.compensate(
+          'restaurar registro tras fallo de Supabase',
+          () => this.archivos.update(id, original),
         );
-        await this.compensate('eliminar objeto nuevo tras rollback', () =>
-          this.removeObject(nuevoPath),
-        );
+
+        if (registroRestaurado) {
+          await this.compensate('eliminar objeto nuevo tras rollback', () =>
+            this.removeObject(nuevoPath),
+          );
+        } else {
+          this.logger.error(
+            `Se conserva el objeto nuevo para evitar una URL rota en el archivo ${id}`,
+          );
+        }
         throw this.storageException();
       }
 
@@ -124,23 +128,25 @@ export class ArchivoStorageService {
     });
   }
 
-  async deleteFile(id: string, categoria: ArchivoCategoria): Promise<string> {
-    const registro = await this.getRegistro(id, categoria);
-    await this.archivos.delete(registro);
+  deleteFile(id: string, categoria: ArchivoCategoria): Promise<string> {
+    return this.withFileLock(id, async () => {
+      const registro = await this.getRegistro(id, categoria);
+      await this.archivos.delete(registro);
 
-    const objetoEliminado = await this.tryWithRetries(
-      'eliminar objeto durante borrado',
-      () => this.removeObject(registro.path),
-    );
-
-    if (!objetoEliminado) {
-      await this.compensate('restaurar registro eliminado', () =>
-        this.archivos.restore(registro),
+      const objetoEliminado = await this.tryWithRetries(
+        'eliminar objeto durante borrado',
+        () => this.removeObject(registro.path),
       );
-      throw this.storageException();
-    }
 
-    return 'Archivo eliminado correctamente';
+      if (!objetoEliminado) {
+        await this.compensate('restaurar registro eliminado', () =>
+          this.archivos.restore(registro),
+        );
+        throw this.storageException();
+      }
+
+      return 'Archivo eliminado correctamente';
+    });
   }
 
   private async getRegistro(
@@ -186,11 +192,12 @@ export class ArchivoStorageService {
   private async compensate(
     descripcion: string,
     operation: () => Promise<unknown>,
-  ): Promise<void> {
+  ): Promise<boolean> {
     const completada = await this.tryWithRetries(descripcion, operation);
     if (!completada) {
       this.logger.error(`No fue posible compensar: ${descripcion}`);
     }
+    return completada;
   }
 
   private async tryWithRetries(
@@ -205,25 +212,45 @@ export class ArchivoStorageService {
         this.logger.warn(
           `${descripcion} (intento ${intento}/${MAX_INTENTOS_COMPENSACION}): ${this.errorDetail(error)}`,
         );
+        if (intento < MAX_INTENTOS_COMPENSACION) {
+          await this.delay(this.retryDelay(intento));
+        }
       }
     }
     return false;
   }
 
-  private async withOperationSlot<T>(operation: () => Promise<T>): Promise<T> {
-    if (this.operacionesActivas >= MAX_OPERACIONES_CONCURRENTES) {
-      throw new HttpException(
-        'No se puede procesar la solicitud en este momento',
-        HttpStatus.TOO_MANY_REQUESTS,
-      );
-    }
+  private async withFileLock<T>(
+    id: string,
+    operation: () => Promise<T>,
+  ): Promise<T> {
+    const previous = this.operationLocks.get(id) ?? Promise.resolve();
+    let release!: () => void;
+    const current = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const tail = previous.then(() => current);
+    this.operationLocks.set(id, tail);
 
-    this.operacionesActivas += 1;
+    await previous;
     try {
       return await operation();
     } finally {
-      this.operacionesActivas -= 1;
+      release();
+      if (this.operationLocks.get(id) === tail) {
+        this.operationLocks.delete(id);
+      }
     }
+  }
+
+  private retryDelay(intento: number): number {
+    const exponential = RETRY_BASE_DELAY_MS * 2 ** (intento - 1);
+    const jitter = Math.floor(Math.random() * RETRY_BASE_DELAY_MS);
+    return exponential + jitter;
+  }
+
+  private delay(milliseconds: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, milliseconds));
   }
 
   private crearPath(

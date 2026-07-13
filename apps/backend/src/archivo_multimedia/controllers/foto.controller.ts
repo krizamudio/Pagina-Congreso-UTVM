@@ -14,6 +14,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ArchivoResponseDto } from '../dto';
 import {
   ARCHIVO_UPLOAD_OPTIONS,
+  ArchivoConcurrencyInterceptor,
   ArchivoStorageService,
   crearPipeArchivo,
 } from '../services';
@@ -24,7 +25,10 @@ export class FotoController {
   constructor(private readonly storageService: ArchivoStorageService) {}
 
   @Post()
-  @UseInterceptors(FileInterceptor('foto', ARCHIVO_UPLOAD_OPTIONS))
+  @UseInterceptors(
+    ArchivoConcurrencyInterceptor,
+    FileInterceptor('foto', ARCHIVO_UPLOAD_OPTIONS),
+  )
   create(
     @UploadedFile(crearPipeArchivo('imagenes')) foto: Express.Multer.File,
   ): Promise<string> {
@@ -39,7 +43,10 @@ export class FotoController {
   }
 
   @Patch(':id')
-  @UseInterceptors(FileInterceptor('foto', ARCHIVO_UPLOAD_OPTIONS))
+  @UseInterceptors(
+    ArchivoConcurrencyInterceptor,
+    FileInterceptor('foto', ARCHIVO_UPLOAD_OPTIONS),
+  )
   update(
     @Param('id', new ParseUUIDPipe()) id: string,
     @UploadedFile(crearPipeArchivo('imagenes')) foto: Express.Multer.File,

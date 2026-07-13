@@ -62,10 +62,16 @@ export class ArchivoMultimediaService {
   }
 
   async delete(registro: ArchivoMultimedia): Promise<void> {
+    let affected: number | null | undefined;
     try {
-      await this.repository.delete(registro.id);
+      const result = await this.repository.delete(registro.id);
+      affected = result.affected;
     } catch (error) {
       this.dbErrors.handle(error);
+    }
+
+    if (affected !== 1) {
+      throw new NotFoundException('Archivo no encontrado');
     }
   }
 

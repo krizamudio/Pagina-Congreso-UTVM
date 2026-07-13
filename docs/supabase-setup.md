@@ -105,6 +105,7 @@ Abre el archivo `apps/backend/.env` y completa las variables de Supabase:
 SUPABASE_URL=https://TU-PROYECTO.supabase.co
 SUPABASE_SECRET_KEY=tu_service_role_key_aqui
 SUPABASE_BUCKET=congreso-imagenes
+SUPABASE_TIMEOUT_MS=15000
 ```
 
 Si no tienes el archivo `.env`, copia el ejemplo:
@@ -119,21 +120,22 @@ Y edita con tus valores.
 
 El backend valida las variables de entorno al iniciar. Si algo está mal, mostrará un error claro:
 
-| Error | Causa |
-|-------|-------|
-| `Faltan variables de entorno de Supabase` | `SUPABASE_URL` o `SUPABASE_SECRET_KEY` no están definidas |
-| `SUPABASE_URL debe tener formato https://TU-PROYECTO.supabase.co` | La URL no contiene `.supabase.co` |
-| `SUPABASE_SECRET_KEY debe ser una API key de Supabase...` | La key no tiene formato válido (JWT o `sb_secret_...`) |
+| Error                                                             | Causa                                                     |
+| ----------------------------------------------------------------- | --------------------------------------------------------- |
+| `Faltan variables de entorno de Supabase`                         | `SUPABASE_URL` o `SUPABASE_SECRET_KEY` no están definidas |
+| `SUPABASE_URL debe tener formato https://TU-PROYECTO.supabase.co` | La URL no contiene `.supabase.co`                         |
+| `SUPABASE_SECRET_KEY debe ser una API key de Supabase...`         | La key no tiene formato válido (JWT o `sb_secret_...`)    |
 
 Si el backend inicia sin errores, la conexión con Supabase está configurada correctamente.
 
 ## Variables de entorno requeridas
 
-| Variable | Descripción | Ejemplo |
-|----------|-------------|---------|
-| `SUPABASE_URL` | URL del proyecto Supabase | `https://abc123.supabase.co` |
-| `SUPABASE_SECRET_KEY` | API key (service_role o anon) | `eyJhbGci...` o `sb_secret_...` |
-| `SUPABASE_BUCKET` | Nombre del bucket de Storage | `congreso-imagenes` |
+| Variable              | Descripción                                | Ejemplo                         |
+| --------------------- | ------------------------------------------ | ------------------------------- |
+| `SUPABASE_URL`        | URL del proyecto Supabase                  | `https://abc123.supabase.co`    |
+| `SUPABASE_SECRET_KEY` | API key (service_role o anon)              | `eyJhbGci...` o `sb_secret_...` |
+| `SUPABASE_BUCKET`     | Nombre del bucket de Storage               | `congreso-imagenes`             |
+| `SUPABASE_TIMEOUT_MS` | Timeout de las solicitudes en milisegundos | `15000`                         |
 
 > **Nota**: `SUPABASE_BUCKET` tiene valor por defecto `congreso-imagenes`, por lo que es opcional si no cambiaste el nombre del bucket.
 
