@@ -13,12 +13,39 @@ import { ArchivoMultimediaModule } from './archivo_multimedia/archivo_multimedia
 import { CommonModule } from './common/common.module';
 import { CongresoModule } from './congreso/congreso.module';
 import { UbicacionModule } from './ubicacion/ubicacion.module';
+import { seconds, ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: '.env',
+    }),
+    ThrottlerModule.forRoot({
+      throttlers: [
+        {
+          //No mas de 3 llamadas en un segundo
+          name: 'short',
+          ttl: 1000,
+          limit: 3,
+          blockDuration: seconds(30),
+        },
+        {
+          //No mas de 20 llamadas en 10 seg
+          name: 'medium',
+          ttl: 10000,
+          limit: 20,
+          blockDuration: seconds(30),
+        },
+        {
+          //No mas de 100 llamadas en un minuto
+          name: 'long',
+          ttl: 60000,
+          limit: 100,
+          blockDuration: seconds(60),
+        },
+      ],
     }),
 
     TypeOrmModule.forRoot({
@@ -50,6 +77,11 @@ import { UbicacionModule } from './ubicacion/ubicacion.module';
     UbicacionModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard
+    }
+  ],
 })
 export class AppModule {}
