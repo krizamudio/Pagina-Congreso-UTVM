@@ -14,11 +14,11 @@ async function main() {
     credentials: true,
   });
 
-  const uploadDir = join(process.cwd(), 'uploads');
+  // const uploadDir = join(process.cwd(), 'uploads');
 
-  if (!existsSync(uploadDir)) {
-    mkdirSync(uploadDir);
-  }
+  // if (!existsSync(uploadDir)) {
+  //   mkdirSync(uploadDir);
+  // }
 
   app.useGlobalPipes(
     new ValidationPipe({

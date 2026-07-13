@@ -1,5 +1,6 @@
 import { Column, Entity, PrimaryGeneratedColumn, DeleteDateColumn, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
 import { Conferencia } from '../../conferencia/entities/conferencia.entity';
+import { Taller } from '../../taller/entities/taller.entity';
 
 @Entity()
 export class Ponente {
@@ -52,4 +53,7 @@ export class Ponente {
   //Relaciones
   @OneToMany(() => Conferencia, (conf)=> conf.ponente)
   conferencias!: Conferencia[];
+
+  @OneToMany( () => Taller, (t) => t.ponente)
+  talleres!: Taller[];
 }

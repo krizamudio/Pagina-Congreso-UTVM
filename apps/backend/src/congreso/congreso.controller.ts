@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  ParseUUIDPipe,
+} from '@nestjs/common';
 import { CongresoService } from './congreso.service';
 import { CreateCongresoDto } from './dto/create-congreso.dto';
 import { UpdateCongresoDto } from './dto/update-congreso.dto';
@@ -18,17 +27,20 @@ export class CongresoController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.congresoService.findOne(+id);
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
+    return this.congresoService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCongresoDto: UpdateCongresoDto) {
-    return this.congresoService.update(+id, updateCongresoDto);
+  update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateCongresoDto: UpdateCongresoDto,
+  ) {
+    return this.congresoService.update(id, updateCongresoDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.congresoService.remove(+id);
+  remove(@Param('id', ParseUUIDPipe) id: string) {
+    return this.congresoService.remove(id);
   }
 }

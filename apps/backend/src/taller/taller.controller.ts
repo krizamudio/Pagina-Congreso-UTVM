@@ -7,7 +7,7 @@ import {
   Param,
   Delete,
 } from '@nestjs/common';
-import { TallerService } from './taller.service';
+import { TallerService } from './services/taller.service';
 import { CreateTallerDto } from './dto/create-taller.dto';
 import { UpdateTallerDto } from './dto/update-taller.dto';
 

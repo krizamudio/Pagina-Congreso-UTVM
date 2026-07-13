@@ -32,7 +32,6 @@ export class Conferencia {
   @Column('time')
   hora_fin!: string;
 
-
   @CreateDateColumn({ type: 'timestamp', name: 'created_at' })
   created_at!: Date;
 
@@ -43,17 +42,26 @@ export class Conferencia {
   deleted_at?: Date;
 
   //Relaciones
-  @ManyToOne(() => Congreso, (congreso) => congreso.conferencias)
-  @JoinColumn({ name: 'congreso_id' })
-  congreso!: Congreso;
-
-  @ManyToOne(() => Ubicacion, (ubi) => ubi.conferencias)
-  @JoinColumn({name: 'ubicacion_id'})
-  ubicacion!: Ubicacion;
-
-  @ManyToOne(() => Ponente, (p) => p.conferencias)
-  @JoinColumn({
-    name: 'ponente_id'
+  @ManyToOne(() => Congreso, (congreso) => congreso.conferencias, {
+    nullable: true,
+    onDelete: 'SET NULL',
   })
-  ponente!: Ponente;
+  @JoinColumn({ name: 'congreso_id' })
+  congreso?: Congreso;
+
+  @ManyToOne(() => Ubicacion, (ubi) => ubi.conferencias, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({ name: 'ubicacion_id' })
+  ubicacion?: Ubicacion;
+
+  @ManyToOne(() => Ponente, (p) => p.conferencias, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({
+    name: 'ponente_id',
+  })
+  ponente?: Ponente;
 }

@@ -3,12 +3,12 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateTallerDto } from './dto/create-taller.dto';
-import { UpdateTallerDto } from './dto/update-taller.dto';
-import { Taller } from './entities/taller.entity';
+import { CreateTallerDto } from '../dto/create-taller.dto';
+import { UpdateTallerDto } from '../dto/update-taller.dto';
+import { Taller } from '../entities/taller.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ValidadorCommon } from '../../common/validador.common';
+import { ValidadorCommon } from '../../../common/validador.provider';
 
 @Injectable()
 export class TallerService {
@@ -18,6 +18,7 @@ export class TallerService {
     private readonly validador: ValidadorCommon,
   ) {}
 
+  //TODO: La logica de aqui debe validar que si hay dos talleres en el mismo horario que no esten en la misma ubicacion
   async createTaller(createTallerDto: CreateTallerDto): Promise<Taller> {
     const { fecha, hora_fin, hora_inicio } = createTallerDto;
 

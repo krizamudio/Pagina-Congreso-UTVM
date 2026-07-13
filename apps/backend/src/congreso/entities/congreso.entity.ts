@@ -8,7 +8,7 @@ import {
   Entity,
 } from 'typeorm';
 import { Conferencia } from '../../conferencia/entities/conferencia.entity';
-import { Ubicacion } from '../../ubicacion/entities/ubicacion.entity';
+import { Taller } from '../../taller/entities/taller.entity';
 
 @Entity()
 export class Congreso {
@@ -39,11 +39,12 @@ export class Congreso {
   @Column('timestamp')
   fecha_fin!: Date;
 
+
   @CreateDateColumn({ type: 'timestamp', name: 'created_at' })
   created_at!: Date;
 
-  @UpdateDateColumn({ type: 'timestamp', name: 'updated_at' })
-  updated_at!: Date;
+  @UpdateDateColumn({ type: 'timestamp', name: 'updated_at', nullable: true })
+  updated_at?: Date;
 
   @DeleteDateColumn({ type: 'timestamp', name: 'deleted_at', nullable: true })
   deleted_at?: Date;
@@ -51,6 +52,9 @@ export class Congreso {
   @OneToMany(() => Conferencia, (conferencia) => conferencia.congreso)
   conferencias!: Conferencia[];
 
-  @OneToMany( () => Ubicacion, (ubicacion) => ubicacion.congreso)
-  ubicaciones!: Ubicacion[];
+  // @OneToMany( () => Ubicacion, (ubicacion) => ubicacion.congreso)
+  // ubicaciones!: Ubicacion[];
+
+  @OneToMany(() => Taller, (t) => t.congreso)
+  talleres!: Taller[];
 }
