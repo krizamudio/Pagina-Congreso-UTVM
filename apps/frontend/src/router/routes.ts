@@ -163,13 +163,8 @@ const routes: RouteRecordRaw[] = [
 
   {
     path: "/:catchAll(.*)*",
-<<<<<<< HEAD
     redirect: "/"
   }
-=======
-    redirect: "/",
-  },
->>>>>>> feature/rate-limit
 ];
 
 export default routes;

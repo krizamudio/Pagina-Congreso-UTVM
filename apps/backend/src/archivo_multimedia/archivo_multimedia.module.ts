@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 import { ArchivoMultimedia } from './entities/archivo_multimedia.entity';
 import { ArchivoMultimediaController, FotoController } from './controllers';
+import { ArchivoMultimediaMapper } from './mappers';
 import {
   ArchivoConcurrencyInterceptor,
   ArchivoLockService,
@@ -22,6 +23,7 @@ import { CommonModule } from '../common/common.module';
     ArchivoLockService,
     ArchivoRetryService,
     SupabaseStorageService,
+    ArchivoMultimediaMapper,
   ],
   imports: [TypeOrmModule.forFeature([ArchivoMultimedia]), CommonModule],
 })

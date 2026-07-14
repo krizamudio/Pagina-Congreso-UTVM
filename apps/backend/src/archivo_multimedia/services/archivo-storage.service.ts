@@ -7,14 +7,15 @@ import {
 
 import { ArchivoResponseDto } from '../dto';
 import { ArchivoMultimedia } from '../entities/archivo_multimedia.entity';
+import { ArchivoMultimediaMapper } from '../mappers';
 import { ArchivoMultimediaService } from './archivo_multimedia.service';
-import type { ActualizarArchivoData } from './archivo_multimedia.service';
 import { perteneceACategoria } from './archivo-validation.helper';
 import type { ArchivoCategoria } from './archivo-validation.helper';
 import { ArchivoLockService } from './archivo-lock.service';
 import { ArchivoRetryService } from './archivo-retry.service';
 import { SupabaseStorageService } from './supabase-storage.service';
-import type { ArchivoStorageData } from './supabase-storage.service';
+
+const USUARIO_TEMPORAL_ID = 'e0efb875-4dc6-449b-8f45-832a728f2757';
 
 @Injectable()
 export class ArchivoStorageService {
@@ -25,22 +26,21 @@ export class ArchivoStorageService {
     private readonly storage: SupabaseStorageService,
     private readonly retry: ArchivoRetryService,
     private readonly locks: ArchivoLockService,
+    private readonly mapper: ArchivoMultimediaMapper,
   ) {}
 
   async uploadFile(
     archivo: Express.Multer.File,
     categoria: ArchivoCategoria,
-  ): Promise<string> {
+  ): Promise<ArchivoResponseDto> {
     const datos = await this.storage.upload(archivo, categoria);
 
     try {
-      return await this.archivos.create({
-        // TODO: Sustituir este UUID por el usuario autenticado.
-        subido_por_usuario_id: 'e0efb875-4dc6-449b-8f45-832a728f2757',
-        ruta_archivo: datos.url,
-        path: datos.path,
-        tipo_mime: datos.tipoMime,
-      });
+      // TODO: Sustituir este UUID por el usuario autenticado.
+      const creado = await this.archivos.create(
+        this.mapper.toCreateData(datos, USUARIO_TEMPORAL_ID),
+      );
+      return this.mapper.toResponse(creado);
     } catch (error) {
       await this.retry.compensate(
         'limpiar archivo tras fallo de creacion',
@@ -55,7 +55,7 @@ export class ArchivoStorageService {
     categoria: ArchivoCategoria,
   ): Promise<ArchivoResponseDto> {
     const registro = await this.getRegistro(id, categoria);
-    return this.toResponse(registro);
+    return this.mapper.toResponse(registro);
   }
 
   updateFile(
@@ -100,7 +100,7 @@ export class ArchivoStorageService {
     try {
       actualizado = await this.archivos.update(
         id,
-        this.toUpdateData(datosNuevos),
+        this.mapper.toUpdateData(datosNuevos),
       );
     } catch (error) {
       await this.retry.compensate(
@@ -119,7 +119,7 @@ export class ArchivoStorageService {
       throw this.storageException();
     }
 
-    return this.toResponse(actualizado);
+    return this.mapper.toResponse(actualizado);
   }
 
   private async rollbackUpdate(
@@ -157,23 +157,6 @@ export class ArchivoStorageService {
       throw new NotFoundException('Archivo no encontrado');
     }
     return registro;
-  }
-
-  private toUpdateData(data: ArchivoStorageData): ActualizarArchivoData {
-    return {
-      path: data.path,
-      ruta_archivo: data.url,
-      tipo_mime: data.tipoMime,
-    };
-  }
-
-  private toResponse(registro: ArchivoMultimedia): ArchivoResponseDto {
-    return {
-      id: registro.id,
-      url: registro.ruta_archivo,
-      path: registro.path,
-      tipoMime: registro.tipo_mime,
-    };
   }
 
   private storageException(): InternalServerErrorException {

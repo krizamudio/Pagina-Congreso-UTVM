@@ -65,9 +65,9 @@ class ArchivoValidator extends FileValidator<{
       TIPOS_PERMITIDOS[this.validationOptions.categoria][file.mimetype];
     if (!tipo) return false;
 
-    const extensionValida =
-      this.validationOptions.categoria === 'imagenes' ||
-      tipo.extensiones.includes(obtenerExtensionOriginal(file.originalname));
+    const extensionValida = tipo.extensiones.includes(
+      obtenerExtensionOriginal(file.originalname),
+    );
     return extensionValida && tipo.firma(file.buffer);
   }
 

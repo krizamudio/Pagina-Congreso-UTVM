@@ -25,10 +25,9 @@ export class ArchivoMultimediaService {
     private readonly dbErrors: DatabaseErrorHandlerService,
   ) {}
 
-  async create(data: CrearArchivoData): Promise<string> {
+  async create(data: CrearArchivoData): Promise<ArchivoMultimedia> {
     try {
-      await this.repository.save(this.repository.create(data));
-      return 'Archivo guardado correctamente';
+      return await this.repository.save(this.repository.create(data));
     } catch (error) {
       this.dbErrors.handle(error);
     }

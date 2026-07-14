@@ -31,7 +31,7 @@ export class FotoController {
   )
   create(
     @UploadedFile(crearPipeArchivo('imagenes')) foto: Express.Multer.File,
-  ): Promise<string> {
+  ): Promise<ArchivoResponseDto> {
     return this.storageService.uploadFile(foto, 'imagenes');
   }
 

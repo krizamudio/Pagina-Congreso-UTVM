@@ -8,16 +8,19 @@ import {
   Delete,
   ParseUUIDPipe,
 } from '@nestjs/common';
-import { PonenteService } from './ponente.service';
+import { PonenteService } from './services/ponente.service';
 import { CreatePonenteDto } from './dto/create-ponente.dto';
 import { UpdatePonenteDto } from './dto/update-ponente.dto';
+import { ResponsePonenteDto } from './dto/response-ponente.dto';
 
 @Controller('ponente')
 export class PonenteController {
   constructor(private readonly ponenteService: PonenteService) {}
 
   @Post()
-  create(@Body() createPonenteDto: CreatePonenteDto) {
+  create(
+    @Body() createPonenteDto: CreatePonenteDto,
+  ): Promise<ResponsePonenteDto> {
     return this.ponenteService.createPonente(createPonenteDto);
   }
 
@@ -32,7 +35,10 @@ export class PonenteController {
   }
 
   @Patch(':id')
-  update(@Param('id', ParseUUIDPipe) id: string, @Body() updatePonenteDto: UpdatePonenteDto) {
+  update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updatePonenteDto: UpdatePonenteDto,
+  ): Promise<string> {
     return this.ponenteService.updatePonente(id, updatePonenteDto);
   }
 

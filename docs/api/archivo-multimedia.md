@@ -28,17 +28,7 @@ antivirus ni una validacion estructural completa del contenido.
 
 ## Respuestas
 
-Las operaciones de creacion y eliminacion conservan respuestas simples:
-
-```text
-Archivo guardado correctamente
-```
-
-```text
-Archivo eliminado correctamente
-```
-
-Las consultas y actualizaciones comparten este contrato:
+Las operaciones de creacion, consulta y actualizacion comparten este contrato:
 
 ```json
 {
@@ -47,6 +37,12 @@ Las consultas y actualizaciones comparten este contrato:
   "path": "imagenes/archivo.jpg",
   "tipoMime": "image/jpeg"
 }
+```
+
+La eliminacion conserva una respuesta simple:
+
+```text
+Archivo eliminado correctamente
 ```
 
 Los errores del proveedor de almacenamiento se registran en el servidor y se

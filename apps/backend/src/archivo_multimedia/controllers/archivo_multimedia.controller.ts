@@ -32,7 +32,7 @@ export class ArchivoMultimediaController {
   create(
     @UploadedFile(crearPipeArchivo('documentos'))
     archivo: Express.Multer.File,
-  ): Promise<string> {
+  ): Promise<ArchivoResponseDto> {
     return this.storageService.uploadFile(archivo, 'documentos');
   }
 
