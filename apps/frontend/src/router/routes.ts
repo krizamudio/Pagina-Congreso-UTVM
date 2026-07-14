@@ -17,6 +17,10 @@ const routes: RouteRecordRaw[] = [
         path: "registro-externo",
         component: () => import("@/pages/index/registro-externo.vue"),
       },
+      {
+        path: "/talleres_u",
+        component: () => import("@/pages/TalleresU/talleres.vue"),
+      },
     ],
   },
 
