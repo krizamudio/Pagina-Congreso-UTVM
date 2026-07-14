@@ -41,19 +41,6 @@ export function useTalleresQuery() {
     await api.delete(`taller/${id}`);
   };
 
-  const uploadImagen = async (id: string, imagen: File) => {
-    const formData = new FormData();
-    formData.append('imagen', imagen);
-
-    const response = await api.post(`taller/${id}/imagen`, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-
-    return response.data as Taller;
-  };
-
   return {
     data,
     isRefreshing,
@@ -63,6 +50,5 @@ export function useTalleresQuery() {
     create,
     update,
     remove,
-    uploadImagen,
   };
 }

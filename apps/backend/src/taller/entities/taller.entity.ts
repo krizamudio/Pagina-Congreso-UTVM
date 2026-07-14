@@ -6,11 +6,12 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-@Entity('taller')
+@Entity()
 export class Taller {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
+  //TODO: FK
   @Column('uuid')
   congreso_id!: string;
 
@@ -23,17 +24,12 @@ export class Taller {
   @Column('text')
   descripcion!: string;
 
+  //TODO: FK
   @Column('uuid')
   tallerista_id!: string;
 
   @Column('int')
   cupo_maximo!: number;
-
-  @Column({
-    type: 'int',
-    default: 0,
-  })
-  inscritos!: number;
 
   @Column('date')
   fecha!: Date;
@@ -44,17 +40,12 @@ export class Taller {
   @Column('time')
   hora_fin!: string;
 
+  //TODO: FK
   @Column('uuid')
   ubicacion_id!: string;
 
   @Column('text')
   requisitos!: string;
-
-  @Column({
-    type: 'text',
-    nullable: true,
-  })
-  imagen_url?: string | null;
 
   @CreateDateColumn({
     type: 'timestamp',

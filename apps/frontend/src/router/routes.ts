@@ -17,10 +17,6 @@ const routes: RouteRecordRaw[] = [
         path: "registro-externo",
         component: () => import("@/pages/index/registro-externo.vue"),
       },
-      {
-        path: "/talleres_u",
-        component: () => import("@/pages/panel_u/talleres.vue"),
-      },
     ],
   },
 
@@ -36,7 +32,6 @@ const routes: RouteRecordRaw[] = [
     path: "/registro_utvm",
     component: () => import("@/pages/registro_utvm.vue"),
   },
-
   {
     path: "/registro_nsu/verificar",
     component: () => import("@/pages/verificar_correo_nsu.vue"),

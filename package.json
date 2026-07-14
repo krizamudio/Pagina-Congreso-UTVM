@@ -12,8 +12,5 @@
     "build": "pnpm -r build",
     "build:backend": "pnpm --filter backend build",
     "build:frontend": "pnpm --filter frontend build"
-  },
-  "devDependencies": {
-    "@types/multer": "^2.1.0"
   }
 }
