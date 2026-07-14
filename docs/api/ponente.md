@@ -8,15 +8,15 @@ El backend usa validacion global con `ValidationPipe`, `whitelist: true`, `forbi
 
 ## Campos del DTO
 
-| Campo | Tipo | Requerido | Reglas |
-| --- | --- | --- | --- |
-| `usuario_id` | UUID v4 | Si | Debe ser UUID valido |
-| `nombre` | string | Si | Maximo 200 caracteres |
-| `archivo_foto_id` | UUID v4 | Si | Debe ser UUID valido |
-| `institucion` | string | Si | Maximo 200 caracteres |
-| `semblanza` | string | Si | Maximo 2000 caracteres |
-| `tema` | string | Si | Maximo 255 caracteres |
-| `visible_publico` | boolean | No | Por defecto queda en `true` si se omite |
+| Campo             | Tipo    | Requerido | Reglas                                   |
+| ----------------- | ------- | --------- | ---------------------------------------- |
+| `usuario_id`      | UUID v4 | Si        | Debe ser UUID valido                     |
+| `nombre`          | string  | Si        | Maximo 200 caracteres                    |
+| `archivo_foto_id` | UUID v4 | No        | JPEG, PNG o WebP de `archivo-multimedia`  |
+| `institucion`     | string  | Si        | Maximo 200 caracteres                    |
+| `semblanza`       | string  | Si        | Maximo 2000 caracteres                   |
+| `tema`            | string  | Si        | Maximo 255 caracteres                    |
+| `visible_publico` | boolean | No        | Por defecto queda en `true` si se omite  |
 
 ---
 
@@ -47,19 +47,22 @@ Respuesta esperada: `201 Created`.
 ```json
 {
   "id": "{{ponente_id}}",
-  "usuario_id": "7b0ef2d1-65b4-4db3-ae8b-2d25e1c5a901",
+  "usuarioId": "7b0ef2d1-65b4-4db3-ae8b-2d25e1c5a901",
   "nombre": "Dra. Mariana Lopez Hernandez",
-  "archivo_foto_id": "3b241101-e2bb-4255-8caf-4136c566a962",
+  "foto": {
+    "url": "https://proyecto.supabase.co/storage/v1/object/public/bucket/imagenes/foto.jpg"
+  },
   "institucion": "Universidad Nacional Autonoma de Mexico",
   "semblanza": "Investigadora especializada en inteligencia artificial aplicada a educacion, con mas de 10 anos de experiencia en proyectos de innovacion academica.",
   "tema": "Inteligencia artificial aplicada a la educacion superior",
-  "visible_publico": true
+  "visiblePublico": true
 }
 ```
 
 Errores posibles:
+
 - `400 Bad Request` — campos faltantes o UUID invalido.
-- `409 Conflict` — ya existe un ponente con ese `usuario_id`.
+- `404 Not Found` — `archivo_foto_id` no existe o no corresponde a una imagen.
 
 ---
 
@@ -77,13 +80,15 @@ Respuesta esperada: `200 OK`.
 [
   {
     "id": "{{ponente_id}}",
-    "usuario_id": "7b0ef2d1-65b4-4db3-ae8b-2d25e1c5a901",
+    "usuarioId": "7b0ef2d1-65b4-4db3-ae8b-2d25e1c5a901",
     "nombre": "Dra. Mariana Lopez Hernandez",
-    "archivo_foto_id": "3b241101-e2bb-4255-8caf-4136c566a962",
+    "foto": {
+      "url": "https://proyecto.supabase.co/storage/v1/object/public/bucket/imagenes/foto.jpg"
+    },
     "institucion": "Universidad Nacional Autonoma de Mexico",
     "semblanza": "Investigadora especializada en inteligencia artificial aplicada a educacion, con mas de 10 anos de experiencia en proyectos de innovacion academica.",
     "tema": "Inteligencia artificial aplicada a la educacion superior",
-    "visible_publico": true
+    "visiblePublico": true
   }
 ]
 ```
@@ -103,13 +108,15 @@ Respuesta esperada: `200 OK`.
 ```json
 {
   "id": "{{ponente_id}}",
-  "usuario_id": "7b0ef2d1-65b4-4db3-ae8b-2d25e1c5a901",
+  "usuarioId": "7b0ef2d1-65b4-4db3-ae8b-2d25e1c5a901",
   "nombre": "Dra. Mariana Lopez Hernandez",
-  "archivo_foto_id": "3b241101-e2bb-4255-8caf-4136c566a962",
+  "foto": {
+    "url": "https://proyecto.supabase.co/storage/v1/object/public/bucket/imagenes/foto.jpg"
+  },
   "institucion": "Universidad Nacional Autonoma de Mexico",
   "semblanza": "Investigadora especializada en inteligencia artificial aplicada a educacion, con mas de 10 anos de experiencia en proyectos de innovacion academica.",
   "tema": "Inteligencia artificial aplicada a la educacion superior",
-  "visible_publico": true
+  "visiblePublico": true
 }
 ```
 
@@ -143,24 +150,27 @@ Body ejemplo:
 }
 ```
 
-Respuesta esperada: `200 OK`.
+Para retirar la fotografia sin asignar otra:
 
 ```json
 {
-  "id": "{{ponente_id}}",
-  "usuario_id": "7b0ef2d1-65b4-4db3-ae8b-2d25e1c5a901",
-  "nombre": "Dra. Mariana Lopez Hernandez",
-  "archivo_foto_id": "3b241101-e2bb-4255-8caf-4136c566a962",
-  "institucion": "Instituto Politecnico Nacional",
-  "semblanza": "Investigadora especializada en inteligencia artificial aplicada a educacion, con mas de 10 anos de experiencia en proyectos de innovacion academica.",
-  "tema": "Etica y gobernanza de la inteligencia artificial",
-  "visible_publico": false
+  "archivo_foto_id": null
 }
 ```
 
+Omitir `archivo_foto_id` conserva la fotografia actual.
+
+Respuesta esperada: `200 OK`.
+
+```text
+Ponente actualizado correctamente
+```
+
 Errores posibles:
-- `400 Bad Request` — campos invalidos.
-- `404 Not Found` — ponente no encontrado.
+
+- `400 Bad Request` — campos invalidos o body vacio.
+- `404 Not Found` — ponente o foto no encontrados.
+- `500 Internal Server Error` — no se pudo realizar la actualizacion.
 
 ---
 
@@ -174,13 +184,8 @@ DELETE {{base_url}}/ponente/{{ponente_id}}
 
 Respuesta esperada: `200 OK`.
 
-```json
-{
-  "id": "{{ponente_id}}",
-  "usuario_id": "7b0ef2d1-65b4-4db3-ae8b-2d25e1c5a901",
-  "nombre": "Dra. Mariana Lopez Hernandez",
-  ...
-}
+```text
+Ponente eliminado correctamente
 ```
 
 Respuesta si no existe: `404 Not Found`.

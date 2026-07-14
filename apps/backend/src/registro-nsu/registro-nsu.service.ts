@@ -11,7 +11,7 @@ import { UpdateParticipanteNsuStatusDto } from './dto/update-participante-nsu-st
 import { ArchivoComprobante } from './entities/archivo-comprobante.entity';
 import { ParticipanteNsu } from './entities/participante-nsu.entity';
 import { RegistroNsu } from './entities/registro-nsu.entity';
-import { GeneradorCommon } from '../../common/generador.common';
+import { GeneradorCommon } from '../common/generador.common';
 
 @Injectable()
 export class RegistroNsuService {

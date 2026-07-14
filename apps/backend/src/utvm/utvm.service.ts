@@ -7,7 +7,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, IsNull, Not, Repository } from 'typeorm';
 
-import { GeneradorCommon } from '../../common/generador.common';
+import { GeneradorCommon } from '../common/generador.common';
 import { Utvm } from './entities/utvm.entity';
 import { CreateUtvmDto } from './dto/create-utvm.dto';
 import { UpdateUtvmDto } from './dto/update-utvm.dto';

@@ -3,7 +3,7 @@ import { TallerService } from './services/taller.service';
 import { TallerController } from './taller.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Taller } from './entities/taller.entity';
-import { CommonModule } from '../../common/common.module';
+import { CommonModule } from '../common/common.module';
 import { TallerRelationsService } from './services/taller-relations.service';
 
 @Module({

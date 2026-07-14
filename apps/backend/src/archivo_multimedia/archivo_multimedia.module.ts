@@ -1,13 +1,30 @@
 import { Module } from '@nestjs/common';
-import { ArchivoMultimediaService } from './archivo_multimedia.service';
-import { ArchivoMultimediaController } from './archivo_multimedia.controller';
-import { CommonModule } from '../../common/common.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
+
 import { ArchivoMultimedia } from './entities/archivo_multimedia.entity';
+import { ArchivoMultimediaController, FotoController } from './controllers';
+import { ArchivoMultimediaMapper } from './mappers';
+import {
+  ArchivoConcurrencyInterceptor,
+  ArchivoLockService,
+  ArchivoMultimediaService,
+  ArchivoRetryService,
+  ArchivoStorageService,
+  SupabaseStorageService,
+} from './services';
+import { CommonModule } from '../common/common.module';
 
 @Module({
-  controllers: [ArchivoMultimediaController],
-  providers: [ArchivoMultimediaService],
+  controllers: [ArchivoMultimediaController, FotoController],
+  providers: [
+    ArchivoMultimediaService,
+    ArchivoStorageService,
+    ArchivoConcurrencyInterceptor,
+    ArchivoLockService,
+    ArchivoRetryService,
+    SupabaseStorageService,
+    ArchivoMultimediaMapper,
+  ],
   imports: [TypeOrmModule.forFeature([ArchivoMultimedia]), CommonModule],
 })
 export class ArchivoMultimediaModule {}

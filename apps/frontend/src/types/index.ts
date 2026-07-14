@@ -9,7 +9,7 @@ export interface Ponente {
   visible_publico?: boolean;
 }
 
-export type PonentePayload = Omit<Ponente, 'id'>;
+export type PonentePayload = Omit<Ponente, "id">;
 
 export type Panel = Ponente;
 export type PanelPayload = PonentePayload;
@@ -26,7 +26,7 @@ export interface Conferencia {
   ubicacion_id: string;
 }
 
-export type ConferenciaPayload = Omit<Conferencia, 'id'>;
+export type ConferenciaPayload = Omit<Conferencia, "id">;
 
 export interface Taller {
   id: string;
@@ -44,6 +44,37 @@ export interface Taller {
   fecha_actualizacion?: string;
 }
 
+<<<<<<< HEAD
+export type TallerPayload = Omit<
+  Taller,
+  "id" | "fecha_creacion" | "fecha_actualizacion"
+>;
+
+export interface Congreso {
+  id: string;
+  nombre: string;
+  eslogan: string;
+  ubicacion: string;
+  fechaInicio: string;
+  fechaFin: string;
+}
+
+export interface CongresoPayload {
+  nombre: string;
+  eslogan: string;
+  ubicacion: string;
+  fecha_inicio: string;
+  fecha_fin: string;
+}
+
+export interface Ubicacion {
+  id: string;
+  nombre: string;
+  capacidad: number;
+}
+
+export type UbicacionPayload = Omit<Ubicacion, "id">;
+=======
 export type TallerPayload = Omit<Taller, 'id' | 'fecha_creacion' | 'fecha_actualizacion'>;
 
 export type ParticipanteTipo = 'ems' | 'utvm' | 'nsu' | 'externo';
@@ -142,3 +173,4 @@ export type ParticipanteExternoPayload = Omit<
   ParticipanteExterno,
   'id' | 'comprobante' | 'createdAt' | 'updatedAt'
 >;
+>>>>>>> feature/rate-limit

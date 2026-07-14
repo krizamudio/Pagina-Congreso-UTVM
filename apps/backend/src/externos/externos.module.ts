@@ -5,7 +5,7 @@ import { ExternosController } from './externos.controller';
 import { ExternosService } from './externos.service';
 import { Externo } from './entities/externo.entity';
 import { ArchivoComprobante } from '../registro-nsu/entities/archivo-comprobante.entity';
-import { CommonModule } from '../../common/common.module';
+import { CommonModule } from '../common/common.module';
 
 @Module({
   imports: [

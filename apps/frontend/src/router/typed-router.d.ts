@@ -75,6 +75,20 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/dashboards/CongresoEditorPage': RouteRecordInfo<
+      '/dashboards/CongresoEditorPage',
+      '/dashboards/CongresoEditorPage',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/dashboards/CongresosPage': RouteRecordInfo<
+      '/dashboards/CongresosPage',
+      '/dashboards/CongresosPage',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/dashboards/EditarConferenciaPage': RouteRecordInfo<
       '/dashboards/EditarConferenciaPage',
       '/dashboards/EditarConferenciaPage',
@@ -148,6 +162,34 @@ declare module 'vue-router/auto-routes' {
     '/dashboards/TalleresPage': RouteRecordInfo<
       '/dashboards/TalleresPage',
       '/dashboards/TalleresPage',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/dashboards/UbicacionEditorPage': RouteRecordInfo<
+      '/dashboards/UbicacionEditorPage',
+      '/dashboards/UbicacionEditorPage',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/dashboards/UbicacionesPage': RouteRecordInfo<
+      '/dashboards/UbicacionesPage',
+      '/dashboards/UbicacionesPage',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/public': RouteRecordInfo<
+      '/public',
+      '/public',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/public_home': RouteRecordInfo<
+      '/public_home',
+      '/public_home',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -244,6 +286,22 @@ declare module 'vue-router/auto-routes' {
       pathParamNames:
         | never
     }
+    'src/pages/dashboards/CongresoEditorPage.vue': {
+      routes:
+        | '/dashboards/CongresoEditorPage'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/dashboards/CongresosPage.vue': {
+      routes:
+        | '/dashboards/CongresosPage'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
     'src/pages/dashboards/EditarConferenciaPage.vue': {
       routes:
         | '/dashboards/EditarConferenciaPage'
@@ -327,6 +385,38 @@ declare module 'vue-router/auto-routes' {
     'src/pages/dashboards/TalleresPage.vue': {
       routes:
         | '/dashboards/TalleresPage'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/dashboards/UbicacionEditorPage.vue': {
+      routes:
+        | '/dashboards/UbicacionEditorPage'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/dashboards/UbicacionesPage.vue': {
+      routes:
+        | '/dashboards/UbicacionesPage'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/public.vue': {
+      routes:
+        | '/public'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/public_home.vue': {
+      routes:
+        | '/public_home'
       views:
         | never
       pathParamNames:

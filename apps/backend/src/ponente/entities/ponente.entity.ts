@@ -1,13 +1,24 @@
-import { Column, Entity, PrimaryGeneratedColumn, DeleteDateColumn, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import {
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+  DeleteDateColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+  OneToMany,
+  OneToOne,
+  JoinColumn,
+} from 'typeorm';
 import { Conferencia } from '../../conferencia/entities/conferencia.entity';
 import { Taller } from '../../taller/entities/taller.entity';
+import { ArchivoMultimedia } from '../../archivo_multimedia/entities/archivo_multimedia.entity';
 
 @Entity()
 export class Ponente {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  //TODO: KS
+  // TODO: relacionar con la entidad de usuario cuando el modulo este disponible.
   @Column('uuid')
   usuario_id!: string;
 
@@ -16,10 +27,6 @@ export class Ponente {
     length: 200,
   })
   nombre!: string;
-
-  //TODO: FK
-  @Column('uuid')
-  archivo_foto_id!: string;
 
   @Column({
     type: 'varchar',
@@ -51,9 +58,16 @@ export class Ponente {
   deleted_at?: Date;
 
   //Relaciones
-  @OneToMany(() => Conferencia, (conf)=> conf.ponente)
+  @OneToMany(() => Conferencia, (conf) => conf.ponente)
   conferencias!: Conferencia[];
 
-  @OneToMany( () => Taller, (t) => t.ponente)
+  @OneToMany(() => Taller, (t) => t.ponente)
   talleres!: Taller[];
+
+  @OneToOne(() => ArchivoMultimedia, {
+    onDelete: 'SET NULL',
+    nullable: true,
+  })
+  @JoinColumn({ name: 'archivo_foto_id' })
+  foto?: ArchivoMultimedia | null;
 }
