@@ -72,12 +72,6 @@ const linksList: EssentialLinkProps[] = [
     link: "/registro_utvm"
   },
   {
-<<<<<<< HEAD
-    label: "Conferencias",
-    caption: "Gestión de conferencias",
-    icon: "code",
-    link: "/conferencias"
-=======
     label: 'Participantes',
     caption: 'Administración y validación',
     icon: 'badge',
@@ -88,7 +82,6 @@ const linksList: EssentialLinkProps[] = [
     caption: 'Gestión de conferencias',
     icon: 'code',
     link: '/conferencias',
->>>>>>> feature/rate-limit
   },
   {
     label: "Congresos",
