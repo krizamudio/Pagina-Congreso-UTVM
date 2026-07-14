@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { PonenteService } from './ponente.service';
 import { CreatePonenteDto } from './dto/create-ponente.dto';
@@ -26,17 +27,17 @@ export class PonenteController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.ponenteService.findOnePonente(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePonenteDto: UpdatePonenteDto) {
+  update(@Param('id', ParseUUIDPipe) id: string, @Body() updatePonenteDto: UpdatePonenteDto) {
     return this.ponenteService.updatePonente(id, updatePonenteDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.ponenteService.removePonente(id);
   }
 }

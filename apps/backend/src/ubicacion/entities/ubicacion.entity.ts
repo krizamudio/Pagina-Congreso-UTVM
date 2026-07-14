@@ -1,12 +1,11 @@
 import {
   Column,
+  CreateDateColumn,
   Entity,
-  JoinColumn,
-  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
-import { Congreso } from '../../congreso/entities/congreso.entity';
 import { Conferencia } from '../../conferencia/entities/conferencia.entity';
 import { Taller } from '../../taller/entities/taller.entity';
 
@@ -18,23 +17,39 @@ export class Ubicacion {
   @Column({
     type: 'varchar',
     length: 150,
+    unique: true,
   })
   nombre!: string;
 
   @Column('int')
   capacidad!: number;
 
-    //TODO: Analizar si esta relacion realmente vale la pena
-//   @ManyToOne(() => Congreso, (congreso) => congreso.ubicaciones, {
-//     nullable: true,
-//     onDelete: 'SET NULL',
-//   })
-//   @JoinColumn({ name: 'congreso_id' })
-//   congreso?: Congreso;
+  //TODO: Analizar si esta relacion realmente vale la pena
+  //   @ManyToOne(() => Congreso, (congreso) => congreso.ubicaciones, {
+  //     nullable: true,
+  //     onDelete: 'SET NULL',
+  //   })
+  //   @JoinColumn({ name: 'congreso_id' })
+  //   congreso?: Congreso;
 
+  //Cosas de fechas automaticas
+  @CreateDateColumn({
+    type: 'timestamp',
+    name: 'created_at',
+  })
+  created_at!: Date;
+
+  @UpdateDateColumn({
+    type: 'timestamp',
+    name: 'updated_at',
+  })
+  updated_at!: Date;
+
+
+  //Relaciones
   @OneToMany(() => Conferencia, (conf) => conf.ubicacion)
   conferencias?: Conferencia[];
 
   @OneToMany(() => Taller, (t) => t.ubicacion)
-  talleres!: Taller[];
+  talleres?: Taller[];
 }

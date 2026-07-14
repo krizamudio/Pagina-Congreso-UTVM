@@ -6,8 +6,8 @@ import { Congreso } from './entities/congreso.entity';
 import { Repository } from 'typeorm';
 import { CongresoFindOneResponseDto } from './dto/congreso-find-one.dto';
 import { CongresoMapper } from './mappers/congreso.mapper';
-import { ValidadorCommon } from '../../common/validador.provider';
-import { DatabaseErrorHandlerService } from '../../common/database/handle-database-error';
+import { ValidadorCommon } from '../common/validador.provider';
+import { DatabaseErrorHandlerService } from '../common/database/handle-database-error';
 
 @Injectable()
 export class CongresoService {

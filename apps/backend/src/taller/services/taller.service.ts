@@ -8,7 +8,7 @@ import { UpdateTallerDto } from '../dto/update-taller.dto';
 import { Taller } from '../entities/taller.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { ValidadorCommon } from '../../../common/validador.provider';
+import { ValidadorCommon } from '../../common/validador.provider';
 
 @Injectable()
 export class TallerService {

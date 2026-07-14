@@ -3,7 +3,7 @@ import { CongresoService } from './congreso.service';
 import { CongresoController } from './congreso.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Congreso } from './entities/congreso.entity';
-import { CommonModule } from '../../common/common.module';
+import { CommonModule } from '../common/common.module';
 
 @Module({
   controllers: [CongresoController],

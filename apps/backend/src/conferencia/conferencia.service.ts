@@ -8,7 +8,7 @@ import { UpdateConferenciaDto } from './dto/update-conferencia.dto';
 import { DeepPartial, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Conferencia } from './entities/conferencia.entity';
-import { ValidadorCommon } from '../../common/validador.provider';
+import { ValidadorCommon } from '../common/validador.provider';
 import { ConferenciaRelacionesProvider } from './providers/conferencia-relaciones.provider';
 import { separarDatosConferencia } from './mappers/conferencia-datos.mapper';
 import {
