@@ -1,8 +1,6 @@
 import {
   BadRequestException,
   Injectable,
-  InternalServerErrorException,
-  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { CreatePonenteDto } from '../dto/create-ponente.dto';
@@ -13,15 +11,19 @@ import { Repository } from 'typeorm';
 import { PonentePhotoService } from './ponente-photo.service';
 import { mapPonenteToResponse } from '../mappers/ponente.mapper';
 import { ResponsePonenteDto } from '../dto/response-ponente.dto';
+import { ResourceLockService } from '../../common/resource-lock.service';
+import { DatabaseErrorHandlerService } from '../../common/database/handle-database-error';
+
+//TODO: Falta hacer pruebas en esta parte, (Cuando este el front)
 
 @Injectable()
 export class PonenteService {
-  private readonly logger = new Logger(PonenteService.name);
-
   constructor(
     @InjectRepository(Ponente)
     private readonly ponenteRepository: Repository<Ponente>,
     private readonly photoService: PonentePhotoService,
+    private readonly locks: ResourceLockService,
+    private readonly dbErrors: DatabaseErrorHandlerService,
   ) {}
 
   async createPonente(
@@ -38,7 +40,7 @@ export class PonenteService {
       const creado = await this.ponenteRepository.save(ponente);
       return mapPonenteToResponse(creado);
     } catch (error) {
-      this.throwPersistenceError('crear el ponente', error);
+      this.dbErrors.handle(error);
     }
   }
 
@@ -70,8 +72,25 @@ export class PonenteService {
       );
     }
 
-    const ponente = await this.ponenteRepository.findOneBy({ id });
+    return this.locks.withLock(`ponente:${id}`, () =>
+      this.updateLocked(id, updatePonenteDto),
+    );
+  }
+
+  async removePonente(id: string): Promise<string> {
+    return this.locks.withLock(`ponente:${id}`, () => this.removeLocked(id));
+  }
+
+  private async updateLocked(
+    id: string,
+    updatePonenteDto: UpdatePonenteDto,
+  ): Promise<string> {
+    const ponente = await this.ponenteRepository.findOne({
+      where: { id },
+      relations: { foto: true },
+    });
     this.ensurePonenteExists(ponente, id);
+    const original = this.ponenteRepository.create({ ...ponente });
 
     const { archivo_foto_id, ...datosPonente } = updatePonenteDto;
     const foto =
@@ -86,23 +105,45 @@ export class PonenteService {
 
     try {
       await this.ponenteRepository.save(ponente);
-      return 'Ponente actualizado correctamente';
     } catch (error) {
-      this.throwPersistenceError('actualizar el ponente', error);
+      this.dbErrors.handle(error);
     }
+
+    await this.photoService.cleanupPrevious(
+      ponente.foto,
+      original.foto,
+      async () => {
+        await this.ponenteRepository.save(original);
+      },
+    );
+
+    return 'Ponente actualizado correctamente';
   }
 
-  async removePonente(id: string): Promise<string> {
+  private async removeLocked(id: string): Promise<string> {
+    const ponente = await this.ponenteRepository.findOne({
+      where: { id },
+      relations: { foto: true },
+    });
+    this.ensurePonenteExists(ponente, id);
+
     let affected: number | null | undefined;
 
     try {
       ({ affected } = await this.ponenteRepository.softDelete(id));
     } catch (error) {
-      this.throwPersistenceError('eliminar el ponente', error);
+      this.dbErrors.handle(error);
     }
 
     if (affected === 0) {
       throw new NotFoundException('No se encontro ningun registro');
+    }
+
+    if (ponente.foto) {
+      await this.photoService.cleanupPrevious(null, ponente.foto, async () => {
+        await this.ponenteRepository.restore(id);
+        await this.ponenteRepository.save(ponente);
+      });
     }
 
     return 'Ponente eliminado correctamente';
@@ -117,11 +158,5 @@ export class PonenteService {
         `No se encontro ningun ponente con el id ${id}`,
       );
     }
-  }
-
-  private throwPersistenceError(operation: string, error: unknown): never {
-    const trace = error instanceof Error ? error.stack : undefined;
-    this.logger.error(`No se pudo ${operation}`, trace);
-    throw new InternalServerErrorException('No se pudo realizar la accion');
   }
 }

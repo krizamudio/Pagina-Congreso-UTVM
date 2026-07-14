@@ -6,7 +6,6 @@ import { ArchivoMultimediaController, FotoController } from './controllers';
 import { ArchivoMultimediaMapper } from './mappers';
 import {
   ArchivoConcurrencyInterceptor,
-  ArchivoLockService,
   ArchivoMultimediaService,
   ArchivoRetryService,
   ArchivoStorageService,
@@ -20,11 +19,11 @@ import { CommonModule } from '../common/common.module';
     ArchivoMultimediaService,
     ArchivoStorageService,
     ArchivoConcurrencyInterceptor,
-    ArchivoLockService,
     ArchivoRetryService,
     SupabaseStorageService,
     ArchivoMultimediaMapper,
   ],
   imports: [TypeOrmModule.forFeature([ArchivoMultimedia]), CommonModule],
+  exports: [ArchivoMultimediaService, ArchivoStorageService],
 })
 export class ArchivoMultimediaModule {}
