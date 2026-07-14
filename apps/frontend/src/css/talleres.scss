@@ -1,0 +1,575 @@
+/* =========================================
+   PANTALLA DE TALLERES
+   ========================================= */
+
+   :root {
+  --color-bg: #031f1d;
+  --color-bg-2: #062b27;
+
+  --color-blue: #3f86ff;
+  --color-blue-soft: #1b5edb;
+  --color-blue-dark: #052b4a;
+
+  --color-green: #00e0a4;
+  --color-white: #ffffff;
+  --color-text-soft: #d6e3df;
+
+  --color-surface: rgba(3, 31, 29, 0.72);
+  --color-border: rgba(63, 134, 255, 0.45);
+
+  --font-main: 'Inter', sans-serif;
+}
+
+body {
+  font-family: var(--font-main);
+  background: var(--color-bg);
+  color: var(--color-white);
+}
+
+.talleres-page {
+  min-height: 100vh;
+  padding: 28px;
+  background:
+    radial-gradient(circle at top right, rgba(0, 224, 164, 0.12), transparent 34%),
+    linear-gradient(135deg, #021817, #062b27);
+  color: var(--color-white);
+}
+
+.talleres-container {
+  max-width: 1450px;
+  margin: 0 auto;
+}
+
+.talleres-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 26px;
+
+  .q-icon {
+    color: var(--color-blue);
+    font-size: 34px;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: 2.4rem;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    color: var(--color-white);
+  }
+}
+
+/* Layout general: tarjetas + panel lateral */
+.talleres-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: 24px;
+  align-items: start;
+}
+
+/* Grid de tarjetas */
+.talleres-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+/* Tarjeta base del taller */
+.taller-card {
+  position: relative;
+  border-radius: 16px;
+  padding: 18px;
+  background: rgba(2, 28, 26, 0.82);
+  border: 1px solid rgba(63, 134, 255, 0.25);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.28);
+  cursor: pointer;
+  transition:
+    transform .22s ease,
+    box-shadow .22s ease,
+    border-color .22s ease;
+  overflow: hidden;
+}
+
+.taller-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 24px 50px rgba(0, 0, 0, 0.34);
+}
+
+.taller-card.is-disabled {
+  opacity: .55;
+  cursor: not-allowed;
+}
+
+/* Borde superior de color según estado */
+.taller-card::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 4px;
+  border-radius: 16px 16px 0 0;
+  background: rgba(255,255,255,0.15);
+}
+
+/* Estados de semáforo */
+.taller-card.estado-verde {
+  border-color: rgba(0, 224, 164, 0.55);
+}
+
+.taller-card.estado-verde::before {
+  background: linear-gradient(90deg, #00e0a4, #58f0c5);
+}
+
+.taller-card.estado-amarillo {
+  border-color: rgba(255, 193, 7, 0.6);
+}
+
+.taller-card.estado-amarillo::before {
+  background: linear-gradient(90deg, #ffc107, #ffd75f);
+}
+
+.taller-card.estado-rojo {
+  border-color: rgba(255, 82, 82, 0.7);
+}
+
+.taller-card.estado-rojo::before {
+  background: linear-gradient(90deg, #ff5b5b, #ff8c8c);
+}
+
+.taller-card.estado-gris {
+  border-color: rgba(180, 185, 195, 0.35);
+}
+
+.taller-card.estado-gris::before {
+  background: linear-gradient(90deg, #9ea7b3, #c6ccd5);
+}
+
+/* Contenido superior de tarjeta */
+.taller-card-top {
+  display: grid;
+  grid-template-columns: 92px 1fr;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.taller-card-image {
+  width: 92px;
+  height: 92px;
+  border-radius: 14px;
+  object-fit: cover;
+  display: block;
+  background: linear-gradient(180deg, #062d4b, #041e35);
+  border: 1px solid rgba(63, 134, 255, 0.25);
+  padding: 0;
+}
+
+.taller-card-info h3 {
+  margin: 0 0 10px;
+  font-size: 1.35rem;
+  line-height: 1.2;
+  color: var(--color-white);
+  font-weight: 800;
+}
+
+.taller-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.taller-meta-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255,255,255,0.88);
+  font-size: 15px;
+
+  .q-icon {
+    color: var(--color-blue);
+    font-size: 18px;
+  }
+}
+
+/* Barra de cupo */
+.taller-progress-wrap {
+  margin-top: 10px;
+}
+
+.taller-progress-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.taller-progress {
+  flex: 1;
+  height: 12px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.08);
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.04);
+}
+
+.taller-progress-bar {
+  height: 100%;
+  border-radius: 999px;
+  transition: width .25s ease;
+}
+
+.estado-verde .taller-progress-bar {
+  background: linear-gradient(90deg, #00e0a4, #4ef2c1);
+}
+
+.estado-amarillo .taller-progress-bar {
+  background: linear-gradient(90deg, #ffc107, #ffd75f);
+}
+
+.estado-rojo .taller-progress-bar {
+  background: linear-gradient(90deg, #ff5b5b, #ff8f8f);
+}
+
+.estado-gris .taller-progress-bar {
+  background: linear-gradient(90deg, #9ea7b3, #c6ccd5);
+}
+
+.taller-progress-label {
+  min-width: 88px;
+  text-align: right;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text-soft);
+}
+
+/* Panel lateral de estados */
+.talleres-legend {
+  padding: 22px 18px;
+  border-radius: 16px;
+  background: rgba(2, 28, 26, 0.78);
+  border: 1px solid rgba(63, 134, 255, 0.28);
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.28);
+  position: sticky;
+  top: 24px;
+}
+
+.talleres-legend h3 {
+  margin: 0 0 18px;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--color-white);
+}
+
+.legend-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.legend-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  margin-top: 4px;
+  flex-shrink: 0;
+  border: 2px solid currentColor;
+}
+
+.legend-item strong {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 15px;
+}
+
+.legend-item p {
+  margin: 0;
+  color: var(--color-text-soft);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.legend-item.verde {
+  color: #00e0a4;
+}
+
+.legend-item.amarillo {
+  color: #ffc107;
+}
+
+.legend-item.rojo {
+  color: #ff6b6b;
+}
+
+.legend-item.gris {
+  color: #b7bec8;
+}
+
+/* Overlay del detalle */
+.taller-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 10, 10, 0.58);
+  backdrop-filter: blur(3px);
+  z-index: 3000;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 90px 20px 30px;
+}
+
+/* Tarjeta grande del detalle */
+.taller-detalle {
+  width: 980px;
+  max-width: 96vw;
+  border-radius: 20px;
+  position: relative;
+  background:
+    radial-gradient(circle at top right, rgba(0, 224, 164, 0.08), transparent 34%),
+    rgba(2, 28, 26, 0.96);
+  border: 1px solid rgba(63, 134, 255, 0.35);
+  box-shadow: 0 35px 90px rgba(0, 0, 0, 0.55);
+  overflow: hidden;
+}
+
+.taller-detalle.estado-verde {
+  border-color: rgba(0, 224, 164, 0.55);
+}
+
+.taller-detalle.estado-amarillo {
+  border-color: rgba(255, 193, 7, 0.65);
+}
+
+.taller-detalle.estado-rojo {
+  border-color: rgba(255, 82, 82, 0.72);
+}
+
+.taller-detalle.estado-gris {
+  border-color: rgba(180, 185, 195, 0.38);
+}
+
+.taller-detalle::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 5px;
+}
+
+.taller-detalle.estado-verde::before {
+  background: linear-gradient(90deg, #00e0a4, #58f0c5);
+}
+
+.taller-detalle.estado-amarillo::before {
+  background: linear-gradient(90deg, #ffc107, #ffd75f);
+}
+
+.taller-detalle.estado-rojo::before {
+  background: linear-gradient(90deg, #ff5b5b, #ff8c8c);
+}
+
+.taller-detalle.estado-gris::before {
+  background: linear-gradient(90deg, #9ea7b3, #c6ccd5);
+}
+
+.taller-detalle-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 5;
+  color: var(--color-white);
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.taller-detalle-body {
+  display: grid;
+  grid-template-columns: 1.2fr .9fr;
+  gap: 28px;
+  padding: 28px;
+}
+
+.taller-detalle-left {
+  padding-right: 20px;
+  border-right: 1px solid rgba(63, 134, 255, 0.18);
+}
+
+.taller-detalle-top {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 20px;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.taller-detalle-image {
+  width: 150px;
+  height: 150px;
+  border-radius: 16px;
+  object-fit: cover;
+  display: block;
+  background: linear-gradient(180deg, #062d4b, #041e35);
+  border: 1px solid rgba(63, 134, 255, 0.25);
+  padding: 0;
+}
+
+.taller-detalle-info h2 {
+  margin: 0 0 14px;
+  font-size: 2rem;
+  line-height: 1.1;
+  font-weight: 800;
+  color: var(--color-white);
+}
+
+.taller-detalle-info .taller-meta-item {
+  font-size: 16px;
+}
+
+.taller-detalle-desc {
+  margin-top: 18px;
+  color: rgba(255,255,255,0.88);
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.taller-detalle-right {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.taller-detalle-right h3 {
+  margin: 0 0 12px;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--color-white);
+}
+
+.taller-detalle-right ul {
+  margin: 0;
+  padding-left: 20px;
+  color: rgba(255,255,255,0.9);
+}
+
+.taller-detalle-right li {
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+
+.taller-detalle-actions {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 10px;
+}
+
+.btn-taller-inscribirse {
+  min-width: 180px;
+  height: 48px;
+  border-radius: 10px;
+  font-weight: 800;
+  background: var(--color-blue) !important;
+  color: var(--color-bg) !important;
+  border: 1px solid var(--color-blue) !important;
+  box-shadow: 0 0 18px rgba(63, 134, 255, 0.22);
+
+  .q-icon {
+    color: var(--color-bg) !important;
+  }
+
+  &:hover {
+    background: #5a99ff !important;
+    border-color: #5a99ff !important;
+  }
+}
+
+/* Tarjeta “inscribirse a más talleres” */
+.taller-card-add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 220px;
+  border-radius: 16px;
+  border: 2px dashed rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.02);
+  color: var(--color-text-soft);
+  text-align: center;
+  transition: .2s ease;
+}
+
+.taller-card-add:hover {
+  border-color: rgba(63, 134, 255, 0.45);
+  color: var(--color-white);
+}
+
+.taller-card-add .q-icon {
+  color: var(--color-blue);
+  margin-bottom: 10px;
+}
+
+/* Responsive */
+@media (max-width: 1300px) {
+  .talleres-grid {
+    grid-template-columns: repeat(2, minmax(260px, 1fr));
+  }
+}
+
+@media (max-width: 1024px) {
+  .talleres-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .talleres-legend {
+    position: static;
+  }
+}
+
+@media (max-width: 850px) {
+  .talleres-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .taller-detalle-body {
+    grid-template-columns: 1fr;
+  }
+
+  .taller-detalle-left {
+    padding-right: 0;
+    border-right: none;
+    border-bottom: 1px solid rgba(63, 134, 255, 0.18);
+    padding-bottom: 20px;
+  }
+}
+
+@media (max-width: 600px) {
+  .talleres-page {
+    padding: 18px;
+  }
+
+  .talleres-header h1 {
+    font-size: 1.9rem;
+  }
+
+  .taller-card-top,
+  .taller-detalle-top {
+    grid-template-columns: 1fr;
+  }
+
+  .taller-card-image,
+  .taller-detalle-image {
+    margin: 0 auto;
+  }
+
+  .taller-card-info,
+  .taller-detalle-info {
+    text-align: center;
+  }
+
+  .taller-progress-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .taller-progress-label {
+    text-align: left;
+    min-width: auto;
+  }
+}
