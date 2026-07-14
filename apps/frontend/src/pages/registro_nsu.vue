@@ -1,11 +1,19 @@
 <template>
   <div class="registro-page">
     <section class="registro-header">
-      <h1>Registro NSU (Nivel Superior)</h1>
-      <p>
-        El tutor o docente podrá registrar desde un participante y hasta n
-        participantes o subir archivo CSV.
-      </p>
+      <div class="row items-start justify-between q-col-gutter-md">
+        <div class="col">
+          <h1>Registro NSU (Nivel Superior)</h1>
+          <p>
+            El tutor o docente podrá registrar desde un participante y hasta n
+            participantes o subir archivo CSV.
+          </p>
+        </div>
+
+        <div class="col-auto">
+          <q-btn flat label="Volver" text-color="white" @click="goToParticipantes" />
+        </div>
+      </div>
     </section>
 
     <section class="registro-card">
@@ -260,8 +268,11 @@
 
 <script setup lang="ts">
 import { computed, ref } from "vue";
+import { useRouter } from 'vue-router';
 import { guardarRegistroNsu } from "../services/registroNsuService";
 import { Notify } from "quasar";
+
+const router = useRouter();
 
 const form = ref({
   nombre: "",
@@ -535,6 +546,10 @@ function abrirResumenRegistro() {
   }
 
   mostrarResumenRegistro.value = true;
+}
+
+function goToParticipantes() {
+  void router.push('/participantes');
 }
 </script>
 <style lang="scss">

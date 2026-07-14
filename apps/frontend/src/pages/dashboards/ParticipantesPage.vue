@@ -43,10 +43,10 @@
               <div class="text-h6">Participantes EMS</div>
               <div class="text-caption text-grey-7">CRUD sin comprobante de pago.</div>
             </div>
-            <q-btn label="Nuevo EMS" icon="add" color="primary" unelevated @click="openEmsDialog()" />
+            <q-btn label="Nuevo EMS" icon="add" color="primary" unelevated @click="goToEmsRegistro" />
           </div>
 
-          <q-table :rows="ems" :columns="emsColumns" row-key="id" flat bordered :loading="isRefreshing">
+          <q-table class="dashboard-table" :rows="ems" :columns="emsColumns" row-key="id" flat bordered :loading="isRefreshing">
             <template #body-cell-acciones="props">
               <q-td align="center">
                 <q-btn dense flat round icon="edit" color="primary" @click="openEmsDialog(props.row)" />
@@ -62,10 +62,10 @@
               <div class="text-h6">Participantes UTVM</div>
               <div class="text-caption text-grey-7">CRUD sin comprobante de pago.</div>
             </div>
-            <q-btn label="Nuevo UTVM" icon="add" color="primary" unelevated @click="openUtvmDialog()" />
+            <q-btn label="Nuevo UTVM" icon="add" color="primary" unelevated @click="goToUtvmRegistro" />
           </div>
 
-          <q-table :rows="utvm" :columns="utvmColumns" row-key="id" flat bordered :loading="isRefreshing">
+          <q-table class="dashboard-table" :rows="utvm" :columns="utvmColumns" row-key="id" flat bordered :loading="isRefreshing">
             <template #body-cell-acciones="props">
               <q-td align="center">
                 <q-btn dense flat round icon="edit" color="primary" @click="openUtvmDialog(props.row)" />
@@ -81,9 +81,10 @@
               <div class="text-h6">Registros NSU</div>
               <div class="text-caption text-grey-7">Con comprobante, participantes agrupados y estatus de pago.</div>
             </div>
+            <q-btn label="Nuevo NSU" icon="add" color="primary" unelevated @click="goToNsuRegistro" />
           </div>
 
-          <q-table :rows="nsu" :columns="nsuColumns" row-key="id" flat bordered :loading="isRefreshing">
+          <q-table class="dashboard-table" :rows="nsu" :columns="nsuColumns" row-key="id" flat bordered :loading="isRefreshing">
             <template #body-cell-estado_pago="props">
               <q-td align="center">
                 <q-badge :color="statusColor(mapNsuStatus(props.row.estado_pago))">
@@ -94,16 +95,16 @@
 
             <template #body-cell-comprobante="props">
               <q-td>
-                {{ props.row.comprobante?.nombre_original ?? 'Sin comprobante' }}
+                {{ normalizeText(props.row.comprobante?.nombre_original) || 'Sin comprobante' }}
               </q-td>
             </template>
 
             <template #body-cell-acciones="props">
-              <q-td align="center">
-                <q-btn dense flat round icon="visibility" color="primary" :disable="isRefreshing || saving" @click="goToNsuDetail(props.row.id)" />
-                <q-btn dense flat round icon="check_circle" color="positive" @click="setNsuStatus(props.row.id, 'VALIDADO')" />
-                <q-btn dense flat round icon="cancel" color="warning" @click="setNsuStatus(props.row.id, 'RECHAZADO')" />
-                <q-btn dense flat round icon="delete" color="negative" @click="deleteNsu(props.row.id)" />
+              <q-td align="center" class="actions-cell">
+                <q-btn class="nsu-action-btn nsu-action-view" dense flat round icon="visibility" color="primary" :disable="isRefreshing || saving" @click="goToNsuDetail(props.row.id)" />
+                <q-btn class="nsu-action-btn nsu-action-valid" dense flat round icon="check_circle" color="positive" @click="setNsuStatus(props.row.id, 'VALIDADO')" />
+                <q-btn class="nsu-action-btn nsu-action-reject" dense flat round icon="cancel" color="negative" @click="setNsuStatus(props.row.id, 'RECHAZADO')" />
+                <q-btn class="nsu-action-btn nsu-action-delete" dense flat round icon="delete" color="grey-7" @click="deleteNsu(props.row.id)" />
               </q-td>
             </template>
           </q-table>
@@ -115,10 +116,10 @@
               <div class="text-h6">Participantes Externos</div>
               <div class="text-caption text-grey-7">Con comprobante individual y control de estatus.</div>
             </div>
-            <q-btn label="Nuevo externo" icon="add" color="primary" unelevated @click="openExternoDialog()" />
+            <q-btn label="Nuevo externo" icon="add" color="primary" unelevated @click="goToExternoRegistro" />
           </div>
 
-          <q-table :rows="externos" :columns="externosColumns" row-key="id" flat bordered :loading="isRefreshing">
+          <q-table class="dashboard-table" :rows="externos" :columns="externosColumns" row-key="id" flat bordered :loading="isRefreshing">
             <template #body-cell-status="props">
               <q-td align="center">
                 <q-badge :color="statusColor(mapExternoStatus(props.row.status))">
@@ -129,7 +130,7 @@
 
             <template #body-cell-comprobante="props">
               <q-td>
-                {{ props.row.comprobante?.nombre_original ?? 'Sin comprobante' }}
+                {{ normalizeText(props.row.comprobante?.nombre_original) || 'Sin comprobante' }}
               </q-td>
             </template>
 
@@ -347,7 +348,14 @@ const nsuColumns: QTableColumn[] = [
   { name: 'total_general', label: 'Total', field: (row: RegistroNsu) => money(row.total_general), align: 'right' },
   { name: 'estado_pago', label: 'Estatus', field: 'estado_pago', align: 'center' },
   { name: 'comprobante', label: 'Voucher', field: 'comprobante', align: 'left' },
-  { name: 'acciones', label: 'Acciones', field: 'acciones', align: 'center' },
+  {
+    name: 'acciones',
+    label: 'Acciones',
+    field: 'acciones',
+    align: 'center',
+    style: 'min-width: 170px; width: 170px;',
+    headerStyle: 'min-width: 170px; width: 170px;',
+  },
 ];
 
 const externosColumns: QTableColumn[] = [
@@ -427,6 +435,21 @@ function statusLabel(status: ParticipanteEstatus) {
     validado: 'Validado',
     rechazado: 'Rechazado',
   }[status];
+}
+
+function normalizeText(value?: string | null) {
+  const text = value ?? '';
+  if (!text) return '';
+  if (!/[ÃÂÐ]/.test(text)) return text;
+
+  try {
+    const bytes = Uint8Array.from(text, (char) => char.charCodeAt(0));
+    const decoded = new TextDecoder('utf-8').decode(bytes);
+
+    return decoded.includes('�') ? text : decoded;
+  } catch {
+    return text;
+  }
 }
 
 function openEmsDialog(row?: ParticipanteEms) {
@@ -565,6 +588,22 @@ function goToNsuDetail(id: string) {
   void router.push(`/participantes/nsu/${id}`);
 }
 
+function goToEmsRegistro() {
+  void router.push('/registro_ems');
+}
+
+function goToUtvmRegistro() {
+  void router.push('/registro_utvm');
+}
+
+function goToNsuRegistro() {
+  void router.push('/registro_nsu');
+}
+
+function goToExternoRegistro() {
+  void router.push('/registro-externo');
+}
+
 async function deleteExterno(id: string) {
   if (!window.confirm('¿Eliminar participante externo?')) return;
   await removeWithReload(() => removeExterno(id), 'Participante externo eliminado.');
@@ -600,11 +639,182 @@ onMounted(() => {
 
 .metric-card,
 .admin-card {
-  border-radius: 8px;
+  border-radius: 20px;
+  background: rgba(9, 30, 26, 0.92);
+  border: 1px solid rgba(0, 230, 118, 0.18);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(18px);
+}
+
+.metric-card :deep(.q-card__section),
+.admin-card :deep(.q-card__section),
+.admin-card :deep(.q-tab-panel) {
+  color: #ffffff;
+}
+
+.admin-card :deep(.q-tabs) {
+  color: #00e676;
+}
+
+.admin-card :deep(.q-tab-panels),
+.admin-card :deep(.q-panel),
+.admin-card :deep(.q-tab-panel),
+.admin-card :deep(.q-separator) {
+  background: rgba(7, 30, 27, 0.85) !important;
+}
+
+.admin-card :deep(.q-tab-panel) {
+  padding: 16px;
+}
+
+.admin-card :deep(.dashboard-table .nsu-action-btn .q-icon) {
+  color: #ffffff !important;
+}
+
+.admin-card :deep(.dashboard-table .nsu-action-btn) {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  min-width: 32px;
+  border-radius: 999px;
+  border: 1px solid transparent;
+  opacity: 1 !important;
+}
+
+.admin-card :deep(.dashboard-table .nsu-action-btn .q-btn__content),
+.admin-card :deep(.dashboard-table .nsu-action-btn .q-icon),
+.admin-card :deep(.dashboard-table .nsu-action-btn .material-icons),
+.admin-card :deep(.dashboard-table .nsu-action-btn .material-symbols-outlined) {
+  opacity: 1 !important;
+  visibility: visible !important;
+  font-size: 20px !important;
+}
+
+.admin-card :deep(.dashboard-table .nsu-action-btn.q-btn--disabled) {
+  opacity: 0.72 !important;
+}
+
+.admin-card :deep(.dashboard-table .actions-cell) {
+  white-space: nowrap;
+  overflow: visible !important;
+}
+
+.admin-card :deep(.dashboard-table .actions-cell .q-btn) {
+  margin: 0 2px;
+}
+
+.admin-card :deep(.dashboard-table .nsu-action-view) {
+  color: #ffffff !important;
+  background: #1565c0 !important;
+  border-color: #0d47a1 !important;
+  box-shadow: 0 6px 14px rgba(21, 101, 192, 0.4) !important;
+}
+
+.admin-card :deep(.dashboard-table .nsu-action-valid) {
+  color: #ffffff !important;
+  background: #1b8f3c !important;
+  border-color: #0f6e2b !important;
+  box-shadow: 0 6px 14px rgba(27, 143, 60, 0.4) !important;
+}
+
+.admin-card :deep(.dashboard-table .nsu-action-reject) {
+  color: #ffffff !important;
+  background: #d81b60 !important;
+  border-color: #ad1457 !important;
+  box-shadow: 0 6px 14px rgba(216, 27, 96, 0.4) !important;
+}
+
+.admin-card :deep(.dashboard-table .nsu-action-delete) {
+  color: #ffffff !important;
+  background: #455a64 !important;
+  border-color: #37474f !important;
+  box-shadow: 0 6px 14px rgba(55, 71, 79, 0.36) !important;
+}
+
+.admin-card :deep(.q-tab .q-icon),
+.admin-card :deep(.q-tab__label) {
+  color: #ffffff !important;
 }
 
 .form-dialog {
   width: min(760px, 92vw);
+}
+
+:global(body.theme-light) .participantes-page .metric-card,
+:global(body.theme-light) .participantes-page .admin-card {
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(16, 43, 37, 0.14);
+  box-shadow: 0 14px 32px rgba(16, 43, 37, 0.08);
+}
+
+:global(body.theme-light) .participantes-page .metric-card :deep(.q-card__section),
+:global(body.theme-light) .participantes-page .admin-card :deep(.q-card__section),
+:global(body.theme-light) .participantes-page .admin-card :deep(.q-tab-panel) {
+  color: #173a33 !important;
+}
+
+:global(body.theme-light) .participantes-page .admin-card :deep(.q-tabs),
+:global(body.theme-light) .participantes-page .admin-card :deep(.q-tab__label),
+:global(body.theme-light) .participantes-page .admin-card :deep(.q-tab .q-icon) {
+  color: #1f4a42 !important;
+}
+
+:global(body.theme-light) .participantes-page .admin-card :deep(.q-separator),
+:global(body.theme-light) .participantes-page .admin-card :deep(.q-tab-panels),
+:global(body.theme-light) .participantes-page .admin-card :deep(.q-panel),
+:global(body.theme-light) .participantes-page .admin-card :deep(.q-tab-panel) {
+  background: rgba(242, 250, 247, 0.95) !important;
+}
+
+:global(body.theme-light) .participantes-page .admin-card :deep(.text-grey-7),
+:global(body.theme-light) .participantes-page .admin-card :deep(.text-caption) {
+  color: #5b7570 !important;
+}
+
+:global(body.theme-light) .participantes-page .dashboard-table .nsu-action-view .q-icon {
+  color: #ffffff !important;
+}
+
+:global(body.theme-light) .participantes-page .dashboard-table .nsu-action-view {
+  color: #ffffff !important;
+  background: #1565c0 !important;
+  border-color: #0d47a1 !important;
+  box-shadow: 0 6px 14px rgba(21, 101, 192, 0.4) !important;
+}
+
+:global(body.theme-light) .participantes-page .dashboard-table .nsu-action-valid .q-icon {
+  color: #ffffff !important;
+}
+
+:global(body.theme-light) .participantes-page .dashboard-table .nsu-action-valid {
+  color: #ffffff !important;
+  background: #1b8f3c !important;
+  border-color: #0f6e2b !important;
+  box-shadow: 0 6px 14px rgba(27, 143, 60, 0.4) !important;
+}
+
+:global(body.theme-light) .participantes-page .dashboard-table .nsu-action-reject .q-icon {
+  color: #ffffff !important;
+}
+
+:global(body.theme-light) .participantes-page .dashboard-table .nsu-action-reject {
+  color: #ffffff !important;
+  background: #d81b60 !important;
+  border-color: #ad1457 !important;
+  box-shadow: 0 6px 14px rgba(216, 27, 96, 0.4) !important;
+}
+
+:global(body.theme-light) .participantes-page .dashboard-table .nsu-action-delete .q-icon {
+  color: #ffffff !important;
+}
+
+:global(body.theme-light) .participantes-page .dashboard-table .nsu-action-delete {
+  color: #ffffff !important;
+  background: #455a64 !important;
+  border-color: #37474f !important;
+  box-shadow: 0 6px 14px rgba(55, 71, 79, 0.36) !important;
 }
 
 </style>
