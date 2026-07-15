@@ -57,10 +57,13 @@
                 color="primary"
                 icon="edit"
                 class="q-mr-sm"
+                :disable="deletingId === props.row.id"
                 :to="`/congresos/${props.row.id}/editar`" /><q-btn
                 dense
                 color="negative"
                 icon="delete"
+                :disable="deletingId !== null"
+                :loading="deletingId === props.row.id"
                 @click="confirmRemove(props.row.id)" /></q-td
           ></template>
           <template #no-data
@@ -75,13 +78,14 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from "vue";
+import { onMounted, ref } from "vue";
 import { useQuasar, type QTableColumn } from "quasar";
 import StatePanel from "../../components/feedback/StatePanel.vue";
 import { useCongresosQuery } from "../../composables/useCongresosQuery";
 
 const $q = useQuasar();
 const { data, isRefreshing, error, load, remove } = useCongresosQuery();
+const deletingId = ref<string | null>(null);
 const columns: QTableColumn[] = [
   {
     name: "nombre",
@@ -122,6 +126,8 @@ const confirmRemove = (id: string) =>
       persistent: true
     })
     .onOk(async () => {
+      if (deletingId.value) return;
+      deletingId.value = id;
       try {
         await remove(id);
         $q.notify({
@@ -134,6 +140,8 @@ const confirmRemove = (id: string) =>
           type: "negative",
           message: "No se pudo eliminar el congreso."
         });
+      } finally {
+        deletingId.value = null;
       }
     });
 onMounted(() => void load());

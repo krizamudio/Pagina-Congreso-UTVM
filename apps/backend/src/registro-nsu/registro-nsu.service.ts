@@ -12,6 +12,9 @@ import { ArchivoComprobante } from './entities/archivo-comprobante.entity';
 import { ParticipanteNsu } from './entities/participante-nsu.entity';
 import { RegistroNsu } from './entities/registro-nsu.entity';
 import { GeneradorCommon } from '../common/generador.common';
+import { EnviarQrAccesoDto } from '../participante-qr/dto/enviar-qr-acceso.dto';
+import { ParticipanteQrEnvioService } from '../participante-qr/participante-qr-envio.service';
+import { ParticipanteTipo } from '../participante-acceso/participante-tipo.enum';
 
 @Injectable()
 export class RegistroNsuService {
@@ -28,6 +31,7 @@ export class RegistroNsuService {
 
     private readonly configService: ConfigService,
     private readonly generador: GeneradorCommon,
+    private readonly qrEnvio: ParticipanteQrEnvioService,
   ) {}
 
   async create(createRegistroNsuDto: CreateRegistroNsuDto) {
@@ -460,6 +464,46 @@ export class RegistroNsuService {
 
       return this.findOne(registroId);
     });
+  }
+
+  async enviarQrAcceso(
+    registroId: string,
+    participanteId: string,
+    dto: EnviarQrAccesoDto,
+  ) {
+    const participante = await this.participanteRepository.findOne({
+      where: {
+        id: participanteId,
+        registro: { id: registroId },
+        deleted_at: IsNull(),
+      },
+      select: { id: true },
+    });
+    if (!participante) {
+      throw new BadRequestException('Participante NSU no encontrado');
+    }
+    return this.qrEnvio.enviar(ParticipanteTipo.NSU, participanteId, dto);
+  }
+
+  async enviarQrAccesoAutomatico(
+    registroId: string,
+    participanteId: string,
+  ) {
+    const participante = await this.participanteRepository.findOne({
+      where: {
+        id: participanteId,
+        registro: { id: registroId },
+        deleted_at: IsNull(),
+      },
+    });
+    if (!participante) {
+      throw new BadRequestException('Participante NSU no encontrado');
+    }
+    return this.qrEnvio.enviarAutomatico(
+      ParticipanteTipo.NSU,
+      participanteId,
+      participante.dias,
+    );
   }
 
   async removeParticipante(registroId: string, participanteId: string) {

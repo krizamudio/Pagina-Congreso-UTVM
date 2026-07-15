@@ -1,5 +1,8 @@
 # API: Externos (Participantes Externos)
 
+El envio del QR se documenta en [`qr-acceso.md`](./qr-acceso.md). Endpoint:
+`POST /externos/:id/qr-acceso/enviar`.
+
 Base URL: `http://localhost:3000/api`
 
 Los endpoints de registro usan `multipart/form-data` porque incluyen la subida de un comprobante de pago.

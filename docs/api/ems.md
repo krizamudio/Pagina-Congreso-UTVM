@@ -1,5 +1,8 @@
 # API: EMS (Participantes)
 
+El envio del QR se documenta en [`qr-acceso.md`](./qr-acceso.md). Endpoint:
+`POST /ems/:id/qr-acceso/enviar`.
+
 Base URL: `http://localhost:3000/api`
 
 Configura cada request con `Content-Type: application/json`.
