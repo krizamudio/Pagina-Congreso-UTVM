@@ -19,7 +19,7 @@ const routes: RouteRecordRaw[] = [
       },
       {
         path: "/talleres_u",
-        component: () => import("@/pages/panel_u/talleres.vue"),
+        component: () => import("@/pages/TalleresU/talleres.vue"),
       },
       {
         path: "/conferencias_u",
@@ -44,7 +44,6 @@ const routes: RouteRecordRaw[] = [
     path: "/registro_utvm",
     component: () => import("@/pages/registro_utvm.vue"),
   },
-
   {
     path: "/registro_nsu/verificar",
     component: () => import("@/pages/verificar_correo_nsu.vue"),

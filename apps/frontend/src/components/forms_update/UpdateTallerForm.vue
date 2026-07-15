@@ -61,39 +61,7 @@
       </div>
 
       <div class="col-12">
-        <q-input
-          v-model="form.descripcion"
-          label="Descripción"
-          type="textarea"
-          autogrow
-          dense
-          dark
-        />
-      </div>
-
-      <div class="col-12">
-        <div v-if="imagenActual" class="q-mb-sm">
-          <div class="text-caption text-grey-5 q-mb-xs">Imagen actual</div>
-          <q-img
-            :src="imagenActual"
-            style="max-width: 260px; border-radius: 10px"
-            ratio="16/9"
-          />
-        </div>
-
-        <q-file
-          v-model="imagenFile"
-          label="Cambiar imagen del taller"
-          accept=".jpg,.jpeg,.png,.webp,image/*"
-          outlined
-          dense
-          dark
-          clearable
-        >
-          <template #prepend>
-            <q-icon name="image" />
-          </template>
-        </q-file>
+        <q-input v-model="form.descripcion" label="Descripción" type="textarea" autogrow dense dark />
       </div>
 
       <div class="col-12 col-md-4">
@@ -142,14 +110,7 @@
       </div>
 
       <div class="col-12 col-md-6">
-        <q-input
-          v-model="form.requisitos"
-          label="Requisitos"
-          type="textarea"
-          autogrow
-          dense
-          dark
-        />
+        <q-input v-model="form.requisitos" label="Requisitos" type="textarea" autogrow dense dark />
       </div>
     </div>
 
@@ -184,11 +145,11 @@ const props = withDefaults(defineProps<Props>(), {
 });
 
 const emit = defineEmits<{
-  (e: 'submit', payload: { taller: TallerPayload; imagen: File | null }): void;
+  (e: 'submit', payload: TallerPayload): void;
 }>();
 
 function generateUUID() {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
     const r = (Math.random() * 16) | 0;
     const v = c === 'x' ? r : (r & 0x3) | 0x8;
     return v.toString(16);
@@ -196,13 +157,6 @@ function generateUUID() {
 }
 
 const error = ref<string | null>(null);
-const imagenFile = ref<File | null>(null);
-
-const imagenActual = computed(() => {
-  const data = props.initialData as any;
-  return data?.imagen || data?.imagen_url || '';
-});
-
 const { useGetPonentes } = usePonente();
 const {
   data: talleristas,
@@ -224,13 +178,9 @@ const defaultForm = (): TallerPayload => ({
   requisitos: '',
 });
 
-const { formData: form, hydrateForm } = useFormPersistence<TallerPayload>(
-  'update-taller-form',
-  defaultForm(),
-  {
-    hydrateOnMounted: false,
-  },
-);
+const { formData: form, hydrateForm } = useFormPersistence<TallerPayload>('update-taller-form', defaultForm(), {
+  hydrateOnMounted: false,
+});
 
 const syncForm = () => {
   hydrateForm({
@@ -255,28 +205,16 @@ const talleristaOptions = computed(() => {
 });
 
 const selectedTalleristaLabel = computed(() => {
-  return (
-    talleristaOptions.value.find(
-      (option) => option.value === form.value.tallerista_id,
-    )?.label ?? form.value.tallerista_id
-  );
+  return talleristaOptions.value.find((option) => option.value === form.value.tallerista_id)?.label ?? form.value.tallerista_id;
 });
 
-const requiredRule = (value: string | number) =>
-  (value !== '' && value !== null && value !== undefined) ||
-  'Este campo es obligatorio';
-
-const positiveIntRule = (value: number) =>
-  (Number.isInteger(value) && value > 0) || 'Debe ser un entero mayor a 0';
+const requiredRule = (value: string | number) => value !== '' && value !== null && value !== undefined || 'Este campo es obligatorio';
+const positiveIntRule = (value: number) => Number.isInteger(value) && value > 0 || 'Debe ser un entero mayor a 0';
 
 const submit = () => {
   error.value = null;
   form.value.cupo_maximo = Number(form.value.cupo_maximo) || 1;
-
-  emit('submit', {
-    taller: { ...form.value },
-    imagen: imagenFile.value,
-  });
+  emit('submit', { ...form.value });
 };
 
 onMounted(() => {
