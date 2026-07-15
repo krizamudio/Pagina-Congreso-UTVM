@@ -10,15 +10,17 @@
 
     <q-card class="dashboard-card q-pa-md">
       <q-card-section>
-        <NewPonenteForm @submit="handleSubmit" :loading="isPending" />
+        <NewPonenteForm @submit="handleSubmit" :loading="isPending || isSubmitting" />
       </q-card-section>
     </q-card>
   </q-page>
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
+import axios from 'axios';
 import NewPonenteForm from '../../components/forms/NewPonenteForm.vue';
 import { usePonente } from '../../composables/usePonente';
 import type { PonentePayload } from '../../types';
@@ -33,7 +35,10 @@ const router = useRouter();
 const $q = useQuasar();
 const { useCreatePonente } = usePonente();
 const { mutate: createPonente, isPending } = useCreatePonente();
-const ponentePhotoUploadEndpoint = (import.meta.env.VITE_UPLOAD_PONENTE_PHOTO_ENDPOINT as string | undefined)?.trim() ?? '';
+const isSubmitting = ref(false);
+const ponentePhotoUploadEndpoint =
+  (import.meta.env.VITE_UPLOAD_PONENTE_PHOTO_ENDPOINT as string | undefined)?.trim() ||
+  'fotos';
 
 const notify = (type: 'positive' | 'negative' | 'warning', message: string) => {
   if (typeof $q.notify === 'function') {
@@ -58,12 +63,21 @@ const goBack = () => {
 };
 
 const handleSubmit = async ({ ponente, foto }: NewPonenteSubmitPayload) => {
+  if (isSubmitting.value) {
+    return;
+  }
+
+  isSubmitting.value = true;
+
   try {
     const payload: PonentePayload = { ...ponente };
 
-    if (foto && ponentePhotoUploadEndpoint) {
+    // Ignore any stale persisted id; only keep archivo_foto_id when upload succeeds in this submit.
+    delete (payload as Partial<PonentePayload>).archivo_foto_id;
+
+    if (foto) {
       const uploadFormData = new FormData();
-      uploadFormData.append('file', foto);
+      uploadFormData.append('foto', foto);
 
       const uploadResponse = await api.post(ponentePhotoUploadEndpoint, uploadFormData, {
         headers: {
@@ -80,7 +94,7 @@ const handleSubmit = async ({ ponente, foto }: NewPonenteSubmitPayload) => {
       if (typeof uploadedPhotoId === 'string' && uploadedPhotoId.length > 0) {
         payload.archivo_foto_id = uploadedPhotoId;
       } else {
-        notify('warning', 'La imagen se subio, pero no se recibio archivo_foto_id en la respuesta.');
+        throw new Error('La subida de foto no devolvio un id valido.');
       }
     }
 
@@ -89,7 +103,23 @@ const handleSubmit = async ({ ponente, foto }: NewPonenteSubmitPayload) => {
     void router.push('/ponentes');
   } catch (err) {
     console.error('Error al crear el ponente:', err);
-    notify('negative', 'No se pudo crear el ponente.');
+
+    let detail = '';
+    if (axios.isAxiosError(err)) {
+      const backendMessage = err.response?.data?.message;
+      if (Array.isArray(backendMessage)) {
+        detail = backendMessage.join(' | ');
+      } else if (typeof backendMessage === 'string' && backendMessage.length > 0) {
+        detail = backendMessage;
+      }
+    }
+
+    notify(
+      'negative',
+      detail ? `No se pudo crear el ponente. ${detail}` : 'No se pudo crear el ponente.',
+    );
+  } finally {
+    isSubmitting.value = false;
   }
 };
 </script>

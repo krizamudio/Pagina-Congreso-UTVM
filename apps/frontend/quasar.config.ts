@@ -69,7 +69,7 @@ export default defineConfig((/* ctx */) => {
             "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
             "font-src 'self' https://fonts.gstatic.com; " +
-            "img-src 'self' data: blob:; " +
+            "img-src 'self' data: blob: https://*.supabase.co; " +
             "connect-src 'self' http://localhost:3000 ws://localhost:*;",
         };
       },
@@ -91,7 +91,7 @@ devServer: {
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
       "style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
       "font-src 'self' https://fonts.gstatic.com; " +
-      "img-src 'self' data: blob:; " +
+      "img-src 'self' data: blob: https://*.supabase.co; " +
       "connect-src 'self' http://localhost:3000 ws://localhost:*;",
   },
 },

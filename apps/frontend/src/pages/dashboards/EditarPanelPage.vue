@@ -71,7 +71,7 @@ const handleSubmit = async ({ panelista, foto }: { panelista: PanelPayload; foto
 
     if (foto && panelistaPhotoUploadEndpoint) {
       const uploadFormData = new FormData();
-      uploadFormData.append('file', foto);
+      uploadFormData.append('foto', foto);
 
       const uploadResponse = await api.post(panelistaPhotoUploadEndpoint, uploadFormData, {
         headers: { 'Content-Type': 'multipart/form-data' },

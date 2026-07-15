@@ -6,7 +6,12 @@ export function mapPonenteToResponse(data: Ponente): ResponsePonenteDto {
     id: data.id,
     usuarioId: data.usuario_id,
     nombre: data.nombre,
-    foto: data.foto ? { url: data.foto.ruta_archivo } : undefined,
+    foto: data.foto
+      ? {
+          id: data.foto.id,
+          url: data.foto.ruta_archivo,
+        }
+      : undefined,
     institucion: data.institucion,
     semblanza: data.semblanza,
     tema: data.tema,
