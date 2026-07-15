@@ -282,6 +282,12 @@ http://localhost:3000/api/auth/login
 http://localhost:3000/api/users
 ```
 
+### Documentación del módulo QR
+
+La guía de configuración, emisión, escaneo, confirmación, casos negativos y
+pruebas de concurrencia está disponible en
+[docs/api/qr-acceso.md](docs/api/qr-acceso.md).
+
 ## Flujo de trabajo con GitFlow
 
 Este proyecto puede trabajarse usando GitFlow.

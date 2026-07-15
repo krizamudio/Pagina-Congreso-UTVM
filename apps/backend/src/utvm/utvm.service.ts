@@ -11,6 +11,9 @@ import { GeneradorCommon } from '../common/generador.common';
 import { Utvm } from './entities/utvm.entity';
 import { CreateUtvmDto } from './dto/create-utvm.dto';
 import { UpdateUtvmDto } from './dto/update-utvm.dto';
+import { EnviarQrAccesoDto } from '../participante-qr/dto/enviar-qr-acceso.dto';
+import { ParticipanteQrEnvioService } from '../participante-qr/participante-qr-envio.service';
+import { ParticipanteTipo } from '../participante-acceso/participante-tipo.enum';
 
 @Injectable()
 export class UtvmService {
@@ -18,6 +21,7 @@ export class UtvmService {
     @InjectRepository(Utvm)
     private readonly utvmRepository: Repository<Utvm>,
     private readonly generador: GeneradorCommon,
+    private readonly qrEnvio: ParticipanteQrEnvioService,
   ) {}
 
   async create(createUtvmDto: CreateUtvmDto) {
@@ -146,5 +150,13 @@ export class UtvmService {
     return {
       message: 'Participante UTVM restaurado correctamente',
     };
+  }
+
+  enviarQrAcceso(id: number, dto: EnviarQrAccesoDto) {
+    return this.qrEnvio.enviar(ParticipanteTipo.UTVM, String(id), dto);
+  }
+
+  enviarQrAccesoAutomatico(id: number) {
+    return this.qrEnvio.enviarAutomatico(ParticipanteTipo.UTVM, String(id));
   }
 }

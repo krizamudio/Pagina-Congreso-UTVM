@@ -10,7 +10,8 @@ URL publica.
 
 - `POST /fotos`, campo `foto`: acepta JPEG, PNG o WebP.
 - `GET /fotos/:id`: consulta una foto.
-- `PATCH /fotos/:id`, campo `foto`: sustituye una foto.
+- `PATCH /fotos/:id`, campo `foto`: sustituye una foto, conserva su ID y elimina
+  el objeto anterior del bucket.
 - `DELETE /fotos/:id`: elimina una foto.
 
 ## Archivos

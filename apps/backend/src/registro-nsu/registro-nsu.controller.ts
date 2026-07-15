@@ -5,6 +5,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseUUIDPipe,
   ParseFilePipe,
   Patch,
   Post,
@@ -21,6 +22,7 @@ import type { UploadedFile as UploadedFileType } from './types/uploaded-file.typ
 import { UpdateRegistroNsuDto } from './dto/update-registro-nsu.dto';
 import { UpdateParticipanteNsuStatusDto } from './dto/update-participante-nsu-status.dto';
 import type { CreateParticipanteNsuDto } from './dto/create-registro-nsu.dto';
+import { EnviarQrAccesoDto } from '../participante-qr/dto/enviar-qr-acceso.dto';
 
 @Controller('registro-nsu')
 export class RegistroNsuController {
@@ -98,6 +100,23 @@ export class RegistroNsuController {
       participanteId,
       updateParticipanteNsuStatusDto,
     );
+  }
+
+  @Post(':id/participantes/:participanteId/qr-acceso/enviar')
+  enviarQrAcceso(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Param('participanteId', ParseUUIDPipe) participanteId: string,
+    @Body() dto: EnviarQrAccesoDto,
+  ) {
+    return this.registroNsuService.enviarQrAcceso(id, participanteId, dto);
+  }
+
+  @Post(':id/participantes/:participanteId/qr-acceso/enviar-automatico')
+  enviarQrAccesoAutomatico(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Param('participanteId', ParseUUIDPipe) participanteId: string,
+  ) {
+    return this.registroNsuService.enviarQrAccesoAutomatico(id, participanteId);
   }
 
   @Delete(':id/participantes/:participanteId')

@@ -94,6 +94,7 @@
                 <q-btn class="nsu-action-btn nsu-action-pending" dense flat round icon="pending" color="orange" :disable="isSaving || isLoading" @click="setParticipantStatus(props.row.id, 'PENDIENTE')" />
                 <q-btn class="nsu-action-btn nsu-action-valid" dense flat round icon="check_circle" color="positive" :disable="isSaving || isLoading" @click="setParticipantStatus(props.row.id, 'VALIDADO')" />
                 <q-btn class="nsu-action-btn nsu-action-reject" dense flat round icon="cancel" color="negative" :disable="isSaving || isLoading" @click="setParticipantStatus(props.row.id, 'RECHAZADO')" />
+                <q-btn class="nsu-action-btn nsu-action-qr" dense flat round icon="qr_code_2" color="positive" title="Enviar QR" :disable="isSaving || isLoading || !props.row.correo_verificado || props.row.estado_pago !== 'VALIDADO'" :loading="qrSendingId === props.row.id" @click="sendQr(props.row.id)" />
                 <q-btn class="nsu-action-btn nsu-action-delete" dense flat round icon="delete" color="grey-7" :disable="isSaving || isLoading" @click="deleteParticipant(props.row.id)" />
               </q-td>
             </template>
@@ -109,6 +110,7 @@ import { computed, onMounted, ref } from 'vue';
 import { useQuasar, type QTableColumn } from 'quasar';
 import { useRoute, useRouter } from 'vue-router';
 import { useParticipantesAdmin } from '../../composables/useParticipantesAdmin';
+import { getQrApiError, qrAccessService } from '../../services/qrAccessService';
 import type { ParticipanteEstatus, ParticipanteNsuDetalle, RegistroNsu } from '../../types';
 
 const route = useRoute() as unknown as { params: { id?: string } };
@@ -118,6 +120,7 @@ const registro = ref<RegistroNsu | null>(null);
 const isLoading = ref(false);
 const isSaving = ref(false);
 const error = ref<string | null>(null);
+const qrSendingId = ref<string | null>(null);
 
 const {
   getNsuById,
@@ -245,6 +248,23 @@ async function deleteParticipant(participanteId: string) {
   }, 'Participante eliminado del registro.');
 }
 
+async function sendQr(participanteId: string) {
+  if (qrSendingId.value) return;
+  qrSendingId.value = participanteId;
+  try {
+    const response = await qrAccessService.sendAutomatic(
+      'NSU',
+      participanteId,
+      registroId.value,
+    );
+    notify('positive', response.mensaje);
+  } catch (err) {
+    notify('negative', getQrApiError(err));
+  } finally {
+    qrSendingId.value = null;
+  }
+}
+
 async function runAction(action: () => Promise<void>, successMessage: string) {
   if (isSaving.value || isLoading.value) return;
 
@@ -344,5 +364,11 @@ onMounted(() => {
   background: #455a64 !important;
   border-color: #37474f !important;
   box-shadow: 0 6px 14px rgba(55, 71, 79, 0.36) !important;
+}
+
+.registro-nsu-detalle-page :deep(.dashboard-table .nsu-action-qr) {
+  color: #ffffff !important;
+  background: #00897b !important;
+  border-color: #00695c !important;
 }
 </style>

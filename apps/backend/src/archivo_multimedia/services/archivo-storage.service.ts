@@ -8,10 +8,10 @@ import {
 import { ArchivoResponseDto } from '../dto';
 import { ArchivoMultimedia } from '../entities/archivo_multimedia.entity';
 import { ArchivoMultimediaMapper } from '../mappers';
+import { ResourceLockService } from '../../common/resource-lock.service';
 import { ArchivoMultimediaService } from './archivo_multimedia.service';
 import { perteneceACategoria } from './archivo-validation.helper';
 import type { ArchivoCategoria } from './archivo-validation.helper';
-import { ArchivoLockService } from './archivo-lock.service';
 import { ArchivoRetryService } from './archivo-retry.service';
 import { SupabaseStorageService } from './supabase-storage.service';
 
@@ -25,7 +25,7 @@ export class ArchivoStorageService {
     private readonly archivos: ArchivoMultimediaService,
     private readonly storage: SupabaseStorageService,
     private readonly retry: ArchivoRetryService,
-    private readonly locks: ArchivoLockService,
+    private readonly locks: ResourceLockService,
     private readonly mapper: ArchivoMultimediaMapper,
   ) {}
 
@@ -63,13 +63,13 @@ export class ArchivoStorageService {
     archivo: Express.Multer.File,
     categoria: ArchivoCategoria,
   ): Promise<ArchivoResponseDto> {
-    return this.locks.withLock(id, () =>
+    return this.locks.withLock(`archivo:${id}`, () =>
       this.updateLocked(id, archivo, categoria),
     );
   }
 
   deleteFile(id: string, categoria: ArchivoCategoria): Promise<string> {
-    return this.locks.withLock(id, async () => {
+    return this.locks.withLock(`archivo:${id}`, async () => {
       const registro = await this.getRegistro(id, categoria);
       await this.archivos.delete(registro);
 

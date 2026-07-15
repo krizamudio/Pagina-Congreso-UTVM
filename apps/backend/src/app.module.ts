@@ -15,6 +15,8 @@ import { CongresoModule } from './congreso/congreso.module';
 import { UbicacionModule } from './ubicacion/ubicacion.module';
 import { seconds, ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
+import { QrAccesoModule } from './qr-acceso/qr-acceso.module';
+import { DiaEventoModule } from './dia-evento/dia-evento.module';
 
 @Module({
   imports: [
@@ -75,6 +77,8 @@ import { APP_GUARD } from '@nestjs/core';
     CommonModule,
     CongresoModule,
     UbicacionModule,
+    DiaEventoModule,
+    QrAccesoModule,
   ],
   controllers: [],
   providers: [

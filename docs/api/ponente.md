@@ -158,7 +158,12 @@ Para retirar la fotografia sin asignar otra:
 }
 ```
 
-Omitir `archivo_foto_id` conserva la fotografia actual.
+Omitir `archivo_foto_id` conserva la fotografia actual. Enviar un ID diferente
+asigna la nueva fotografia y elimina la anterior tanto de PostgreSQL como de
+Supabase. Enviar `null` retira y elimina la fotografia actual.
+
+Cada fotografia se considera propiedad exclusiva de un registro. Otros modulos
+pueden usar sus propias imagenes, pero no deben compartir el mismo ID.
 
 Respuesta esperada: `200 OK`.
 
@@ -176,7 +181,9 @@ Errores posibles:
 
 ## DELETE /ponente/:id
 
-Elimina un ponente (soft delete).
+Elimina un ponente mediante soft delete y elimina permanentemente su fotografia
+de PostgreSQL y Supabase. Si la limpieza de almacenamiento falla, el servidor
+intenta restaurar el ponente y responde con un error generico.
 
 ```http
 DELETE {{base_url}}/ponente/{{ponente_id}}

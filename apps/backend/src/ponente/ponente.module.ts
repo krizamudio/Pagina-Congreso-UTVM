@@ -4,11 +4,16 @@ import { PonenteController } from './ponente.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Ponente } from './entities/ponente.entity';
 import { PonentePhotoService } from './services/ponente-photo.service';
-import { ArchivoMultimedia } from '../archivo_multimedia/entities/archivo_multimedia.entity';
+import { ArchivoMultimediaModule } from '../archivo_multimedia/archivo_multimedia.module';
+import { CommonModule } from '../common/common.module';
 
 @Module({
   controllers: [PonenteController],
   providers: [PonenteService, PonentePhotoService],
-  imports: [TypeOrmModule.forFeature([Ponente, ArchivoMultimedia])],
+  imports: [
+    TypeOrmModule.forFeature([Ponente]),
+    ArchivoMultimediaModule,
+    CommonModule,
+  ],
 })
 export class PonenteModule {}

@@ -50,6 +50,7 @@
             <template #body-cell-acciones="props">
               <q-td align="center">
                 <q-btn dense flat round icon="edit" color="primary" @click="openEmsDialog(props.row)" />
+                <q-btn dense flat round icon="qr_code_2" color="positive" title="Enviar QR" :loading="qrSendingKey === `EMS:${props.row.id}`" @click="sendAutomaticQr('EMS', props.row.id)" />
                 <q-btn dense flat round icon="delete" color="negative" @click="deleteEms(props.row.id)" />
               </q-td>
             </template>
@@ -69,6 +70,7 @@
             <template #body-cell-acciones="props">
               <q-td align="center">
                 <q-btn dense flat round icon="edit" color="primary" @click="openUtvmDialog(props.row)" />
+                <q-btn dense flat round icon="qr_code_2" color="positive" title="Enviar QR" :loading="qrSendingKey === `UTVM:${props.row.id}`" @click="sendAutomaticQr('UTVM', props.row.id)" />
                 <q-btn dense flat round icon="delete" color="negative" @click="deleteUtvm(props.row.id)" />
               </q-td>
             </template>
@@ -139,6 +141,7 @@
                 <q-btn dense flat round icon="edit" color="primary" @click="openExternoDialog(props.row)" />
                 <q-btn dense flat round icon="check_circle" color="positive" @click="setExternoStatus(props.row.id, 'validado')" />
                 <q-btn dense flat round icon="cancel" color="warning" @click="setExternoStatus(props.row.id, 'rechazado')" />
+                <q-btn dense flat round icon="qr_code_2" color="positive" title="Enviar QR" :disable="!props.row.correoVerificado || props.row.status !== 'validado'" :loading="qrSendingKey === `EXTERNO:${props.row.id}`" @click="sendAutomaticQr('EXTERNO', props.row.id)" />
                 <q-btn dense flat round icon="delete" color="negative" @click="deleteExterno(props.row.id)" />
               </q-td>
             </template>
@@ -227,7 +230,9 @@ import { computed, onMounted, reactive, ref } from 'vue';
 import { useQuasar, type QTableColumn } from 'quasar';
 import { useRouter } from 'vue-router';
 import { api } from '../../services/api';
+import { getQrApiError, qrAccessService } from '../../services/qrAccessService';
 import { useParticipantesAdmin } from '../../composables/useParticipantesAdmin';
+import type { QrParticipantType } from '../../types/qr-access';
 import type {
   ParticipanteEms,
   ParticipanteEmsPayload,
@@ -250,6 +255,7 @@ const editingEmsId = ref<number | null>(null);
 const editingUtvmId = ref<number | null>(null);
 const editingExternoId = ref<string | null>(null);
 const externoComprobante = ref<File | null>(null);
+const qrSendingKey = ref<string | null>(null);
 
 const {
   ems,
@@ -623,6 +629,19 @@ async function removeWithReload(action: () => Promise<unknown>, successMessage: 
     notify('negative', 'No se pudo completar la acción.');
   } finally {
     saving.value = false;
+  }
+}
+
+async function sendAutomaticQr(type: QrParticipantType, id: string | number) {
+  if (qrSendingKey.value) return;
+  qrSendingKey.value = `${type}:${id}`;
+  try {
+    const response = await qrAccessService.sendAutomatic(type, id);
+    notify('positive', response.mensaje);
+  } catch (err) {
+    notify('negative', getQrApiError(err));
+  } finally {
+    qrSendingKey.value = null;
   }
 }
 
