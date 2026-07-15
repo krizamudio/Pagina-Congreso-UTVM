@@ -158,10 +158,10 @@
                   class="agenda-event"
                   :class="[
                     `event-${evento.tipo}`,
-                    { 'is-clickable': evento.tipo === 'taller' }
+                    { 'is-clickable': esEventoSeleccionable(evento) },
                   ]"
                   :style="getEventStyle(evento)"
-                  @click="irASeccionTalleres(evento)"
+                  @click="irADetalleEvento(evento)"
                 >
                   <div class="event-title-row">
                     <q-icon :name="getTipoIcon(evento.tipo)" />
@@ -197,9 +197,9 @@
             class="agenda-list-item"
             :class="[
               `event-${evento.tipo}`,
-              { 'is-clickable': evento.tipo === 'taller' }
+              { 'is-clickable': esEventoSeleccionable(evento) },
             ]"
-            @click="irASeccionTalleres(evento)"
+            @click="irADetalleEvento(evento)"
           >
             <div class="list-time">
               <strong>{{ formatTime(evento.inicio) }}</strong>
@@ -227,22 +227,29 @@
                   <q-icon name="touch_app" />
                   Clic para ver información del taller
                 </span>
+
+                <span v-if="evento.tipo === 'conferencia'">
+                  <q-icon name="touch_app" />
+                  Clic para ver detalles de la conferencia
+                </span>
               </div>
             </div>
           </article>
         </div>
-<div class="agenda-legend">
-              <span class="legend-title">Tipos de actividades</span>
 
-              <div
-                v-for="tipo in tipos"
-                :key="tipo.id"
-                class="legend-item"
-              >
-                <span :class="`legend-color event-${tipo.id}`"></span>
-                {{ tipo.label }}
-              </div>
-            </div>
+        <div class="agenda-legend">
+          <span class="legend-title">Tipos de actividades</span>
+
+          <div
+            v-for="tipo in tipos"
+            :key="tipo.id"
+            class="legend-item"
+          >
+            <span :class="`legend-color event-${tipo.id}`"></span>
+            {{ tipo.label }}
+          </div>
+        </div>
+
         <div class="agenda-note">
           <q-icon name="info" />
           <span>Los horarios pueden estar sujetos a cambios.</span>
@@ -337,7 +344,7 @@ const tipos: Array<{ id: TipoEvento; label: string }> = [
 
 const dias = computed<DiaAgenda[]>(() => {
   const fechasUnicas = Array.from(
-    new Set(eventos.value.map((evento) => evento.dia))
+    new Set(eventos.value.map((evento) => evento.dia)),
   ).sort();
 
   return fechasUnicas.map((fecha, index) => ({
@@ -352,13 +359,13 @@ const eventosDelDia = computed(() =>
     .filter((evento) => evento.dia === diaActivo.value)
     .sort(
       (a, b) =>
-        convertirMinutos(a.inicio) - convertirMinutos(b.inicio)
-    )
+        convertirMinutos(a.inicio) - convertirMinutos(b.inicio),
+    ),
 );
 
 const salas = computed<SalaAgenda[]>(() => {
   const ubicaciones = Array.from(
-    new Set(eventosDelDia.value.map((evento) => evento.salaId))
+    new Set(eventosDelDia.value.map((evento) => evento.salaId)),
   );
 
   const colores = ['blue', 'green', 'yellow', 'purple', 'pink'];
@@ -378,11 +385,11 @@ const horas = computed<HoraAgenda[]>(() => {
   }
 
   const minutosInicio = eventosDelDia.value.map((evento) =>
-    convertirMinutos(evento.inicio)
+    convertirMinutos(evento.inicio),
   );
 
   const minutosFin = eventosDelDia.value.map((evento) =>
-    convertirMinutos(evento.fin)
+    convertirMinutos(evento.fin),
   );
 
   const menorInicio = Math.min(...minutosInicio);
@@ -465,11 +472,11 @@ async function cargarAgenda() {
     ].sort(
       (a, b) =>
         a.dia.localeCompare(b.dia) ||
-        convertirMinutos(a.inicio) - convertirMinutos(b.inicio)
+        convertirMinutos(a.inicio) - convertirMinutos(b.inicio),
     );
 
     const diaSeleccionadoExiste = dias.value.some(
-      (dia) => dia.id === diaSeleccionadoAntes
+      (dia) => dia.id === diaSeleccionadoAntes,
     );
 
     if (diaSeleccionadoExiste) {
@@ -519,7 +526,7 @@ function mapearTaller(taller: TallerApi): EventoAgenda {
 
 function eventosPorSala(salaId: string) {
   return eventosDelDia.value.filter(
-    (evento) => evento.salaId === salaId
+    (evento) => evento.salaId === salaId,
   );
 }
 
@@ -644,12 +651,19 @@ function getIconoSala(index: number) {
   return icons[index % icons.length] ?? 'meeting_room';
 }
 
-function irASeccionTalleres(evento: EventoAgenda) {
-  if (evento.tipo !== 'taller') {
+function esEventoSeleccionable(evento: EventoAgenda) {
+  return evento.tipo === 'taller' || evento.tipo === 'conferencia';
+}
+
+function irADetalleEvento(evento: EventoAgenda) {
+  if (evento.tipo === 'taller') {
+    void router.push('/talleres_u');
     return;
   }
 
-  void router.push('/talleres_u');
+  if (evento.tipo === 'conferencia') {
+    void router.push(`/conferencias_u/${evento.id}`);
+  }
 }
 </script>
 

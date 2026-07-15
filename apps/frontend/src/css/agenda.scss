@@ -263,7 +263,7 @@ $border-green: rgba(0, 230, 118, 0.28);
   }
 
   &::-webkit-scrollbar-thumb {
-    background: linear-gradient(90deg, $green-primary, $cyan-primary, $amber-primary);
+    background: linear-gradient(90deg, rgba(0, 230, 118, 0.24));
     border-radius: 999px;
   }
 }
@@ -528,14 +528,11 @@ $border-green: rgba(0, 230, 118, 0.28);
 }
 
 .agenda-event.is-clickable::after {
-  content: 'Ver taller';
   position: absolute;
   right: 9px;
   bottom: 8px;
   padding: 3px 8px;
   border-radius: 999px;
-  background: rgba(245, 158, 11, 0.16);
-  color: $amber-soft;
   font-size: 0.65rem;
   font-weight: 900;
   opacity: 0;
@@ -543,6 +540,18 @@ $border-green: rgba(0, 230, 118, 0.28);
   transition:
     opacity 0.18s ease,
     transform 0.18s ease;
+}
+
+.agenda-event.event-taller.is-clickable::after {
+  content: 'Ver taller';
+  background: rgba(245, 158, 11, 0.16);
+  color: $amber-soft;
+}
+
+.agenda-event.event-conferencia.is-clickable::after {
+  content: 'Ver conferencia';
+  background: rgba(34, 211, 238, 0.16);
+  color: $cyan-soft;
 }
 
 .agenda-event.is-clickable:hover::after {
