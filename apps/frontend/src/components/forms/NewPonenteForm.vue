@@ -13,15 +13,15 @@
       </div>
 
       <div class="col-12 col-md-6">
-        <q-input v-model="form.institucion" label="Institución" dense dark />
+        <q-input v-model="form.institucion" label="Institución" :rules="[requiredRule]" dense dark />
       </div>
 
       <div class="col-12">
-        <q-input v-model="form.semblanza" label="Semblanza" type="textarea" autogrow dense dark />
+        <q-input v-model="form.semblanza" label="Semblanza" :rules="[requiredRule]" type="textarea" autogrow dense dark />
       </div>
 
       <div class="col-12 col-md-6">
-        <q-input v-model="form.tema" label="Tema" dense dark />
+        <q-input v-model="form.tema" label="Tema" :rules="[requiredRule]" dense dark />
       </div>
 
       <div class="col-12 col-md-6">
@@ -38,6 +38,7 @@
           dense
           dark
           @update:model-value="handleImageChange"
+          :rules="[requiredRule]"
         >
           <template #prepend>
             <q-icon name="image" />
@@ -61,7 +62,14 @@
     </div>
 
     <div class="row items-center justify-end q-gutter-sm q-mt-md">
-      <q-btn unelevated color="primary" label="Guardar ponente" type="submit" :loading="props.loading" />
+      <q-btn
+        unelevated
+        color="primary"
+        :label="props.loading ? 'Guardando...' : 'Guardar ponente'"
+        type="submit"
+        :loading="props.loading"
+        :disable="props.loading"
+      />
     </div>
 
     <div v-if="error" class="q-mt-md text-negative">{{ error }}</div>
@@ -106,14 +114,14 @@ const imagePreviewUrl = ref<string | null>(null);
 const { formData: form } = useFormPersistence<PonentePayload>('new-ponente-form', {
   nombre: '',
   usuario_id: generateUUID(),
-  archivo_foto_id: generateUUID(),
+  archivo_foto_id: '',
   institucion: '',
   semblanza: '',
   tema: '',
   visible_publico: true,
 });
 
-const requiredRule = (value: string) => !!value || 'Este campo es obligatorio';
+const requiredRule = (value?: string | null) => (value?.trim().length ?? 0) > 0 || 'Este campo es obligatorio';
 
 const revokePreviewUrl = () => {
   if (imagePreviewUrl.value) {
@@ -139,6 +147,10 @@ const handleImageChange = (file: File | null) => {
 };
 
 const submit = () => {
+  if (props.loading) {
+    return;
+  }
+
   error.value = null;
   emit('submit', {
     ponente: { ...form.value },

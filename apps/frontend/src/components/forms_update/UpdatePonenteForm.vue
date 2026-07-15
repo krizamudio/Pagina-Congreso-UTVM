@@ -13,15 +13,15 @@
       </div>
 
       <div class="col-12 col-md-6">
-        <q-input v-model="form.institucion" label="Institución" dense dark />
+        <q-input v-model="form.institucion" label="Institución" :rules="[requiredRule]" dense dark />
       </div>
 
       <div class="col-12">
-        <q-input v-model="form.semblanza" label="Semblanza" type="textarea" autogrow dense dark />
+        <q-input v-model="form.semblanza" label="Semblanza" :rules="[requiredRule]" type="textarea" autogrow dense dark />
       </div>
 
       <div class="col-12 col-md-6">
-        <q-input v-model="form.tema" label="Tema" dense dark />
+        <q-input v-model="form.tema" label="Tema" :rules="[requiredRule]" dense dark />
       </div>
 
       <div class="col-12 col-md-6">
@@ -45,11 +45,11 @@
         </q-file>
       </div>
 
-      <div v-if="imagePreviewUrl" class="col-12 col-md-6">
+      <div v-if="displayedPreviewUrl" class="col-12 col-md-6">
         <q-card flat bordered class="image-preview-card bg-grey-10">
           <q-card-section>
-            <div class="text-caption q-mb-sm">Vista previa</div>
-            <img :src="imagePreviewUrl" alt="Vista previa de foto de ponente" class="image-preview" />
+            <div class="text-caption q-mb-sm">{{ selectedImage ? 'Vista previa' : 'Foto actual' }}</div>
+            <img :src="displayedPreviewUrl" alt="Vista previa de foto de ponente" class="image-preview" />
             <div v-if="selectedImage" class="text-caption q-mt-sm text-grey-5">
               Archivo: {{ selectedImage.name }}
             </div>
@@ -57,8 +57,8 @@
         </q-card>
       </div>
 
-      <div v-if="form.archivo_foto_id" class="col-12 text-caption text-grey-5">
-        Foto actual: {{ form.archivo_foto_id }}
+      <div v-if="!selectedImage" class="col-12 text-caption text-grey-5">
+        {{ props.currentPhotoUrl ? 'Foto actual cargada' : 'Sin foto actual registrada' }}
       </div>
 
       <div v-if="imageError" class="col-12 text-negative">{{ imageError }}</div>
@@ -68,9 +68,10 @@
       <q-btn
         unelevated
         color="primary"
-        label="Actualizar ponente"
+        :label="props.loading ? 'Actualizando...' : 'Actualizar ponente'"
         type="submit"
         :loading="props.loading"
+        :disable="props.loading"
       />
     </div>
 
@@ -79,17 +80,19 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, ref, watch } from 'vue';
 import { useFormPersistence } from '../../composables/useFormPersistence';
 import type { PonentePayload } from '../../types';
 
 interface Props {
   loading?: boolean;
   initialData: Partial<PonentePayload>;
+  currentPhotoUrl?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
   loading: false,
+  currentPhotoUrl: '',
 });
 
 const emit = defineEmits<{
@@ -100,19 +103,16 @@ const error = ref<string | null>(null);
 const imageError = ref<string | null>(null);
 const selectedImage = ref<File | null>(null);
 const imagePreviewUrl = ref<string | null>(null);
+const displayedPreviewUrl = computed(() => imagePreviewUrl.value || props.currentPhotoUrl || null);
 
 function generateUUID() {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-    const r = (Math.random() * 16) | 0;
-    const v = c === 'x' ? r : (r & 0x3) | 0x8;
-    return v.toString(16);
-  });
+  return '00000000-0000-4000-8000-000000000000';
 }
 
 const defaultForm = (): PonentePayload => ({
   nombre: '',
   usuario_id: generateUUID(),
-  archivo_foto_id: generateUUID(),
+  archivo_foto_id: '',
   institucion: '',
   semblanza: '',
   tema: '',
@@ -140,7 +140,7 @@ watch(
   { immediate: true, deep: true },
 );
 
-const requiredRule = (value: string) => !!value || 'Este campo es obligatorio';
+const requiredRule = (value?: string | null) => (value?.trim().length ?? 0) > 0 || 'Este campo es obligatorio';
 
 const revokePreviewUrl = () => {
   if (imagePreviewUrl.value) {
@@ -164,6 +164,10 @@ const handleImageChange = (file: File | null) => {
 };
 
 const submit = () => {
+  if (props.loading) {
+    return;
+  }
+
   error.value = null;
 
   emit('submit', {

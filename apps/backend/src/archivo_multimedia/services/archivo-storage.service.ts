@@ -115,8 +115,9 @@ export class ArchivoStorageService {
       () => this.storage.remove(original.path),
     );
     if (!anteriorEliminado) {
-      await this.rollbackUpdate(id, original, datosNuevos.path);
-      throw this.storageException();
+      this.logger.warn(
+        `No se pudo eliminar el objeto anterior (${original.path}) tras actualizar el archivo ${id}. Se conserva el objeto nuevo.`,
+      );
     }
 
     return this.mapper.toResponse(actualizado);

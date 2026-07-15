@@ -50,6 +50,7 @@ Respuesta esperada: `201 Created`.
   "usuarioId": "7b0ef2d1-65b4-4db3-ae8b-2d25e1c5a901",
   "nombre": "Dra. Mariana Lopez Hernandez",
   "foto": {
+    "id": "3b241101-e2bb-4255-8caf-4136c566a962",
     "url": "https://proyecto.supabase.co/storage/v1/object/public/bucket/imagenes/foto.jpg"
   },
   "institucion": "Universidad Nacional Autonoma de Mexico",
@@ -83,6 +84,7 @@ Respuesta esperada: `200 OK`.
     "usuarioId": "7b0ef2d1-65b4-4db3-ae8b-2d25e1c5a901",
     "nombre": "Dra. Mariana Lopez Hernandez",
     "foto": {
+      "id": "3b241101-e2bb-4255-8caf-4136c566a962",
       "url": "https://proyecto.supabase.co/storage/v1/object/public/bucket/imagenes/foto.jpg"
     },
     "institucion": "Universidad Nacional Autonoma de Mexico",
@@ -111,6 +113,7 @@ Respuesta esperada: `200 OK`.
   "usuarioId": "7b0ef2d1-65b4-4db3-ae8b-2d25e1c5a901",
   "nombre": "Dra. Mariana Lopez Hernandez",
   "foto": {
+    "id": "3b241101-e2bb-4255-8caf-4136c566a962",
     "url": "https://proyecto.supabase.co/storage/v1/object/public/bucket/imagenes/foto.jpg"
   },
   "institucion": "Universidad Nacional Autonoma de Mexico",
