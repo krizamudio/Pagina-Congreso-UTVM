@@ -1,26 +1,42 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { CreateQrGeneratorDto } from './dto/create-qr-generator.dto';
+import { createHash, randomBytes } from 'node:crypto';
 
-
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import * as QRCode from 'qrcode';
+
+export interface GeneratedAccessQr {
+  token: string;
+  tokenHash: string;
+  accessUrl: string;
+  png: Buffer;
+}
 
 @Injectable()
 export class QrGeneratorService {
-  create(createQrGeneratorDto: CreateQrGeneratorDto): Promise<Buffer> {
+  constructor(private readonly config: ConfigService) {}
 
-    const content: string = createQrGeneratorDto.content;
+  async generateAccessQr(): Promise<GeneratedAccessQr> {
+    const token = randomBytes(32).toString('base64url');
+    const tokenHash = this.hashToken(token);
+    const baseUrl = this.config
+      .get<string>('QR_ACCESS_BASE_URL', 'http://localhost:9000/acceso/qr')
+      .replace(/\/$/, '');
+    const accessUrl = `${baseUrl}/${token}`;
 
-    if (!content || content === null || content.length === 0){
-      throw new BadRequestException('El contenido del QR no puede estar vacío');
+    try {
+      const png = await QRCode.toBuffer(accessUrl, {
+        type: 'png',
+        width: 320,
+        margin: 2,
+        errorCorrectionLevel: 'H',
+      });
+      return { token, tokenHash, accessUrl, png };
+    } catch {
+      throw new InternalServerErrorException('No se pudo generar el codigo QR');
     }
+  }
 
-    const qrCode = QRCode.toBuffer( content, {
-      type: 'png',
-      width: 250,
-      margin: 2,
-      errorCorrectionLevel: 'H'
-    });
-
-    return qrCode;
+  hashToken(token: string): string {
+    return createHash('sha256').update(token, 'utf8').digest('hex');
   }
 }

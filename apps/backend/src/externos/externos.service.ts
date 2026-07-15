@@ -32,6 +32,9 @@ import { CreateExternoDto } from './dto/create-externo.dto';
 import { UpdateExternoDto } from './dto/update-externo.dto';
 import { ArchivoComprobante } from '../registro-nsu/entities/archivo-comprobante.entity';
 import { GeneradorCommon } from '../common/generador.common';
+import { EnviarQrAccesoDto } from '../participante-qr/dto/enviar-qr-acceso.dto';
+import { ParticipanteQrEnvioService } from '../participante-qr/participante-qr-envio.service';
+import { ParticipanteTipo } from '../participante-acceso/participante-tipo.enum';
 
 @Injectable()
 export class ExternosService {
@@ -44,6 +47,7 @@ export class ExternosService {
 
     private readonly configService: ConfigService,
     private readonly generador: GeneradorCommon,
+    private readonly qrEnvio: ParticipanteQrEnvioService,
   ) {}
 
   async create(
@@ -216,6 +220,19 @@ export class ExternosService {
     externo.deleted_at = undefined;
 
     return this.externoRepository.save(externo);
+  }
+
+  enviarQrAcceso(id: string, dto: EnviarQrAccesoDto) {
+    return this.qrEnvio.enviar(ParticipanteTipo.EXTERNO, id, dto);
+  }
+
+  async enviarQrAccesoAutomatico(id: string) {
+    const participante = await this.findOne(id);
+    return this.qrEnvio.enviarAutomatico(
+      ParticipanteTipo.EXTERNO,
+      id,
+      participante.dias,
+    );
   }
 
   private async guardarArchivoComprobante(

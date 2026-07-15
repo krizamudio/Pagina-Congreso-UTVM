@@ -11,9 +11,7 @@ export default defineConfig((/* ctx */) => {
     // app boot file (/src/boot)
     // --> boot files are part of "main.js"
     // https://v2.quasar.dev/quasar-cli-vite/boot-files
-    boot: [
-      'router',
-    ],
+    boot: [],
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-file#css
     css: ["app.scss"],
@@ -29,7 +27,7 @@ export default defineConfig((/* ctx */) => {
       // 'roboto-font-latin-ext', // this or either 'roboto-font', NEVER both!
 
       "roboto-font", // optional, you are not bound to it
-      "material-icons", // optional, you are not bound to it
+      "material-icons" // optional, you are not bound to it
     ],
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-file#build
@@ -41,14 +39,14 @@ export default defineConfig((/* ctx */) => {
 
       typescript: {
         strict: true,
-        vueShim: true,
+        vueShim: true
         // extendTsConfig (tsConfig) {}
       },
 
       // https://v2.quasar.dev/quasar-cli-vite/page-routing-with-vue-router#filename-based-routing
       filenameBasedRouting: false,
 
-      vueRouterMode: "hash", // available values: 'hash', 'history'
+      vueRouterMode: "history", // available values: 'hash', 'history'
       // vueRouterBase,
       // vueDevtools,
 
@@ -63,7 +61,7 @@ export default defineConfig((/* ctx */) => {
       extendViteConf(viteConf) {
         viteConf.server = viteConf.server || {};
         viteConf.server.headers = {
-          ...(viteConf.server.headers || {}),
+          ...viteConf.server.headers,
           "Content-Security-Policy":
             "default-src 'self'; " +
             "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
@@ -72,7 +70,7 @@ export default defineConfig((/* ctx */) => {
             "img-src 'self' data: blob: https://*.supabase.co; " +
             "connect-src 'self' http://localhost:3000 ws://localhost:*;",
         };
-      },
+      }
       // viteVuePluginOptions: {},
 
       // vitePlugins: [
@@ -111,7 +109,7 @@ devServer: {
       // directives: [],
 
       // Quasar plugins
-      plugins: ['Notify']
+      plugins: ["Dialog", "Notify"]
     },
 
     // animations: 'all', // --- includes all animations
@@ -137,7 +135,7 @@ devServer: {
       // (gets superseded if process.env.PORT is specified at runtime)
 
       middlewares: [
-        "render", // keep this as last one
+        "render" // keep this as last one
       ],
 
       // extendSSRPackageJson (pkgJson) {},
@@ -148,7 +146,7 @@ devServer: {
       // manualStoreHydration: true,
       // manualPostHydrationTrigger: true,
 
-      pwa: false,
+      pwa: false
       // pwaOfflineHtmlFilename: 'offline.html', // do NOT use index.html as name!
 
       // extendSSRGenerateSWOptions (cfg) {},
@@ -157,7 +155,7 @@ devServer: {
 
     // https://v2.quasar.dev/quasar-cli-vite/developing-pwa/configuring-pwa
     pwa: {
-      workboxMode: "GenerateSW", // 'GenerateSW' or 'InjectManifest'
+      workboxMode: "GenerateSW" // 'GenerateSW' or 'InjectManifest'
       // swFilename: 'sw.js',
       // manifestFilename: 'manifest.json',
       // extendPWAManifestJson (json) {},
@@ -174,7 +172,7 @@ devServer: {
 
     // https://v2.quasar.dev/quasar-cli-vite/developing-capacitor-apps/configuring-capacitor
     capacitor: {
-      hideSplashscreen: true,
+      hideSplashscreen: true
     },
 
     // https://v2.quasar.dev/quasar-cli-vite/developing-electron-apps/configuring-electron
@@ -205,8 +203,8 @@ devServer: {
       builder: {
         // https://www.electron.build/configuration
 
-        appId: "frontend",
-      },
+        appId: "frontend"
+      }
     },
 
     // https://v2.quasar.dev/quasar-cli-vite/developing-browser-extensions/configuring-bex
@@ -222,7 +220,7 @@ devServer: {
        *
        * @example [ 'my-script.ts', 'sub-folder/my-other-script.js' ]
        */
-      extraScripts: [],
-    },
+      extraScripts: []
+    }
   };
 });

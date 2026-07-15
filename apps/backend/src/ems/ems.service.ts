@@ -11,6 +11,9 @@ import { GeneradorCommon } from '../common/generador.common';
 import { Ems } from './entities/ems.entity';
 import { CreateEmsDto } from './dto/create-ems.dto';
 import { UpdateEmsDto } from './dto/update-ems.dto';
+import { EnviarQrAccesoDto } from '../participante-qr/dto/enviar-qr-acceso.dto';
+import { ParticipanteQrEnvioService } from '../participante-qr/participante-qr-envio.service';
+import { ParticipanteTipo } from '../participante-acceso/participante-tipo.enum';
 
 @Injectable()
 export class EmsService {
@@ -18,6 +21,7 @@ export class EmsService {
     @InjectRepository(Ems)
     private readonly emsRepository: Repository<Ems>,
     private readonly generador: GeneradorCommon,
+    private readonly qrEnvio: ParticipanteQrEnvioService,
   ) {}
 
   async create(createEmsDto: CreateEmsDto) {
@@ -146,5 +150,13 @@ export class EmsService {
     return {
       message: 'Participante EMS restaurado correctamente',
     };
+  }
+
+  enviarQrAcceso(id: number, dto: EnviarQrAccesoDto) {
+    return this.qrEnvio.enviar(ParticipanteTipo.EMS, String(id), dto);
+  }
+
+  enviarQrAccesoAutomatico(id: number) {
+    return this.qrEnvio.enviarAutomatico(ParticipanteTipo.EMS, String(id));
   }
 }

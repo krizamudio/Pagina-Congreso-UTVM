@@ -44,7 +44,6 @@ export interface Taller {
   fecha_actualizacion?: string;
 }
 
-<<<<<<< HEAD
 export type TallerPayload = Omit<
   Taller,
   "id" | "fecha_creacion" | "fecha_actualizacion"
@@ -74,8 +73,6 @@ export interface Ubicacion {
 }
 
 export type UbicacionPayload = Omit<Ubicacion, "id">;
-=======
-export type TallerPayload = Omit<Taller, 'id' | 'fecha_creacion' | 'fecha_actualizacion'>;
 
 export type ParticipanteTipo = 'ems' | 'utvm' | 'nsu' | 'externo';
 export type ParticipanteEstatus = 'pendiente' | 'validado' | 'rechazado';
@@ -173,4 +170,3 @@ export type ParticipanteExternoPayload = Omit<
   ParticipanteExterno,
   'id' | 'comprobante' | 'createdAt' | 'updatedAt'
 >;
->>>>>>> feature/rate-limit
