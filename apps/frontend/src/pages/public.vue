@@ -1,4 +1,4 @@
-\<template>
+<template>
   <q-layout view="lHh Lpr lFf" class="public-layout">
     <q-header elevated class="public-header">
       <q-toolbar>
@@ -7,12 +7,13 @@
         <q-btn flat no-caps label="Inicio" to="/" />
         <q-btn flat no-caps label="Agenda" to="/agenda" />
         <q-btn flat no-caps label="Conferencias" to="/conferencias_u" />
+        <q-btn flat no-caps label="Panelistas" to="/panelistas_u" />
+        <q-btn flat no-caps label="Talleres" to="/talleres_u" />
         <q-btn flat no-caps label="Registro Externo" to="/registro-externo" />
         <q-btn outline no-caps label="Admin" to="/admin/dashboard" />
         <q-btn flat no-caps label="Registro NSU" to="/registro_nsu" />
         <q-btn flat no-caps label="Registro EMS" to="/registro_ems" />
         <q-btn flat no-caps label="Registro UTVM" to="/registro_utvm" />
-        <q-btn flat no-caps label="Talleres" to="/talleres_u" />
       </q-toolbar>
     </q-header>
 

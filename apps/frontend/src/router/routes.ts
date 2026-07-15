@@ -29,6 +29,14 @@ const routes: RouteRecordRaw[] = [
         path: "/conferencias_u/:id",
         component: () => import("@/pages/TalleresU/conferencia-detalle.vue"),
       },
+      {
+        path: "/panelistas_u",
+        component: () => import("@/pages/TalleresU/panelistas.vue"),
+      },
+      {
+        path: "/panelistas_u/:id",
+        component: () => import("@/pages/TalleresU/panelista-detalle.vue"),
+      },
     ],
   },
 
