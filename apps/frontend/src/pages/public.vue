@@ -6,6 +6,7 @@
 
         <q-btn flat no-caps label="Inicio" to="/" />
         <q-btn flat no-caps label="Agenda" to="/agenda" />
+        <q-btn flat no-caps label="Conferencias" to="/conferencias_u" />
         <q-btn flat no-caps label="Registro Externo" to="/registro-externo" />
         <q-btn outline no-caps label="Admin" to="/admin/dashboard" />
         <q-btn flat no-caps label="Registro NSU" to="/registro_nsu" />

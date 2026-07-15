@@ -5,7 +5,7 @@
 
       <p>
         Bienvenido al portal oficial del congreso. Consulta la agenda,
-        regístrate y revisa la información del evento.
+        las conferencias, los talleres y revisa la información del evento.
       </p>
 
       <div class="home-actions">
@@ -14,6 +14,14 @@
           no-caps
           label="Ver agenda"
           to="/agenda"
+        />
+
+        <q-btn
+          color="primary"
+          outline
+          no-caps
+          label="Conferencias"
+          to="/conferencias_u"
         />
 
         <q-btn
@@ -54,7 +62,31 @@
 
 .home-actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 14px;
   margin-top: 28px;
+}
+
+@media (max-width: 600px) {
+  .public-home-page {
+    padding: 28px 18px;
+  }
+
+  .public-home-content h1 {
+    font-size: 2.6rem;
+    line-height: 1.05;
+  }
+
+  .public-home-content p {
+    font-size: 1rem;
+  }
+
+  .home-actions {
+    flex-direction: column;
+  }
+
+  .home-actions .q-btn {
+    width: 100%;
+  }
 }
 </style>

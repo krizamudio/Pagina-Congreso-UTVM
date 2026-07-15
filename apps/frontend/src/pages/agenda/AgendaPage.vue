@@ -535,12 +535,8 @@ function normalizarHora(hora: string) {
   const horaLimpia = String(hora).slice(0, 5);
   const [hoursText = '0', minutesText = '0'] = horaLimpia.split(':');
 
-  let hours = Number(hoursText);
+  const hours = Number(hoursText);
   const minutes = Number(minutesText);
-
-  if (hours >= 1 && hours <= 6) {
-    hours += 12;
-  }
 
   return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
 }
@@ -621,10 +617,7 @@ function formatTime(hora: string) {
   const hours = Number(hoursText);
   const minutes = Number(minutesText);
 
-  const periodo = hours >= 12 ? 'pm' : 'am';
-  const hora12 = hours % 12 || 12;
-
-  return `${hora12}:${String(minutes).padStart(2, '0')} ${periodo}`;
+  return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
 }
 
 function getTipoIcon(tipo: TipoEvento) {
