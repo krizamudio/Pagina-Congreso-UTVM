@@ -68,6 +68,13 @@ declare module 'vue-router/auto-routes' {
       { path: ParamValue<false> },
       | never
     >,
+    '/agenda/AgendaPage': RouteRecordInfo<
+      '/agenda/AgendaPage',
+      '/agenda/AgendaPage',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/dashboards/ConferenciasPage': RouteRecordInfo<
       '/dashboards/ConferenciasPage',
       '/dashboards/ConferenciasPage',
@@ -152,6 +159,20 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    '/public': RouteRecordInfo<
+      '/public',
+      '/public',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/public_home': RouteRecordInfo<
+      '/public_home',
+      '/public_home',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     '/registro_ems': RouteRecordInfo<
       '/registro_ems',
       '/registro_ems',
@@ -169,6 +190,41 @@ declare module 'vue-router/auto-routes' {
     '/registro_utvm': RouteRecordInfo<
       '/registro_utvm',
       '/registro_utvm',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/TalleresU/conferencia-detalle': RouteRecordInfo<
+      '/TalleresU/conferencia-detalle',
+      '/TalleresU/conferencia-detalle',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/TalleresU/conferencias': RouteRecordInfo<
+      '/TalleresU/conferencias',
+      '/TalleresU/conferencias',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/TalleresU/Panelista-detalle': RouteRecordInfo<
+      '/TalleresU/Panelista-detalle',
+      '/TalleresU/Panelista-detalle',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/TalleresU/panelistas': RouteRecordInfo<
+      '/TalleresU/panelistas',
+      '/TalleresU/panelistas',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
+    '/TalleresU/talleres': RouteRecordInfo<
+      '/TalleresU/talleres',
+      '/TalleresU/talleres',
       Record<never, never>,
       Record<never, never>,
       | never
@@ -235,6 +291,14 @@ declare module 'vue-router/auto-routes' {
         | never
       pathParamNames:
         | 'path'
+    }
+    'src/pages/agenda/AgendaPage.vue': {
+      routes:
+        | '/agenda/AgendaPage'
+      views:
+        | never
+      pathParamNames:
+        | never
     }
     'src/pages/dashboards/ConferenciasPage.vue': {
       routes:
@@ -332,6 +396,22 @@ declare module 'vue-router/auto-routes' {
       pathParamNames:
         | never
     }
+    'src/pages/public.vue': {
+      routes:
+        | '/public'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/public_home.vue': {
+      routes:
+        | '/public_home'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
     'src/pages/registro_ems.vue': {
       routes:
         | '/registro_ems'
@@ -351,6 +431,46 @@ declare module 'vue-router/auto-routes' {
     'src/pages/registro_utvm.vue': {
       routes:
         | '/registro_utvm'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/TalleresU/conferencia-detalle.vue': {
+      routes:
+        | '/TalleresU/conferencia-detalle'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/TalleresU/conferencias.vue': {
+      routes:
+        | '/TalleresU/conferencias'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/TalleresU/Panelista-detalle.vue': {
+      routes:
+        | '/TalleresU/Panelista-detalle'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/TalleresU/panelistas.vue': {
+      routes:
+        | '/TalleresU/panelistas'
+      views:
+        | never
+      pathParamNames:
+        | never
+    }
+    'src/pages/TalleresU/talleres.vue': {
+      routes:
+        | '/TalleresU/talleres'
       views:
         | never
       pathParamNames:
