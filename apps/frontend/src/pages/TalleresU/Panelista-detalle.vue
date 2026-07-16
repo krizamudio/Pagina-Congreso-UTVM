@@ -40,27 +40,38 @@
         <span>{{ error }}</span>
       </div>
 
-      <template v-else-if="data">
+      <template v-else-if="panelista">
         <section class="panelista-hero">
-          <div class="panelista-hero-avatar">
-            <span>{{ obtenerIniciales(data.nombre) }}</span>
+          <div
+            class="panelista-hero-avatar"
+            :class="{ 'has-photo': !!obtenerFotoPanelista(panelista) }"
+          >
+            <img
+              v-if="obtenerFotoPanelista(panelista)"
+              :src="obtenerFotoPanelista(panelista)"
+              :alt="`Foto de ${panelista.nombre}`"
+            />
+
+            <span v-else>
+              {{ obtenerIniciales(panelista.nombre) }}
+            </span>
           </div>
 
           <div class="panelista-hero-info">
             <span class="panelista-badge">Panelista</span>
 
-            <h1>{{ data.nombre }}</h1>
+            <h1>{{ panelista.nombre }}</h1>
 
             <p>
-              {{ data.institucion || 'Institución no registrada' }}
+              {{ panelista.institucion || 'Institución no registrada' }}
             </p>
 
             <div
-              v-if="data.tema"
+              v-if="panelista.tema"
               class="panelista-topic"
             >
               <q-icon name="auto_awesome" />
-              <span>{{ data.tema }}</span>
+              <span>{{ panelista.tema }}</span>
             </div>
           </div>
         </section>
@@ -69,7 +80,7 @@
           <h2>Semblanza</h2>
 
           <p>
-            {{ data.semblanza || 'Este panelista aún no cuenta con semblanza registrada.' }}
+            {{ panelista.semblanza || 'Este panelista aún no cuenta con semblanza registrada.' }}
           </p>
         </section>
 
@@ -79,44 +90,72 @@
           <div class="panelista-info-grid">
             <div>
               <span>Nombre</span>
-              <strong>{{ data.nombre }}</strong>
+              <strong>{{ panelista.nombre }}</strong>
             </div>
 
             <div>
               <span>Institución</span>
-              <strong>{{ data.institucion || 'Sin institución' }}</strong>
+              <strong>{{ panelista.institucion || 'Sin institución' }}</strong>
             </div>
 
             <div>
               <span>Tema</span>
-              <strong>{{ data.tema || 'Sin tema' }}</strong>
+              <strong>{{ panelista.tema || 'Sin tema' }}</strong>
             </div>
 
             <div>
               <span>ID de panelista</span>
-              <strong>{{ data.id }}</strong>
+              <strong>{{ panelista.id }}</strong>
             </div>
           </div>
         </section>
       </template>
+
+      <div
+        v-else
+        class="panelistas-state"
+      >
+        <q-icon name="person_off" />
+        <strong>No se encontró el panelista</strong>
+        <span>Verifica que el panelista exista en la base de datos.</span>
+      </div>
     </section>
   </q-page>
 </template>
 
 <script setup lang="ts">
-import { onMounted } from 'vue';
+import { computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 import { usePonente } from '@/composables/usePonente';
+
+interface PanelistaDetalle {
+  id: string;
+  nombre: string;
+  institucion?: string;
+  semblanza?: string;
+  tema?: string;
+
+  usuario_id?: string;
+  usuarioId?: string;
+
+  archivo_foto_id?: string | null;
+
+  visible_publico?: boolean;
+  visiblePublico?: boolean;
+
+  foto?: {
+    id: string;
+    url: string;
+  };
+}
 
 const route = useRoute();
 const router = useRouter();
 
 const id = String(route.params.id || '');
 
-const {
-  useGetPonenteById,
-} = usePonente();
+const { useGetPonenteById } = usePonente();
 
 const {
   data,
@@ -124,6 +163,10 @@ const {
   error,
   fetch,
 } = useGetPonenteById(id);
+
+const panelista = computed<PanelistaDetalle | null>(() => {
+  return data.value as unknown as PanelistaDetalle | null;
+});
 
 onMounted(() => {
   void fetch();
@@ -133,13 +176,22 @@ function volver() {
   void router.push('/panelistas_u');
 }
 
-function obtenerIniciales(nombre: string) {
-  const partes = nombre.trim().split(' ').filter(Boolean);
+function obtenerFotoPanelista(item: PanelistaDetalle) {
+  return item.foto?.url || '';
+}
+
+function obtenerIniciales(nombre?: string) {
+  const partes = String(nombre || '')
+    .trim()
+    .split(' ')
+    .filter(Boolean);
 
   const primera = partes[0]?.charAt(0) || '';
   const segunda = partes[1]?.charAt(0) || '';
 
-  return `${primera}${segunda}`.toUpperCase();
+  const iniciales = `${primera}${segunda}`.toUpperCase();
+
+  return iniciales || '?';
 }
 </script>
 

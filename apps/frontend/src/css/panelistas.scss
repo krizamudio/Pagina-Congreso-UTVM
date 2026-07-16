@@ -375,3 +375,47 @@ $border-green: rgba(0, 230, 118, 0.28);
     justify-content: center;
   }
 }
+
+.panelista-avatar {
+  overflow: hidden;
+}
+
+.panelista-avatar.has-photo {
+  padding: 0;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.panelista-avatar img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  border-radius: 50%;
+  transition: transform 0.18s ease;
+}
+
+.panelista-card:hover .panelista-avatar img {
+  transform: scale(1.06);
+}
+
+.panelista-hero-avatar {
+  overflow: hidden;
+}
+
+.panelista-hero-avatar.has-photo {
+  padding: 0;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.panelista-hero-avatar img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  border-radius: 50%;
+  transition: transform 0.18s ease;
+}
+
+.panelista-hero:hover .panelista-hero-avatar img {
+  transform: scale(1.04);
+}

@@ -1,15 +1,26 @@
 export interface Ponente {
   id: string;
-  usuario_id: string;
+
+  // Backend nuevo
+  usuarioId?: string;
+  visiblePublico?: boolean;
+  foto?: {
+    id: string;
+    url: string;
+  };
+
+  // Compatibilidad con frontend viejo/admin
+  usuario_id?: string;
+  archivo_foto_id?: string | null;
+  visible_publico?: boolean;
+
   nombre: string;
-  archivo_foto_id: string;
   institucion: string;
   semblanza: string;
   tema: string;
-  visible_publico?: boolean;
 }
 
-export type PonentePayload = Omit<Ponente, "id">;
+export type PonentePayload = Omit<Ponente, "id" | "foto" | "usuarioId" | "visiblePublico">;
 
 export type Panel = Ponente;
 export type PanelPayload = PonentePayload;

@@ -59,8 +59,19 @@
           class="panelista-card"
           @click="irADetalle(panelista.id)"
         >
-          <div class="panelista-avatar">
-            <span>{{ obtenerIniciales(panelista.nombre) }}</span>
+          <div
+            class="panelista-avatar"
+            :class="{ 'has-photo': !!obtenerFotoPanelista(panelista) }"
+          >
+            <img
+              v-if="obtenerFotoPanelista(panelista)"
+              :src="obtenerFotoPanelista(panelista)"
+              :alt="`Foto de ${panelista.nombre}`"
+            />
+
+            <span v-else>
+              {{ obtenerIniciales(panelista.nombre) }}
+            </span>
           </div>
 
           <h2>{{ panelista.nombre }}</h2>
@@ -93,6 +104,22 @@ import { useRouter } from 'vue-router';
 
 import { usePanelesQuery } from '@/composables/UsePanelesQuery';
 
+interface PanelistaPublico {
+  id: string;
+  nombre: string;
+  institucion?: string;
+  semblanza?: string;
+  tema?: string;
+
+  visible_publico?: boolean;
+  visiblePublico?: boolean;
+
+  foto?: {
+    id: string;
+    url: string;
+  };
+}
+
 const router = useRouter();
 
 const {
@@ -102,8 +129,10 @@ const {
   load,
 } = usePanelesQuery();
 
-const panelistasVisibles = computed(() =>
-  data.value.filter((panelista) => panelista.visible_publico !== false),
+const panelistasVisibles = computed<PanelistaPublico[]>(() =>
+  (data.value as PanelistaPublico[]).filter((panelista) => {
+    return panelista.visible_publico !== false && panelista.visiblePublico !== false;
+  }),
 );
 
 onMounted(() => {
@@ -114,13 +143,19 @@ function irADetalle(id: string) {
   void router.push(`/panelistas_u/${id}`);
 }
 
+function obtenerFotoPanelista(panelista: PanelistaPublico) {
+  return panelista.foto?.url || '';
+}
+
 function obtenerIniciales(nombre: string) {
   const partes = nombre.trim().split(' ').filter(Boolean);
 
   const primera = partes[0]?.charAt(0) || '';
   const segunda = partes[1]?.charAt(0) || '';
 
-  return `${primera}${segunda}`.toUpperCase();
+  const iniciales = `${primera}${segunda}`.toUpperCase();
+
+  return iniciales || '?';
 }
 </script>
 
