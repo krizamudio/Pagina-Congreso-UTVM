@@ -15,7 +15,8 @@
         <UpdatePonenteForm
           v-else
           :initial-data="initialPonenteData"
-          :loading="isPending"
+          :current-photo-url="currentPhotoUrl"
+          :loading="isPending || isSubmitting"
           @submit="handleSubmit"
         />
       </q-card-section>
@@ -27,6 +28,7 @@
 import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useQuasar } from 'quasar';
+import axios from 'axios';
 import UpdatePonenteForm from '../../components/forms_update/UpdatePonenteForm.vue';
 import { usePonente } from '../../composables/usePonente';
 import type { PonentePayload } from '../../types';
@@ -40,8 +42,39 @@ const recordId = computed(() => route.params.id ?? '');
 
 const { data, isLoading, error, fetch } = useGetPonenteById(recordId.value);
 const { mutate: updatePonente, isPending } = useUpdatePonente();
-const ponentePhotoUploadEndpoint = (import.meta.env.VITE_UPLOAD_PONENTE_PHOTO_ENDPOINT as string | undefined)?.trim() ?? '';
-const initialPonenteData = computed<Partial<PonentePayload>>(() => data.value ?? {});
+const isSubmitting = ref(false);
+const ponentePhotoUploadEndpoint =
+  (import.meta.env.VITE_UPLOAD_PONENTE_PHOTO_ENDPOINT as string | undefined)?.trim() ||
+  'fotos';
+
+const initialPonenteData = computed<Partial<PonentePayload>>(() => {
+  const raw = data.value as
+    | (Partial<PonentePayload> & {
+        usuarioId?: string;
+        visiblePublico?: boolean;
+        foto?: { id?: string; url?: string };
+      })
+    | null;
+
+  if (!raw) {
+    return {};
+  }
+
+  return {
+    nombre: raw.nombre ?? '',
+    usuario_id: raw.usuario_id ?? raw.usuarioId ?? '',
+    archivo_foto_id: raw.archivo_foto_id ?? raw.foto?.id ?? '',
+    institucion: raw.institucion ?? '',
+    semblanza: raw.semblanza ?? '',
+    tema: raw.tema ?? '',
+    visible_publico: raw.visible_publico ?? raw.visiblePublico ?? true,
+  };
+});
+
+const currentPhotoUrl = computed(() => {
+  const raw = data.value as { foto?: { id?: string; url?: string } } | null;
+  return raw?.foto?.url ?? '';
+});
 
 const notify = (type: 'positive' | 'negative' | 'warning', message: string) => {
   if (typeof $q.notify === 'function') {
@@ -66,14 +99,30 @@ const goBack = () => {
 };
 
 const handleSubmit = async ({ ponente, foto }: { ponente: PonentePayload; foto: File | null }) => {
+  if (isSubmitting.value) {
+    return;
+  }
+
+  isSubmitting.value = true;
+
   try {
-    const payload: Partial<PonentePayload> = { ...ponente };
+    const payload: Partial<PonentePayload> = {
+      nombre: ponente.nombre,
+      institucion: ponente.institucion,
+      semblanza: ponente.semblanza,
+      tema: ponente.tema,
+      visible_publico: ponente.visible_publico ?? true,
+    };
 
-    if (foto && ponentePhotoUploadEndpoint) {
+    if (foto) {
       const uploadFormData = new FormData();
-      uploadFormData.append('file', foto);
+      uploadFormData.append('foto', foto);
 
-      const uploadResponse = await api.post(ponentePhotoUploadEndpoint, uploadFormData, {
+      if (!ponente.archivo_foto_id) {
+        throw new Error('No se pudo obtener el ID de la foto actual para reemplazarla.');
+      }
+
+      const uploadResponse = await api.patch(`fotos/${ponente.archivo_foto_id}`, uploadFormData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 
@@ -86,7 +135,7 @@ const handleSubmit = async ({ ponente, foto }: { ponente: PonentePayload; foto: 
       if (typeof uploadedPhotoId === 'string' && uploadedPhotoId.length > 0) {
         payload.archivo_foto_id = uploadedPhotoId;
       } else {
-        notify('warning', 'La imagen se subio, pero no se recibio archivo_foto_id en la respuesta.');
+        throw new Error('La subida de foto no devolvio un id valido.');
       }
     }
 
@@ -95,7 +144,25 @@ const handleSubmit = async ({ ponente, foto }: { ponente: PonentePayload; foto: 
     void router.push('/ponentes');
   } catch (err) {
     console.error(err);
-    notify('negative', 'No se pudo actualizar el ponente.');
+
+    let detail = '';
+    if (axios.isAxiosError(err)) {
+      const backendMessage = err.response?.data?.message;
+      if (Array.isArray(backendMessage)) {
+        detail = backendMessage.join(' | ');
+      } else if (typeof backendMessage === 'string' && backendMessage.length > 0) {
+        detail = backendMessage;
+      }
+    } else if (err instanceof Error && err.message.length > 0) {
+      detail = err.message;
+    }
+
+    notify(
+      'negative',
+      detail ? `No se pudo actualizar el ponente. ${detail}` : 'No se pudo actualizar el ponente.',
+    );
+  } finally {
+    isSubmitting.value = false;
   }
 };
 

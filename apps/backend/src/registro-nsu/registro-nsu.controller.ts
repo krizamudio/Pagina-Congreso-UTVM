@@ -2,9 +2,12 @@ import {
   BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   Param,
+  ParseUUIDPipe,
   ParseFilePipe,
+  Patch,
   Post,
   UploadedFile,
   UseInterceptors,
@@ -16,7 +19,10 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { RegistroNsuService } from './registro-nsu.service';
 
 import type { UploadedFile as UploadedFileType } from './types/uploaded-file.type';
+import { UpdateRegistroNsuDto } from './dto/update-registro-nsu.dto';
+import { UpdateParticipanteNsuStatusDto } from './dto/update-participante-nsu-status.dto';
 import type { CreateParticipanteNsuDto } from './dto/create-registro-nsu.dto';
+import { EnviarQrAccesoDto } from '../participante-qr/dto/enviar-qr-acceso.dto';
 
 @Controller('registro-nsu')
 export class RegistroNsuController {
@@ -73,5 +79,61 @@ export class RegistroNsuController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.registroNsuService.findOne(id);
+  }
+
+  @Patch(':id')
+  update(
+    @Param('id') id: string,
+    @Body() updateRegistroNsuDto: UpdateRegistroNsuDto,
+  ) {
+    return this.registroNsuService.update(id, updateRegistroNsuDto);
+  }
+
+  @Patch(':id/participantes/:participanteId')
+  updateParticipanteStatus(
+    @Param('id') id: string,
+    @Param('participanteId') participanteId: string,
+    @Body() updateParticipanteNsuStatusDto: UpdateParticipanteNsuStatusDto,
+  ) {
+    return this.registroNsuService.updateParticipanteStatus(
+      id,
+      participanteId,
+      updateParticipanteNsuStatusDto,
+    );
+  }
+
+  @Post(':id/participantes/:participanteId/qr-acceso/enviar')
+  enviarQrAcceso(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Param('participanteId', ParseUUIDPipe) participanteId: string,
+    @Body() dto: EnviarQrAccesoDto,
+  ) {
+    return this.registroNsuService.enviarQrAcceso(id, participanteId, dto);
+  }
+
+  @Post(':id/participantes/:participanteId/qr-acceso/enviar-automatico')
+  enviarQrAccesoAutomatico(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Param('participanteId', ParseUUIDPipe) participanteId: string,
+  ) {
+    return this.registroNsuService.enviarQrAccesoAutomatico(id, participanteId);
+  }
+
+  @Delete(':id/participantes/:participanteId')
+  removeParticipante(
+    @Param('id') id: string,
+    @Param('participanteId') participanteId: string,
+  ) {
+    return this.registroNsuService.removeParticipante(id, participanteId);
+  }
+
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.registroNsuService.remove(id);
+  }
+
+  @Patch(':id/restore')
+  restore(@Param('id') id: string) {
+    return this.registroNsuService.restore(id);
   }
 }

@@ -5,6 +5,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseUUIDPipe,
   Patch,
   Post,
   Res,
@@ -19,6 +20,7 @@ import { memoryStorage } from 'multer';
 import { ExternosService } from './externos.service';
 import { CreateExternoDto } from './dto/create-externo.dto';
 import { UpdateExternoDto } from './dto/update-externo.dto';
+import { EnviarQrAccesoDto } from '../participante-qr/dto/enviar-qr-acceso.dto';
 
 function normalizarDias(
   dias: string | string[] | undefined,
@@ -138,6 +140,19 @@ export class ExternosController {
     return this.externosService.findAll();
   }
 
+  @Post(':id/qr-acceso/enviar')
+  enviarQrAcceso(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() dto: EnviarQrAccesoDto,
+  ) {
+    return this.externosService.enviarQrAcceso(id, dto);
+  }
+
+  @Post(':id/qr-acceso/enviar-automatico')
+  enviarQrAccesoAutomatico(@Param('id', ParseUUIDPipe) id: string) {
+    return this.externosService.enviarQrAccesoAutomatico(id);
+  }
+
   @Get(':id')
   findOne(
     @Param('id') id: string,
@@ -158,5 +173,12 @@ export class ExternosController {
     @Param('id') id: string,
   ) {
     return this.externosService.remove(id);
+  }
+
+  @Patch(':id/restore')
+  restore(
+    @Param('id') id: string,
+  ) {
+    return this.externosService.restore(id);
   }
 }

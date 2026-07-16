@@ -1,35 +1,67 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import {
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+  DeleteDateColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
+import { Congreso } from '../../congreso/entities/congreso.entity';
+import { Ubicacion } from '../../ubicacion/entities/ubicacion.entity';
+import { Ponente } from '../../ponente/entities/ponente.entity';
 
 @Entity()
 export class Conferencia {
+  @PrimaryGeneratedColumn('uuid')
+  id!: string;
 
-    @PrimaryGeneratedColumn('uuid')
-    id!: string;
+  @Column({ type: 'varchar', length: 200 })
+  titulo!: string;
 
-    //TODO: FK
-    @Column('uuid')
-    congreso_id!: string;
+  @Column('text')
+  resumen!: string;
 
-    @Column({type: 'varchar', length: 200})
-    titulo!: string;
+  @Column('date')
+  fecha!: Date;
 
-    //TODO: FK
-    @Column('uuid')
-    ponente_id!: string;
+  @Column('time')
+  hora_inicio!: string;
 
-    @Column('text')
-    resumen!: string;
+  @Column('time')
+  hora_fin!: string;
 
-    @Column('date')
-    fecha!: Date;
+  @CreateDateColumn({ type: 'timestamp', name: 'created_at' })
+  created_at!: Date;
 
-    @Column('time')
-    hora_inicio!: string;
+  @UpdateDateColumn({ type: 'timestamp', name: 'updated_at' })
+  updated_at!: Date;
 
-    @Column('time')
-    hora_fin!: string;
+  @DeleteDateColumn({ type: 'timestamp', name: 'deleted_at', nullable: true })
+  deleted_at?: Date;
 
-    //TODO: FK
-    @Column('uuid')
-    ubicacion_id!: string;
+  //Relaciones
+  @ManyToOne(() => Congreso, (congreso) => congreso.conferencias, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({ name: 'congreso_id' })
+  congreso?: Congreso;
+
+  @ManyToOne(() => Ubicacion, (ubi) => ubi.conferencias, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({ name: 'ubicacion_id' })
+  ubicacion?: Ubicacion;
+
+  @ManyToOne(() => Ponente, (p) => p.conferencias, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({
+    name: 'ponente_id',
+  })
+  ponente?: Ponente;
 }

@@ -26,6 +26,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
+import { isAxiosError } from 'axios';
 import { useQuasar } from 'quasar';
 import UpdateConferenciaForm from '../../components/forms_update/UpdateConferenciaForm.vue';
 import { useConferenciasQuery } from '../../composables/useConferenciasQuery';
@@ -88,7 +89,11 @@ const handleSubmit = async (payload: ConferenciaPayload) => {
     void router.push('/conferencias');
   } catch (err) {
     console.error(err);
-    notify('negative', 'No se pudo actualizar la conferencia.');
+    const message = isAxiosError(err)
+      ? ((err.response?.data as { message?: string | string[] } | undefined)?.message ?? 'No se pudo actualizar la conferencia.')
+      : 'No se pudo actualizar la conferencia.';
+
+    notify('negative', Array.isArray(message) ? message.join(' ') : message);
   } finally {
     isPending.value = false;
   }

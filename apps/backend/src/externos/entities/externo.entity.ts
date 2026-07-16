@@ -6,6 +6,7 @@ import {
   UpdateDateColumn,
   ManyToOne,
   JoinColumn,
+  DeleteDateColumn,
 } from 'typeorm';
 
 import { ArchivoComprobante } from '../../registro-nsu/entities/archivo-comprobante.entity';
@@ -40,6 +41,13 @@ export class Externo {
     unique: true,
   })
   correo!: string;
+
+  @Column({
+    type: 'varchar',
+    length: 150,
+    nullable: true,
+  })
+  correoOriginal!: string | null;
 
   @Column({
     type: 'varchar',
@@ -90,4 +98,7 @@ export class Externo {
 
   @UpdateDateColumn()
   updatedAt!: Date;
+
+  @DeleteDateColumn({ type: 'timestamp', name: 'deleted_at', nullable: true })
+  deleted_at?: Date;
 }

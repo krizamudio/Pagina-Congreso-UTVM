@@ -5,8 +5,11 @@ import { RegistroNsuService } from './registro-nsu.service';
 import { RegistroNsu } from './entities/registro-nsu.entity';
 import { ParticipanteNsu } from './entities/participante-nsu.entity';
 import { ArchivoComprobante } from './entities/archivo-comprobante.entity';
+import { CommonModule } from '../common/common.module';
+import { ParticipanteQrModule } from '../participante-qr/participante-qr.module';
 
 @Module({
+  imports: [CommonModule, ParticipanteQrModule],
   controllers: [RegistroNsuController],
   providers: [
     RegistroNsuService,

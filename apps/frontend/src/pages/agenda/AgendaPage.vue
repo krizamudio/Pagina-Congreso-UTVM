@@ -297,10 +297,18 @@ interface EventoAgenda {
   id: string;
   dia: string;
   salaId: string;
+  salaNombre: string;
+  salaDetalle: string;
   titulo: string;
   tipo: TipoEvento;
   inicio: string;
   fin: string;
+}
+
+interface UbicacionApi {
+  id: string;
+  nombre: string;
+  capacidad?: number;
 }
 
 interface ConferenciaApi {
@@ -310,8 +318,13 @@ interface ConferenciaApi {
   fecha: string;
   hora_inicio: string;
   hora_fin: string;
-  ubicacion_id: string;
-  ponente_id?: string;
+  ubicacion_id?: string | null;
+  ponente_id?: string | null;
+  ubicacion?: UbicacionApi | null;
+  ponente?: {
+    id: string;
+    nombre: string;
+  } | null;
 }
 
 interface TallerApi {
@@ -321,13 +334,15 @@ interface TallerApi {
   fecha: string;
   hora_inicio: string;
   hora_fin: string;
-  ubicacion_id: string;
+  ubicacion_id?: string | null;
+  ubicacion?: UbicacionApi | null;
 }
 
 const diaActivo = ref('');
 const vistaActiva = ref<'calendario' | 'lista'>('calendario');
 
 const eventos = ref<EventoAgenda[]>([]);
+const ubicaciones = ref<UbicacionApi[]>([]);
 const cargandoAgenda = ref(false);
 const errorAgenda = ref('');
 
@@ -364,16 +379,20 @@ const eventosDelDia = computed(() =>
 );
 
 const salas = computed<SalaAgenda[]>(() => {
-  const ubicaciones = Array.from(
-    new Set(eventosDelDia.value.map((evento) => evento.salaId)),
-  );
+  const salasMap = new Map<string, EventoAgenda>();
+
+  eventosDelDia.value.forEach((evento) => {
+    if (!salasMap.has(evento.salaId)) {
+      salasMap.set(evento.salaId, evento);
+    }
+  });
 
   const colores = ['blue', 'green', 'yellow', 'purple', 'pink'];
 
-  return ubicaciones.map((ubicacionId, index) => ({
-    id: ubicacionId,
-    nombre: `Ubicación ${index + 1}`,
-    ubicacion: 'Sede del congreso',
+  return Array.from(salasMap.values()).map((evento, index) => ({
+    id: evento.salaId,
+    nombre: evento.salaNombre,
+    ubicacion: evento.salaDetalle,
     icon: getIconoSala(index),
     color: colores[index % colores.length] ?? 'blue',
   }));
@@ -444,10 +463,12 @@ async function cargarAgenda() {
   errorAgenda.value = '';
 
   try {
-    const [conferenciasResponse, talleresResponse] = await Promise.all([
-      fetch(`${API_BASE}/conferencias`),
-      fetch(`${API_BASE}/taller`),
-    ]);
+    const [conferenciasResponse, talleresResponse, ubicacionesResponse] =
+      await Promise.all([
+        fetch(`${API_BASE}/conferencias`),
+        fetch(`${API_BASE}/taller`),
+        fetch(`${API_BASE}/ubicacion`),
+      ]);
 
     if (!conferenciasResponse.ok) {
       throw new Error('No se pudieron cargar las conferencias.');
@@ -462,6 +483,12 @@ async function cargarAgenda() {
 
     const talleres =
       (await talleresResponse.json()) as TallerApi[];
+
+    if (ubicacionesResponse.ok) {
+      ubicaciones.value = (await ubicacionesResponse.json()) as UbicacionApi[];
+    } else {
+      ubicaciones.value = [];
+    }
 
     const eventosConferencias = conferencias.map(mapearConferencia);
     const eventosTalleres = talleres.map(mapearTaller);
@@ -501,10 +528,17 @@ async function cargarAgenda() {
 }
 
 function mapearConferencia(conferencia: ConferenciaApi): EventoAgenda {
+  const ubicacion = obtenerUbicacionDesdeActividad(
+    conferencia.ubicacion,
+    conferencia.ubicacion_id,
+  );
+
   return {
     id: conferencia.id,
     dia: normalizarFecha(conferencia.fecha),
-    salaId: conferencia.ubicacion_id,
+    salaId: ubicacion.id,
+    salaNombre: ubicacion.nombre,
+    salaDetalle: ubicacion.detalle,
     titulo: conferencia.titulo,
     tipo: 'conferencia',
     inicio: normalizarHora(conferencia.hora_inicio),
@@ -513,15 +547,69 @@ function mapearConferencia(conferencia: ConferenciaApi): EventoAgenda {
 }
 
 function mapearTaller(taller: TallerApi): EventoAgenda {
+  const ubicacion = obtenerUbicacionDesdeActividad(
+    taller.ubicacion,
+    taller.ubicacion_id,
+  );
+
   return {
     id: taller.id,
     dia: normalizarFecha(taller.fecha),
-    salaId: taller.ubicacion_id,
+    salaId: ubicacion.id,
+    salaNombre: ubicacion.nombre,
+    salaDetalle: ubicacion.detalle,
     titulo: taller.titulo,
     tipo: 'taller',
     inicio: normalizarHora(taller.hora_inicio),
     fin: normalizarHora(taller.hora_fin),
   };
+}
+
+function obtenerUbicacionDesdeActividad(
+  ubicacionRelacion?: UbicacionApi | null,
+  ubicacionId?: string | null,
+) {
+  if (ubicacionRelacion?.id) {
+    return {
+      id: ubicacionRelacion.id,
+      nombre: ubicacionRelacion.nombre || 'Ubicación asignada',
+      detalle: obtenerDetalleUbicacion(ubicacionRelacion),
+    };
+  }
+
+  if (ubicacionId) {
+    const ubicacionEncontrada = ubicaciones.value.find(
+      (ubicacion) => ubicacion.id === ubicacionId,
+    );
+
+    if (ubicacionEncontrada) {
+      return {
+        id: ubicacionEncontrada.id,
+        nombre: ubicacionEncontrada.nombre || 'Ubicación asignada',
+        detalle: obtenerDetalleUbicacion(ubicacionEncontrada),
+      };
+    }
+
+    return {
+      id: ubicacionId,
+      nombre: 'Ubicación asignada',
+      detalle: 'Sede del congreso',
+    };
+  }
+
+  return {
+    id: 'sin-ubicacion',
+    nombre: 'Sin ubicación',
+    detalle: 'Ubicación pendiente',
+  };
+}
+
+function obtenerDetalleUbicacion(ubicacion: UbicacionApi) {
+  if (typeof ubicacion.capacidad === 'number') {
+    return `Capacidad: ${ubicacion.capacidad}`;
+  }
+
+  return 'Sede del congreso';
 }
 
 function eventosPorSala(salaId: string) {

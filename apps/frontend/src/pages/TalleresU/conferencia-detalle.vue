@@ -42,8 +42,17 @@
 
       <template v-else-if="conferencia">
         <section class="speaker-hero">
-          <div class="speaker-avatar">
-            <span>
+          <div
+            class="speaker-avatar"
+            :class="{ 'has-photo': !!fotoPonente }"
+          >
+            <img
+              v-if="fotoPonente"
+              :src="fotoPonente"
+              :alt="`Foto de ${ponenteConferencia?.nombre || 'ponente'}`"
+            />
+
+            <span v-else>
               {{ obtenerIniciales(ponenteConferencia?.nombre || conferencia.titulo) }}
             </span>
           </div>
@@ -57,13 +66,16 @@
             <h1>{{ conferencia.titulo }}</h1>
 
             <p>
-              {{ ponenteConferencia?.nombre || 'Ponente no encontrado' }}
+              {{ ponenteConferencia?.nombre || 'Ponente no asignado' }}
               <template v-if="ponenteConferencia?.institucion">
                 · {{ ponenteConferencia.institucion }}
               </template>
             </p>
 
-            <div class="speaker-topic" v-if="ponenteConferencia?.tema">
+            <div
+              v-if="ponenteConferencia?.tema"
+              class="speaker-topic"
+            >
               <q-icon name="auto_awesome" />
               <span>{{ ponenteConferencia.tema }}</span>
             </div>
@@ -94,30 +106,44 @@
             <q-icon name="place" />
             <div>
               <span>Ubicación</span>
-              <strong>Ubicación asignada</strong>
+              <strong>{{ obtenerNombreUbicacion(conferencia) }}</strong>
             </div>
           </article>
 
-          <article class="info-card">
+          <article
+            class="info-card ponente-info-card"
+            :class="{ 'is-clickable': !!obtenerIdPonenteReal() }"
+            @click="irADetallePonente"
+          >
             <q-icon name="person" />
+
             <div>
               <span>Ponente</span>
+
               <strong>
-                {{ ponenteConferencia?.nombre || 'Ponente no encontrado' }}
+                {{ ponenteConferencia?.nombre || 'Ponente no asignado' }}
               </strong>
+
+              <small v-if="obtenerIdPonenteReal()">
+                Clic para ver detalles
+              </small>
             </div>
+
+            <q-icon
+              v-if="obtenerIdPonenteReal()"
+              name="arrow_forward"
+              class="ponente-arrow"
+            />
           </article>
         </section>
 
         <section
-          v-if="!ponenteConferencia"
+          v-if="!conferencia.ponente"
           class="warning-card"
         >
           <q-icon name="warning" />
           <p>
-            No se encontró información del ponente. Revisa que el
-            <strong>ponente_id</strong> de la conferencia coincida con el
-            <strong>id</strong> de un ponente registrado.
+            Esta conferencia no tiene un ponente asignado desde el panel de administración.
           </p>
         </section>
 
@@ -156,11 +182,11 @@
                 -
                 {{ formatearHora(conferencia.hora_fin) }}
                 ·
-                Ubicación asignada
+                {{ obtenerNombreUbicacion(conferencia) }}
               </p>
 
               <span class="session-track">
-                Congreso UTVM
+                {{ conferencia.congreso?.nombre || 'Congreso UTVM' }}
               </span>
             </div>
 
@@ -168,27 +194,6 @@
               Keynote
             </span>
           </article>
-        </section>
-
-        <section class="technical-section">
-          <h2>Información adicional</h2>
-
-          <div class="technical-grid">
-            <div>
-              <span>ID de conferencia</span>
-              <strong>{{ conferencia.id }}</strong>
-            </div>
-
-            <div>
-              <span>ID de ubicación</span>
-              <strong>{{ conferencia.ubicacion_id || 'Sin ubicación' }}</strong>
-            </div>
-
-            <div>
-              <span>ID de ponente asignado</span>
-              <strong>{{ conferencia.ponente_id || 'Sin ponente' }}</strong>
-            </div>
-          </div>
         </section>
       </template>
     </section>
@@ -203,6 +208,32 @@ import { useConferenciasQuery } from '@/composables/useConferenciasQuery';
 import { usePanelesQuery } from '@/composables/UsePanelesQuery';
 import type { Conferencia, Ponente } from '@/types';
 
+interface RelacionSimple {
+  id: string;
+  nombre: string;
+}
+
+interface PonenteRelacionado extends RelacionSimple {
+  institucion?: string;
+  semblanza?: string;
+  tema?: string;
+  visible_publico?: boolean;
+  visiblePublico?: boolean;
+  foto?: {
+    id: string;
+    url: string;
+  };
+}
+
+interface ConferenciaDetalle extends Conferencia {
+  congreso?: RelacionSimple | null;
+  ubicacion?: RelacionSimple | null;
+  ponente?: PonenteRelacionado | null;
+  created_at?: string;
+  updated_at?: string;
+  deleted_at?: string | null;
+}
+
 const route = useRoute();
 const router = useRouter();
 
@@ -213,20 +244,26 @@ const {
   load: cargarPonentes,
 } = usePanelesQuery();
 
-const conferencia = ref<Conferencia | null>(null);
+const conferencia = ref<ConferenciaDetalle | null>(null);
 const cargando = ref(false);
 const error = ref('');
 
-const ponenteConferencia = computed<Ponente | null>(() => {
-  if (!conferencia.value?.ponente_id) {
+const ponenteConferencia = computed<PonenteRelacionado | Ponente | null>(() => {
+  const ponenteRelacionado = conferencia.value?.ponente;
+
+  if (!ponenteRelacionado?.id) {
     return null;
   }
 
-  return (
-    ponentes.value.find(
-      (ponente) => ponente.id === conferencia.value?.ponente_id,
-    ) || null
+  const ponenteCompleto = ponentes.value.find(
+    (ponente) => ponente.id === ponenteRelacionado.id,
   );
+
+  return ponenteCompleto || ponenteRelacionado;
+});
+
+const fotoPonente = computed(() => {
+  return ponenteConferencia.value?.foto?.url || '';
 });
 
 onMounted(() => {
@@ -250,7 +287,7 @@ async function cargarDatos() {
       cargarPonentes(),
     ]);
 
-    conferencia.value = conferenciaData;
+    conferencia.value = conferenciaData as ConferenciaDetalle;
   } catch (err) {
     error.value = 'No se pudo cargar la información de la conferencia.';
     console.error(err);
@@ -261,6 +298,29 @@ async function cargarDatos() {
 
 function volver() {
   void router.push('/conferencias_u');
+}
+
+function obtenerIdPonenteReal() {
+  return (
+    ponenteConferencia.value?.id ||
+    conferencia.value?.ponente?.id ||
+    conferencia.value?.ponente_id ||
+    ''
+  );
+}
+
+function irADetallePonente() {
+  const ponenteId = obtenerIdPonenteReal();
+
+  if (!ponenteId) {
+    return;
+  }
+
+  void router.push(`/panelistas_u/${ponenteId}`);
+}
+
+function obtenerNombreUbicacion(data: ConferenciaDetalle) {
+  return data.ubicacion?.nombre || 'Ubicación asignada';
 }
 
 function formatearFecha(fecha: string | Date) {
@@ -298,8 +358,8 @@ function formatearFechaCorta(fecha: string | Date) {
   }).format(new Date(year, month, day));
 }
 
-function normalizarHora(hora: string) {
-  const horaLimpia = String(hora).slice(0, 5);
+function normalizarHora(hora?: string) {
+  const horaLimpia = String(hora || '00:00').slice(0, 5);
   const [hoursText = '0', minutesText = '0'] = horaLimpia.split(':');
 
   const hours = Number(hoursText);
@@ -308,7 +368,7 @@ function normalizarHora(hora: string) {
   return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
 }
 
-function formatearHora(hora: string) {
+function formatearHora(hora?: string) {
   return normalizarHora(hora);
 }
 
@@ -318,409 +378,12 @@ function obtenerIniciales(texto: string) {
   const primera = partes[0]?.charAt(0) || '';
   const segunda = partes[1]?.charAt(0) || '';
 
-  return `${primera}${segunda}`.toUpperCase();
+  const iniciales = `${primera}${segunda}`.toUpperCase();
+
+  return iniciales || '?';
 }
 </script>
 
 <style scoped lang="scss">
-.conference-detail-page {
-  min-height: calc(100vh - 64px);
-  padding: 34px 22px;
-  background:
-    radial-gradient(circle at 75% 18%, rgba(0, 230, 118, 0.22), transparent 34%),
-    radial-gradient(circle at 10% 70%, rgba(0, 184, 107, 0.14), transparent 30%),
-    linear-gradient(135deg, #071e1b 0%, #031411 100%);
-  color: #ffffff;
-}
-
-.conference-detail-shell {
-  width: 100%;
-  max-width: 1180px;
-  margin: 0 auto;
-}
-
-.detail-back-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 34px;
-}
-
-.detail-back-btn {
-  color: rgba(255, 255, 255, 0.72) !important;
-  font-weight: 700;
-
-  &:hover {
-    color: #00e676 !important;
-  }
-}
-
-.detail-refresh-btn {
-  color: #ffffff !important;
-  background: rgba(255, 255, 255, 0.06) !important;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.speaker-hero {
-  display: grid;
-  grid-template-columns: 150px 1fr;
-  gap: 34px;
-  align-items: center;
-  margin-bottom: 44px;
-}
-
-.speaker-avatar {
-  width: 150px;
-  height: 150px;
-  display: grid;
-  place-items: center;
-  border-radius: 50%;
-  background:
-    radial-gradient(circle at top, rgba(102, 245, 181, 0.28), transparent 58%),
-    linear-gradient(145deg, rgba(0, 230, 118, 0.28), rgba(255, 255, 255, 0.06));
-  border: 1px solid rgba(0, 230, 118, 0.35);
-  box-shadow:
-    0 0 0 10px rgba(0, 230, 118, 0.04),
-    0 26px 60px rgba(0, 0, 0, 0.35);
-
-  span {
-    font-size: 3rem;
-    font-weight: 900;
-    color: #ffffff;
-  }
-}
-
-.speaker-main-info {
-  h1 {
-    margin: 8px 0 10px;
-    font-size: clamp(2.4rem, 6vw, 4.4rem);
-    line-height: 0.96;
-    font-weight: 900;
-    letter-spacing: -0.06em;
-    color: #ffffff;
-  }
-
-  p {
-    margin: 0;
-    color: rgba(255, 255, 255, 0.62);
-    font-size: clamp(1rem, 2vw, 1.35rem);
-    line-height: 1.45;
-  }
-}
-
-.hero-tags {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.hero-tag {
-  display: inline-flex;
-  align-items: center;
-  min-height: 28px;
-  padding: 4px 12px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.12);
-  color: #ffffff;
-  font-size: 0.82rem;
-  font-weight: 800;
-
-  &.featured {
-    background: rgba(0, 230, 118, 0.14);
-    color: #66f5b5;
-  }
-}
-
-.speaker-topic {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 18px;
-  padding: 8px 12px;
-  border-radius: 999px;
-  color: #66f5b5;
-  background: rgba(0, 230, 118, 0.1);
-  border: 1px solid rgba(0, 230, 118, 0.22);
-  font-weight: 800;
-
-  .q-icon {
-    font-size: 18px;
-  }
-}
-
-.detail-info-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 14px;
-  margin-bottom: 32px;
-}
-
-.info-card {
-  display: flex;
-  gap: 12px;
-  padding: 18px;
-  min-height: 112px;
-  border-radius: 18px;
-  background: rgba(31, 42, 40, 0.68);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(14px);
-
-  .q-icon {
-    color: #00e676;
-    font-size: 28px;
-  }
-
-  span {
-    display: block;
-    color: rgba(255, 255, 255, 0.56);
-    font-size: 0.88rem;
-    font-weight: 800;
-  }
-
-  strong {
-    display: block;
-    margin-top: 6px;
-    color: #ffffff;
-    font-size: 1rem;
-    line-height: 1.35;
-    font-weight: 900;
-  }
-}
-
-.content-section,
-.sessions-section,
-.technical-section {
-  margin-bottom: 28px;
-}
-
-.content-section {
-  h2 {
-    margin: 0 0 20px;
-    color: #ffffff;
-    font-size: 1.35rem;
-    font-weight: 900;
-  }
-
-  p {
-    margin: 0;
-    max-width: 1050px;
-    color: rgba(255, 255, 255, 0.62);
-    font-size: 1.05rem;
-    line-height: 1.8;
-  }
-}
-
-.section-title-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 18px;
-
-  h2 {
-    margin: 0;
-    color: #ffffff;
-    font-size: 1.35rem;
-    font-weight: 900;
-  }
-
-  span {
-    color: rgba(255, 255, 255, 0.72);
-    font-weight: 900;
-  }
-}
-
-.session-card {
-  display: flex;
-  justify-content: space-between;
-  gap: 18px;
-  padding: 22px;
-  border-radius: 18px;
-  background: rgba(0, 230, 118, 0.06);
-  border: 1px solid rgba(0, 230, 118, 0.32);
-  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.18);
-
-  h3 {
-    margin: 0;
-    color: #ffffff;
-    font-size: 1.1rem;
-    font-weight: 900;
-  }
-
-  p {
-    margin: 8px 0 12px;
-    color: rgba(255, 255, 255, 0.58);
-    font-size: 0.95rem;
-    line-height: 1.5;
-  }
-}
-
-.session-track {
-  display: inline-flex;
-  padding: 4px 10px;
-  border-radius: 999px;
-  color: #66f5b5;
-  background: rgba(102, 245, 181, 0.08);
-  border: 1px solid rgba(102, 245, 181, 0.28);
-  font-size: 0.78rem;
-  font-weight: 800;
-}
-
-.session-type {
-  align-self: center;
-  padding: 5px 12px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.74);
-  font-size: 0.82rem;
-  font-weight: 900;
-}
-
-.warning-card {
-  display: flex;
-  gap: 12px;
-  padding: 16px;
-  margin-bottom: 26px;
-  border-radius: 16px;
-  background: rgba(255, 176, 32, 0.12);
-  border: 1px solid rgba(255, 176, 32, 0.32);
-  color: rgba(255, 255, 255, 0.78);
-
-  .q-icon {
-    color: #ffb020;
-    font-size: 24px;
-  }
-
-  p {
-    margin: 0;
-    line-height: 1.6;
-  }
-
-  strong {
-    color: #ffffff;
-  }
-}
-
-.technical-section {
-  padding: 22px;
-  border-radius: 18px;
-  background: rgba(31, 42, 40, 0.54);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-
-  h2 {
-    margin: 0 0 18px;
-    color: #00e676;
-    font-size: 1.2rem;
-    font-weight: 900;
-  }
-}
-
-.technical-grid {
-  display: grid;
-  gap: 14px;
-
-  span {
-    display: block;
-    color: rgba(255, 255, 255, 0.5);
-    font-size: 0.82rem;
-    font-weight: 800;
-  }
-
-  strong {
-    display: block;
-    margin-top: 6px;
-    color: #ffffff;
-    font-size: 0.9rem;
-    line-height: 1.4;
-    word-break: break-word;
-  }
-}
-
-.detail-state-card {
-  min-height: 300px;
-  display: grid;
-  place-items: center;
-  gap: 10px;
-  padding: 34px;
-  border-radius: 20px;
-  background: rgba(31, 42, 40, 0.68);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  text-align: center;
-
-  .q-icon {
-    color: #00e676;
-    font-size: 44px;
-  }
-
-  strong {
-    font-size: 1.15rem;
-    color: #ffffff;
-  }
-
-  span {
-    color: rgba(255, 255, 255, 0.62);
-  }
-
-  &.error {
-    .q-icon {
-      color: #ff4d9d;
-    }
-  }
-}
-
-@media (max-width: 980px) {
-  .speaker-hero {
-    grid-template-columns: 110px 1fr;
-    gap: 22px;
-  }
-
-  .speaker-avatar {
-    width: 110px;
-    height: 110px;
-
-    span {
-      font-size: 2.25rem;
-    }
-  }
-
-  .detail-info-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 640px) {
-  .conference-detail-page {
-    padding: 22px 14px;
-  }
-
-  .detail-back-row {
-    margin-bottom: 24px;
-  }
-
-  .speaker-hero {
-    grid-template-columns: 1fr;
-    text-align: center;
-  }
-
-  .speaker-avatar {
-    margin: 0 auto;
-  }
-
-  .hero-tags,
-  .speaker-topic {
-    justify-content: center;
-  }
-
-  .detail-info-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .session-card {
-    flex-direction: column;
-  }
-
-  .session-type {
-    align-self: flex-start;
-  }
-}
+@import "@/css/conferencia-detalle.scss";
 </style>

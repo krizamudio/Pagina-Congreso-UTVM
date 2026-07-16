@@ -282,6 +282,12 @@ http://localhost:3000/api/auth/login
 http://localhost:3000/api/users
 ```
 
+### Documentación del módulo QR
+
+La guía de configuración, emisión, escaneo, confirmación, casos negativos y
+pruebas de concurrencia está disponible en
+[docs/api/qr-acceso.md](docs/api/qr-acceso.md).
+
 ## Flujo de trabajo con GitFlow
 
 Este proyecto puede trabajarse usando GitFlow.
@@ -570,3 +576,23 @@ pnpm dev:backend
 ```
 
 Con esto, la base de datos quedará activa y el backend podrá conectarse a PostgreSQL usando las variables definidas en el archivo `.env`.
+
+## Almacenamiento de imágenes (Supabase Storage)
+
+El backend utiliza [Supabase Storage](https://supabase.com/storage) para almacenar imágenes (fotos, archivos multimedia). Para configurarlo, sigue la guía paso a paso:
+
+```text
+docs/supabase-setup.md
+```
+
+La guía explica cómo crear una cuenta, configurar un bucket, obtener las API keys y completar las variables de entorno necesarias en `apps/backend/.env`.
+
+### Variables de entorno de Supabase
+
+```env
+SUPABASE_URL=https://TU-PROYECTO.supabase.co
+SUPABASE_SECRET_KEY=tu_service_role_key
+SUPABASE_BUCKET=congreso-imagenes
+```
+
+> Para más detalles, consulta `docs/supabase-setup.md`.
