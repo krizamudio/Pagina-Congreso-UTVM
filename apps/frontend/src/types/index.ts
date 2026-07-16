@@ -16,17 +16,40 @@ export type PanelPayload = PonentePayload;
 
 export interface Conferencia {
   id: string;
-  congreso_id: string;
   titulo: string;
-  ponente_id: string;
   resumen: string;
   fecha: string;
   hora_inicio: string;
   hora_fin: string;
-  ubicacion_id: string;
-}
 
-export type ConferenciaPayload = Omit<Conferencia, "id">;
+  congreso_id?: string | null;
+  ponente_id?: string | null;
+  ubicacion_id?: string | null;
+
+  congreso?: {
+    id: string;
+    nombre: string;
+  } | null;
+
+  ponente?: {
+    id: string;
+    nombre: string;
+    institucion?: string;
+    semblanza?: string;
+    tema?: string;
+    visible_publico?: boolean;
+  } | null;
+
+  ubicacion?: {
+    id: string;
+    nombre: string;
+    capacidad?: number;
+  } | null;
+
+  created_at?: string;
+  updated_at?: string;
+  deleted_at?: string | null;
+}
 
 export interface Taller {
   id: string;

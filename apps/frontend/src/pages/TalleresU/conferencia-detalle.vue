@@ -57,13 +57,16 @@
             <h1>{{ conferencia.titulo }}</h1>
 
             <p>
-              {{ ponenteConferencia?.nombre || 'Ponente no encontrado' }}
+              {{ ponenteConferencia?.nombre || 'Ponente no asignado' }}
               <template v-if="ponenteConferencia?.institucion">
                 · {{ ponenteConferencia.institucion }}
               </template>
             </p>
 
-            <div class="speaker-topic" v-if="ponenteConferencia?.tema">
+            <div
+              v-if="ponenteConferencia?.tema"
+              class="speaker-topic"
+            >
               <q-icon name="auto_awesome" />
               <span>{{ ponenteConferencia.tema }}</span>
             </div>
@@ -94,7 +97,7 @@
             <q-icon name="place" />
             <div>
               <span>Ubicación</span>
-              <strong>Ubicación asignada</strong>
+              <strong>{{ obtenerNombreUbicacion(conferencia) }}</strong>
             </div>
           </article>
 
@@ -103,21 +106,19 @@
             <div>
               <span>Ponente</span>
               <strong>
-                {{ ponenteConferencia?.nombre || 'Ponente no encontrado' }}
+                {{ ponenteConferencia?.nombre || 'Ponente no asignado' }}
               </strong>
             </div>
           </article>
         </section>
 
         <section
-          v-if="!ponenteConferencia"
+          v-if="!conferencia.ponente"
           class="warning-card"
         >
           <q-icon name="warning" />
           <p>
-            No se encontró información del ponente. Revisa que el
-            <strong>ponente_id</strong> de la conferencia coincida con el
-            <strong>id</strong> de un ponente registrado.
+            Esta conferencia no tiene un ponente asignado desde el panel de administración.
           </p>
         </section>
 
@@ -156,11 +157,11 @@
                 -
                 {{ formatearHora(conferencia.hora_fin) }}
                 ·
-                Ubicación asignada
+                {{ obtenerNombreUbicacion(conferencia) }}
               </p>
 
               <span class="session-track">
-                Congreso UTVM
+                {{ conferencia.congreso?.nombre || 'Congreso UTVM' }}
               </span>
             </div>
 
@@ -181,12 +182,12 @@
 
             <div>
               <span>ID de ubicación</span>
-              <strong>{{ conferencia.ubicacion_id || 'Sin ubicación' }}</strong>
+              <strong>{{ obtenerIdUbicacion(conferencia) }}</strong>
             </div>
 
             <div>
               <span>ID de ponente asignado</span>
-              <strong>{{ conferencia.ponente_id || 'Sin ponente' }}</strong>
+              <strong>{{ obtenerIdPonente(conferencia) }}</strong>
             </div>
           </div>
         </section>
@@ -203,6 +204,27 @@ import { useConferenciasQuery } from '@/composables/useConferenciasQuery';
 import { usePanelesQuery } from '@/composables/UsePanelesQuery';
 import type { Conferencia, Ponente } from '@/types';
 
+interface RelacionSimple {
+  id: string;
+  nombre: string;
+}
+
+interface PonenteRelacionado extends RelacionSimple {
+  institucion?: string;
+  semblanza?: string;
+  tema?: string;
+  visible_publico?: boolean;
+}
+
+interface ConferenciaDetalle extends Conferencia {
+  congreso?: RelacionSimple | null;
+  ubicacion?: RelacionSimple | null;
+  ponente?: PonenteRelacionado | null;
+  created_at?: string;
+  updated_at?: string;
+  deleted_at?: string | null;
+}
+
 const route = useRoute();
 const router = useRouter();
 
@@ -213,20 +235,22 @@ const {
   load: cargarPonentes,
 } = usePanelesQuery();
 
-const conferencia = ref<Conferencia | null>(null);
+const conferencia = ref<ConferenciaDetalle | null>(null);
 const cargando = ref(false);
 const error = ref('');
 
-const ponenteConferencia = computed<Ponente | null>(() => {
-  if (!conferencia.value?.ponente_id) {
+const ponenteConferencia = computed<PonenteRelacionado | Ponente | null>(() => {
+  const ponenteRelacionado = conferencia.value?.ponente;
+
+  if (!ponenteRelacionado?.id) {
     return null;
   }
 
-  return (
-    ponentes.value.find(
-      (ponente) => ponente.id === conferencia.value?.ponente_id,
-    ) || null
+  const ponenteCompleto = ponentes.value.find(
+    (ponente) => ponente.id === ponenteRelacionado.id,
   );
+
+  return ponenteCompleto || ponenteRelacionado;
 });
 
 onMounted(() => {
@@ -250,7 +274,7 @@ async function cargarDatos() {
       cargarPonentes(),
     ]);
 
-    conferencia.value = conferenciaData;
+    conferencia.value = conferenciaData as ConferenciaDetalle;
   } catch (err) {
     error.value = 'No se pudo cargar la información de la conferencia.';
     console.error(err);
@@ -261,6 +285,18 @@ async function cargarDatos() {
 
 function volver() {
   void router.push('/conferencias_u');
+}
+
+function obtenerNombreUbicacion(data: ConferenciaDetalle) {
+  return data.ubicacion?.nombre || 'Ubicación asignada';
+}
+
+function obtenerIdUbicacion(data: ConferenciaDetalle) {
+  return data.ubicacion?.id || data.ubicacion_id || 'Sin ubicación';
+}
+
+function obtenerIdPonente(data: ConferenciaDetalle) {
+  return data.ponente?.id || data.ponente_id || 'Sin ponente';
 }
 
 function formatearFecha(fecha: string | Date) {
@@ -298,8 +334,8 @@ function formatearFechaCorta(fecha: string | Date) {
   }).format(new Date(year, month, day));
 }
 
-function normalizarHora(hora: string) {
-  const horaLimpia = String(hora).slice(0, 5);
+function normalizarHora(hora?: string) {
+  const horaLimpia = String(hora || '00:00').slice(0, 5);
   const [hoursText = '0', minutesText = '0'] = horaLimpia.split(':');
 
   const hours = Number(hoursText);
@@ -308,7 +344,7 @@ function normalizarHora(hora: string) {
   return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
 }
 
-function formatearHora(hora: string) {
+function formatearHora(hora?: string) {
   return normalizarHora(hora);
 }
 
@@ -318,7 +354,9 @@ function obtenerIniciales(texto: string) {
   const primera = partes[0]?.charAt(0) || '';
   const segunda = partes[1]?.charAt(0) || '';
 
-  return `${primera}${segunda}`.toUpperCase();
+  const iniciales = `${primera}${segunda}`.toUpperCase();
+
+  return iniciales || '?';
 }
 </script>
 

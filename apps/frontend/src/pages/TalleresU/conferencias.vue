@@ -88,14 +88,8 @@
 
           <div class="conferencia-u-speaker">
             <q-avatar class="ponente-avatar" size="74px">
-              <img
-                v-if="obtenerFotoPonente(conferencia.ponente_id)"
-                :src="obtenerFotoPonente(conferencia.ponente_id)"
-                alt="Foto del ponente"
-              />
-
-              <span v-else>
-                {{ obtenerInicialesPonente(conferencia.ponente_id) }}
+              <span>
+                {{ obtenerInicialesPonente(conferencia) }}
               </span>
             </q-avatar>
 
@@ -103,11 +97,11 @@
               <span class="speaker-label">Ponente</span>
 
               <strong>
-                {{ obtenerPonente(conferencia.ponente_id)?.nombre || 'Ponente asignado' }}
+                {{ obtenerNombrePonente(conferencia) }}
               </strong>
 
               <small>
-                {{ obtenerPonente(conferencia.ponente_id)?.institucion || 'Institución no disponible' }}
+                {{ obtenerInstitucionPonente(conferencia) }}
               </small>
             </div>
           </div>
@@ -129,7 +123,7 @@
 
             <span>
               <q-icon name="place" />
-              Ubicación asignada
+              {{ obtenerUbicacion(conferencia) }}
             </span>
           </div>
 
@@ -148,50 +142,45 @@ import { computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { useConferenciasQuery } from '@/composables/useConferenciasQuery';
-import { usePanelesQuery } from '@/composables/UsePanelesQuery';
-import { useArchivosMultimediaQuery } from '@/composables/useArchivosMultimediaQuery';
+import type { Conferencia } from '@/types';
+
+interface ConferenciaPublica extends Conferencia {
+  congreso?: {
+    id: string;
+    nombre: string;
+  } | null;
+
+  ubicacion?: {
+    id: string;
+    nombre: string;
+    capacidad?: number;
+  } | null;
+
+  ponente?: {
+    id: string;
+    nombre: string;
+    institucion?: string;
+    semblanza?: string;
+    tema?: string;
+    visible_publico?: boolean;
+  } | null;
+
+  created_at?: string;
+  updated_at?: string;
+  deleted_at?: string | null;
+}
 
 const router = useRouter();
 
 const {
   data: conferencias,
-  isRefreshing: cargandoConferencias,
-  error: errorConferencias,
+  isRefreshing,
+  error: errorGeneral,
   load: cargarConferencias,
 } = useConferenciasQuery();
 
-const {
-  data: ponentes,
-  isRefreshing: cargandoPonentes,
-  error: errorPonentes,
-  load: cargarPonentes,
-} = usePanelesQuery();
-
-const {
-  data: archivosMultimedia,
-  isRefreshing: cargandoArchivos,
-  error: errorArchivos,
-  load: cargarArchivos,
-} = useArchivosMultimediaQuery();
-
-const isRefreshing = computed(() => {
-  return (
-    cargandoConferencias.value ||
-    cargandoPonentes.value ||
-    cargandoArchivos.value
-  );
-});
-
-const errorGeneral = computed(() => {
-  return (
-    errorConferencias.value ||
-    errorPonentes.value ||
-    errorArchivos.value
-  );
-});
-
-const conferenciasOrdenadas = computed(() => {
-  return [...conferencias.value].sort((a, b) => {
+const conferenciasOrdenadas = computed<ConferenciaPublica[]>(() => {
+  return [...(conferencias.value as ConferenciaPublica[])].sort((a, b) => {
     const fechaA = String(a.fecha || '');
     const fechaB = String(b.fecha || '');
 
@@ -207,49 +196,29 @@ onMounted(() => {
 });
 
 async function refrescar() {
-  await Promise.all([
-    cargarConferencias(),
-    cargarPonentes(),
-    cargarArchivos(),
-  ]);
+  await cargarConferencias();
 }
 
 function abrirDetalleConferencia(id: string) {
   void router.push(`/conferencias_u/${id}`);
 }
 
-function obtenerPonente(ponenteId: string) {
-  return ponentes.value.find(
-    (ponente) => ponente.id === ponenteId
-  );
+function obtenerNombrePonente(conferencia: ConferenciaPublica) {
+  return conferencia.ponente?.nombre || 'Ponente asignado';
 }
 
-function obtenerFotoPonente(ponenteId: string) {
-  const ponente = obtenerPonente(ponenteId);
-
-  if (!ponente?.archivo_foto_id) {
-    return '';
-  }
-
-  const archivos = Array.isArray(archivosMultimedia.value)
-    ? archivosMultimedia.value
-    : [];
-
-  const archivo = archivos.find(
-    (item) => item.id === ponente.archivo_foto_id
-  );
-
-  return archivo?.ruta_archivo || '';
+function obtenerInstitucionPonente(conferencia: ConferenciaPublica) {
+  return conferencia.ponente?.institucion || 'Institución no disponible';
 }
 
-function obtenerInicialesPonente(ponenteId: string) {
-  const ponente = obtenerPonente(ponenteId);
+function obtenerUbicacion(conferencia: ConferenciaPublica) {
+  return conferencia.ubicacion?.nombre || 'Ubicación asignada';
+}
 
-  if (!ponente?.nombre) {
-    return '?';
-  }
+function obtenerInicialesPonente(conferencia: ConferenciaPublica) {
+  const nombre = conferencia.ponente?.nombre || conferencia.titulo || '?';
 
-  const partesNombre = ponente.nombre
+  const partesNombre = nombre
     .trim()
     .split(' ')
     .filter(Boolean);
@@ -257,7 +226,9 @@ function obtenerInicialesPonente(ponenteId: string) {
   const inicialNombre = partesNombre[0]?.charAt(0) || '';
   const inicialApellido = partesNombre[1]?.charAt(0) || '';
 
-  return `${inicialNombre}${inicialApellido}`.toUpperCase();
+  const iniciales = `${inicialNombre}${inicialApellido}`.toUpperCase();
+
+  return iniciales || '?';
 }
 
 function normalizarFecha(fecha: string | Date) {
@@ -527,12 +498,6 @@ function formatearHora(hora: string) {
     font-weight: 900;
     font-size: 1.1rem;
     overflow: hidden;
-
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
   }
 }
 
