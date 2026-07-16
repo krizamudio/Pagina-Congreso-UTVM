@@ -1,0 +1,30 @@
+<html lang='es'>
+  <body
+    style='font-family: Arial, sans-serif; color: #263238; line-height: 1.5'
+  >
+    <h2>Tu registro ha sido aceptado</h2>
+    <p>Hola {{nombreParticipante}},</p>
+    <p>
+      Tu registro para
+      <strong>{{nombreCongreso}}</strong>
+      fue aceptado. Encontraras adjunto el codigo QR que utilizaras para
+      ingresar.
+    </p>
+    <p style='text-align: center'>
+      <a href='{{accessUrl}}'>
+        <img src='cid:qr-acceso' alt='Codigo QR de acceso' width='280' />
+      </a>
+    </p>
+    <p style='text-align: center; margin: 24px 0'>
+      <a
+        href='{{accessUrl}}'
+        style='background: #087f5b; border-radius: 6px; color: #ffffff; display: inline-block; padding: 12px 20px; text-decoration: none'
+      >Abrir validacion del QR</a>
+    </p>
+    <p>
+      No compartas este codigo. Solo funcionara una vez por cada dia que tengas
+      autorizado.
+    </p>
+    <p>Atentamente,<br />Equipo organizador del congreso</p>
+  </body>
+</html>

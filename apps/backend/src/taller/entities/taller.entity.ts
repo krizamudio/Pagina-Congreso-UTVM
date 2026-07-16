@@ -4,16 +4,18 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
+  DeleteDateColumn,
+  ManyToOne,
+  JoinColumn,
 } from 'typeorm';
+import { Ponente } from '../../ponente/entities/ponente.entity';
+import { Congreso } from '../../congreso/entities/congreso.entity';
+import { Ubicacion } from '../../ubicacion/entities/ubicacion.entity';
 
 @Entity()
 export class Taller {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
-
-  //TODO: FK
-  @Column('uuid')
-  congreso_id!: string;
 
   @Column({
     type: 'varchar',
@@ -23,10 +25,6 @@ export class Taller {
 
   @Column('text')
   descripcion!: string;
-
-  //TODO: FK
-  @Column('uuid')
-  tallerista_id!: string;
 
   @Column('int')
   cupo_maximo!: number;
@@ -40,24 +38,50 @@ export class Taller {
   @Column('time')
   hora_fin!: string;
 
-  //TODO: FK
-  @Column('uuid')
-  ubicacion_id!: string;
-
   @Column('text')
   requisitos!: string;
 
   @CreateDateColumn({
     type: 'timestamp',
-    name: 'fecha_creacion',
+    name: 'created_at',
     default: () => 'CURRENT_TIMESTAMP',
   })
-  fecha_creacion!: Date;
+  created_at!: Date;
 
   @UpdateDateColumn({
     type: 'timestamp',
-    name: 'fecha_actualizacion',
+    name: 'updated_at',
     nullable: true,
   })
-  fecha_actualizacion?: Date;
+  updated_at?: Date;
+
+  @DeleteDateColumn({ type: 'timestamp', name: 'deleted_at', nullable: true })
+  deleted_at?: Date;
+
+  //Relaciones
+   @ManyToOne(() => Ponente, (p) => p.talleres,{
+    nullable: true,
+    onDelete: 'SET NULL'
+   })
+   @JoinColumn({name: 'ponente_id'})
+   ponente?: Ponente;
+
+   @ManyToOne(() => Congreso, (cong) => cong.talleres, {
+    nullable: true,
+    onDelete: 'SET NULL'
+   })
+   @JoinColumn({
+    name: 'congreso_id'
+   })
+   congreso?: Congreso;
+
+   @ManyToOne(() => Ubicacion, (u) => u.talleres, {
+    nullable: true,
+    onDelete: 'SET NULL'
+   })
+   @JoinColumn({
+    name: 'ubicacion_id'
+   })
+   ubicacion?: Ubicacion;
+
 }

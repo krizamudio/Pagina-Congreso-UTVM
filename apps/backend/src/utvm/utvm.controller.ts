@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
 } from '@nestjs/common';
@@ -11,6 +12,7 @@ import {
 import { UtvmService } from './utvm.service';
 import { CreateUtvmDto } from './dto/create-utvm.dto';
 import { UpdateUtvmDto } from './dto/update-utvm.dto';
+import { EnviarQrAccesoDto } from '../participante-qr/dto/enviar-qr-acceso.dto';
 
 @Controller('utvm')
 export class UtvmController {
@@ -24,6 +26,19 @@ export class UtvmController {
   @Post('multiple')
   createMany(@Body() participantes: CreateUtvmDto[]) {
     return this.utvmService.createMany(participantes);
+  }
+
+  @Post(':id/qr-acceso/enviar')
+  enviarQrAcceso(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: EnviarQrAccesoDto,
+  ) {
+    return this.utvmService.enviarQrAcceso(id, dto);
+  }
+
+  @Post(':id/qr-acceso/enviar-automatico')
+  enviarQrAccesoAutomatico(@Param('id', ParseIntPipe) id: number) {
+    return this.utvmService.enviarQrAccesoAutomatico(id);
   }
 
   @Get()
@@ -44,5 +59,10 @@ export class UtvmController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.utvmService.remove(+id);
+  }
+
+  @Patch(':id/restore')
+  restore(@Param('id') id: string) {
+    return this.utvmService.restore(+id);
   }
 }

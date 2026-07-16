@@ -1,4 +1,12 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  DeleteDateColumn,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { RegistroNsu } from './registro-nsu.entity';
 
 @Entity('participante_nsu')
@@ -18,6 +26,9 @@ export class ParticipanteNsu {
   @Column({ type: 'varchar', length: 150 })
   correo!: string;
 
+  @Column({ type: 'varchar', length: 150, nullable: true })
+  correo_original!: string | null;
+
   @Column({ type: 'varchar', length: 200 })
   institucion!: string;
 
@@ -33,8 +44,20 @@ export class ParticipanteNsu {
   @Column({ type: 'numeric', precision: 10, scale: 2, default: 0 })
   monto_individual!: number;
 
+  @Column({ type: 'varchar', length: 30, default: 'PENDIENTE' })
+  estado_pago!: string;
+
   @ManyToOne(() => RegistroNsu, (registro) => registro.participantes, {
     onDelete: 'CASCADE',
   })
   registro!: RegistroNsu;
+
+  @CreateDateColumn({ type: 'timestamp', name: 'created_at' })
+  created_at!: Date;
+
+  @UpdateDateColumn({ type: 'timestamp', name: 'updated_at' })
+  updated_at!: Date;
+
+  @DeleteDateColumn({ type: 'timestamp', name: 'deleted_at', nullable: true })
+  deleted_at?: Date;
 }

@@ -5,10 +5,16 @@ import {
 } from '@nestjs/common';
 import { CreateConferenciaDto } from './dto/create-conferencia.dto';
 import { UpdateConferenciaDto } from './dto/update-conferencia.dto';
-import { Repository } from 'typeorm';
+import { DeepPartial, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Conferencia } from './entities/conferencia.entity';
-import { ValidadorCommon } from '../../common/validador.common';
+import { ValidadorCommon } from '../common/validador.provider';
+import { ConferenciaRelacionesProvider } from './providers/conferencia-relaciones.provider';
+import { separarDatosConferencia } from './mappers/conferencia-datos.mapper';
+import {
+  relacionesConferencia,
+  seleccionConferencia,
+} from './mappers/conferencia-query-options.mapper';
 
 @Injectable()
 export class ConferenciasService {
@@ -16,17 +22,28 @@ export class ConferenciasService {
     @InjectRepository(Conferencia)
     private readonly conferenciaRepository: Repository<Conferencia>,
     private readonly validador: ValidadorCommon,
+    private readonly relacionesProvider: ConferenciaRelacionesProvider,
   ) {}
 
   async create(
     createConferenciaDto: CreateConferenciaDto,
   ): Promise<Conferencia> {
-    const { fecha, hora_fin, hora_inicio } = createConferenciaDto;
+    const { relacionIds, datosConferencia } = separarDatosConferencia(
+      createConferenciaDto,
+    );
+    const { fecha, hora_fin, hora_inicio } = datosConferencia;
 
     this.validador.FechaValida(fecha);
     this.validador.ValidarHoras(hora_fin, hora_inicio);
 
-    const conferencia = this.conferenciaRepository.create(createConferenciaDto);
+    const relaciones = await this.relacionesProvider.obtenerRelaciones(
+      relacionIds,
+    );
+
+    const conferencia = this.conferenciaRepository.create({
+      ...datosConferencia,
+      ...relaciones,
+    } as DeepPartial<Conferencia>);
 
     try {
       const conferenciaDB = await this.conferenciaRepository.save(conferencia);
@@ -37,24 +54,35 @@ export class ConferenciasService {
   }
 
   async findAllConferencias(): Promise<Conferencia[]> {
-    return await this.conferenciaRepository.find();
+    return await this.conferenciaRepository.find({
+      relations: relacionesConferencia,
+      select: seleccionConferencia,
+    });
   }
 
-  async findOneConferencia(id: string): Promise<Conferencia | null> {
-    const conferencia = await this.conferenciaRepository.findOneBy({ id });
+  async findOneConferencia(id: string): Promise<Conferencia> {
+    const conferencia = await this.conferenciaRepository.findOne({
+      where: { id },
+      relations: relacionesConferencia,
+      select: seleccionConferencia,
+    });
+
+    if (!conferencia) {
+      throw new NotFoundException(`Conferencia con id ${id} no encontrada`);
+    }
+
     return conferencia;
   }
 
   async update(
     id: string,
     updateConferenciaDto: UpdateConferenciaDto,
-  ): Promise<Conferencia | null> {
-    const { fecha, hora_fin, hora_inicio } = updateConferenciaDto;
+  ): Promise<Conferencia> {
+    const { relacionIds, datosConferencia } = separarDatosConferencia(
+      updateConferenciaDto,
+    );
+    const { fecha, hora_fin, hora_inicio } = datosConferencia;
     const conferenciaActual = await this.findOneConferencia(id);
-
-    if (!conferenciaActual) {
-      throw new NotFoundException(`Conferencia con id ${id} no encontrada`);
-    }
 
     this.validador.FechaValida(fecha);
     this.validador.ValidarHorasActualizacion(
@@ -64,11 +92,16 @@ export class ConferenciasService {
       hora_inicio,
     );
 
+    const relaciones = await this.relacionesProvider.obtenerRelaciones(
+      relacionIds,
+    );
+
     const conferencia: Conferencia | undefined =
       await this.conferenciaRepository.preload({
         id,
-        ...updateConferenciaDto,
-      });
+        ...datosConferencia,
+        ...relaciones,
+      } as DeepPartial<Conferencia>);
 
     if (!conferencia) {
       throw new NotFoundException(`Conferencia con id ${id} no encontrada`);
@@ -81,13 +114,23 @@ export class ConferenciasService {
     }
   }
 
-  async remove(id: string): Promise<void> {
+  async remove(id: string): Promise<Conferencia> {
     const conferenciaEliminada = await this.findOneConferencia(id);
+    await this.conferenciaRepository.softDelete(id);
+    return conferenciaEliminada;
+  }
 
-    if (conferenciaEliminada) {
-      await this.conferenciaRepository.remove(conferenciaEliminada);
-    } else {
-      throw new Error(`Conferencia con id ${id} no encontrada`);
+  async restore(id: string): Promise<Conferencia> {
+    const conferencia = await this.conferenciaRepository.findOne({
+      where: { id },
+      withDeleted: true,
+    });
+
+    if (!conferencia) {
+      throw new NotFoundException(`Conferencia con id ${id} no encontrada`);
     }
+
+    await this.conferenciaRepository.restore(id);
+    return this.findOneConferencia(id);
   }
 }

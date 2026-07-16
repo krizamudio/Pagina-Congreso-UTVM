@@ -2,6 +2,17 @@ import type { RouteRecordRaw } from "vue-router";
 
 const routes: RouteRecordRaw[] = [
   {
+    path: "/acceso/qr/:token",
+    component: () => import("@/layouts/QrAccessLayout.vue"),
+    children: [
+      {
+        path: "",
+        component: () => import("@/pages/QrAccessValidationPage.vue"),
+      },
+    ],
+  },
+
+  {
     path: "/",
     component: () => import("@/pages/public.vue"),
     children: [
@@ -68,6 +79,49 @@ const routes: RouteRecordRaw[] = [
       {
         path: "dashboard",
         component: () => import("@/pages/index/(index).vue"),
+      },
+
+      {
+        path: "congresos",
+        alias: "/congresos",
+        component: () => import("@/pages/dashboards/CongresosPage.vue"),
+      },
+      {
+        path: "congresos/nuevo",
+        alias: "/congresos/nuevo",
+        component: () => import("@/pages/dashboards/CongresoEditorPage.vue"),
+      },
+      {
+        path: "congresos/:id/editar",
+        alias: "/congresos/:id/editar",
+        component: () => import("@/pages/dashboards/CongresoEditorPage.vue"),
+      },
+
+      {
+        path: "ubicaciones",
+        alias: "/ubicaciones",
+        component: () => import("@/pages/dashboards/UbicacionesPage.vue"),
+      },
+      {
+        path: "ubicaciones/nueva",
+        alias: "/ubicaciones/nueva",
+        component: () => import("@/pages/dashboards/UbicacionEditorPage.vue"),
+      },
+      {
+        path: "ubicaciones/:id/editar",
+        alias: "/ubicaciones/:id/editar",
+        component: () => import("@/pages/dashboards/UbicacionEditorPage.vue"),
+      },
+
+      {
+        path: "participantes",
+        alias: "/participantes",
+        component: () => import("@/pages/dashboards/ParticipantesPage.vue"),
+      },
+      {
+        path: "participantes/nsu/:id",
+        alias: "/participantes/nsu/:id",
+        component: () => import("@/pages/dashboards/RegistroNsuDetallePage.vue"),
       },
 
       {

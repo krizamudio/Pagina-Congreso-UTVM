@@ -1,17 +1,19 @@
-import { defineRouter } from '#q-app';
-import routes from './routes';
+import { defineRouter } from "#q-app";
+import routes from "./routes";
 
 import {
   createMemoryHistory,
   createRouter,
   createWebHashHistory,
   createWebHistory,
-} from 'vue-router';
+} from "vue-router";
 
-export default defineRouter(() => {
+export default defineRouter((/* { store, ssrContext } */) => {
+  normalizeLegacyQrHash();
+
   const createHistory = import.meta.env.QUASAR_SERVER
     ? createMemoryHistory
-    : import.meta.env.QUASAR_VUE_ROUTER_MODE === 'history'
+    : import.meta.env.QUASAR_VUE_ROUTER_MODE === "history"
       ? createWebHistory
       : createWebHashHistory;
 
@@ -23,3 +25,13 @@ export default defineRouter(() => {
 
   return Router;
 });
+
+function normalizeLegacyQrHash(): void {
+  if (typeof window === "undefined") return;
+
+  const legacyPrefix = "#/acceso/qr/";
+  if (!window.location.hash.startsWith(legacyPrefix)) return;
+
+  const qrPath = window.location.hash.slice(1);
+  window.history.replaceState(null, "", qrPath);
+}

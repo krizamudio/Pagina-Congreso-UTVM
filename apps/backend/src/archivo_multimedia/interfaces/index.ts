@@ -1,1 +1,0 @@
-export type { IFoto } from "./foto.interface";

@@ -1,12 +1,18 @@
 <template>
   <div class="registro-externo-page">
     <section class="registro-externo-header">
-      <div>
+      <div class="row items-start justify-between q-col-gutter-md full-width">
+        <div class="col">
         <h1>Registro de Participantes Externos</h1>
 
         <p>
           Completa tus datos, selecciona tus días de participación y adjunta tu comprobante de pago.
         </p>
+        </div>
+
+        <div class="col-auto">
+          <q-btn flat label="Volver" text-color="white" @click="goToParticipantes" />
+        </div>
       </div>
     </section>
 
@@ -546,6 +552,9 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 const API_EXTERNOS = 'http://localhost:3000/api/externos'
 
@@ -802,6 +811,10 @@ async function confirmarRegistro() {
   } finally {
     cargando.value = false
   }
+}
+
+function goToParticipantes() {
+  void router.push('/participantes')
 }
 </script>
 

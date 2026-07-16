@@ -2,8 +2,16 @@
   <div class="registro-externo-page q-pa-md">
     <q-card class="registro-externo-card">
       <q-card-section>
-        <div class="titulo">Registro de Participantes UTVM</div>
-        <div class="subtitulo">Congreso UTVM</div>
+        <div class="row items-start justify-between q-col-gutter-md">
+          <div>
+            <div class="titulo">Registro de Participantes UTVM</div>
+            <div class="subtitulo">Congreso UTVM</div>
+          </div>
+
+          <div>
+            <q-btn flat label="Volver" text-color="white" @click="goToParticipantes" />
+          </div>
+        </div>
       </q-card-section>
 
       <q-separator />
@@ -132,9 +140,11 @@
 <script setup lang="ts">
 import { reactive, ref } from "vue";
 import { useQuasar } from "quasar";
+import { useRouter } from "vue-router";
 import Papa from "papaparse";
 
 const $q = useQuasar();
+const router = useRouter();
 
 interface ParticipanteUtvm {
   nombres: string;
@@ -340,6 +350,10 @@ async function guardarParticipantes() {
   } finally {
     loading.value = false;
   }
+}
+
+function goToParticipantes() {
+  void router.push('/participantes');
 }
 </script>
 
