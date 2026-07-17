@@ -419,3 +419,42 @@ $border-green: rgba(0, 230, 118, 0.28);
 .panelista-hero:hover .panelista-hero-avatar img {
   transform: scale(1.04);
 }
+
+/* Solo hacer más grande la imagen del panelista */
+.panelista-avatar {
+  width: 170px !important;
+  height: 170px !important;
+  min-width: 170px !important;
+}
+
+.panelista-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Forzar imagen perfectamente circular */
+.panelista-avatar,
+.panelista-hero-avatar {
+  width: 170px !important;
+  height: 170px !important;
+  min-width: 170px !important;
+  max-width: 170px !important;
+  min-height: 170px !important;
+  max-height: 170px !important;
+  aspect-ratio: 1 / 1 !important;
+  border-radius: 50% !important;
+  overflow: hidden !important;
+  flex-shrink: 0 !important;
+}
+
+.panelista-avatar img,
+.panelista-hero-avatar img {
+  width: 100% !important;
+  height: 100% !important;
+  aspect-ratio: 1 / 1 !important;
+  object-fit: cover !important;
+  object-position: center !important;
+  border-radius: 50% !important;
+  display: block !important;
+}

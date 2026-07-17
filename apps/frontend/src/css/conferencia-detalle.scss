@@ -419,3 +419,26 @@
     align-self: flex-start;
   }
 }
+/* Forzar avatar del ponente perfectamente circular */
+.speaker-avatar {
+  width: 170px !important;
+  height: 170px !important;
+  min-width: 170px !important;
+  max-width: 170px !important;
+  min-height: 170px !important;
+  max-height: 170px !important;
+  aspect-ratio: 1 / 1 !important;
+  border-radius: 50% !important;
+  overflow: hidden !important;
+  flex-shrink: 0 !important;
+}
+
+.speaker-avatar.has-photo img {
+  width: 100% !important;
+  height: 100% !important;
+  aspect-ratio: 1 / 1 !important;
+  object-fit: cover !important;
+  object-position: center !important;
+  border-radius: 50% !important;
+  display: block !important;
+}

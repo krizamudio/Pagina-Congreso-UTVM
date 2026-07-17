@@ -27,26 +27,23 @@ import { DiaEventoModule } from './dia-evento/dia-evento.module';
     ThrottlerModule.forRoot({
       throttlers: [
         {
-          // No mas de 3 llamadas en un segundo.
-          name: 'short',
-          ttl: seconds(1),
-          limit: 3,
-          blockDuration: seconds(30),
-        },
-        {
-          // No mas de 20 llamadas en 10 segundos.
-          name: 'medium',
-          ttl: seconds(10),
-          limit: 20,
-          blockDuration: seconds(30),
-        },
-        {
-          // No mas de 100 llamadas en un minuto.
-          name: 'long',
-          ttl: seconds(60),
-          limit: 100,
-          blockDuration: seconds(60),
-        },
+  name: 'short',
+  ttl: seconds(1),
+  limit: 30,
+  blockDuration: seconds(3),
+},
+{
+  name: 'medium',
+  ttl: seconds(10),
+  limit: 100,
+  blockDuration: seconds(3),
+},
+{
+  name: 'long',
+  ttl: seconds(60),
+  limit: 500,
+  blockDuration: seconds(10),
+},
       ],
     }),
 
