@@ -8,20 +8,9 @@ import {
   Matches,
 } from 'class-validator';
 
-function sanitizeString(value: any) {
+function sanitizeString(value: unknown): unknown {
   if (typeof value !== 'string') return value;
-  // Eliminar etiquetas HTML
-  let s = value.replace(/<[^>]*>/g, '').trim();
-  // Eliminar palabras clave comunes de SQL y caracteres peligrosos
-  s = s.replace(
-    /(\b)(SELECT|INSERT|UPDATE|DELETE|DROP|ALTER|CREATE|TRUNCATE|EXEC|UNION|--|AND|OR)(\b)/gi,
-    '',
-  );
-  s = s.replace(
-    /(--|;|\/\*|\*\/|@@|@|char\(|nchar\(|varchar\(|nvarchar\(|cast\(|convert\()/gi,
-    '',
-  );
-  return s;
+  return value.trim();
 }
 
 export class CreateConferenciaDto {

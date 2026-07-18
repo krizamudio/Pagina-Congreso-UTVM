@@ -128,6 +128,13 @@ El backend valida las variables de entorno al iniciar. Si algo está mal, mostra
 
 Si el backend inicia sin errores, la conexión con Supabase está configurada correctamente.
 
+### Carpetas virtuales de RF-24
+
+Supabase Storage crea las carpetas implícitamente a partir del nombre del
+objeto. RF-24 no requiere configurarlas en el dashboard: el backend utiliza
+`imagenes/noticias/` para portadas y `imagenes/banners/` para banners dentro
+del bucket configurado.
+
 ## Variables de entorno requeridas
 
 | Variable              | Descripción                                | Ejemplo                         |

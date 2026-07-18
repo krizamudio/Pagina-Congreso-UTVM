@@ -9,7 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { ArchivoMultimedia } from '../../archivo_multimedia/entities/archivo_multimedia.entity';
-import { perteneceACategoria } from '../../archivo_multimedia/services/archivo-validation.helper';
+import { perteneceADestino } from '../../archivo_multimedia/services/archivo-validation.helper';
 import {
   ArchivoMultimediaService,
   ArchivoStorageService,
@@ -43,7 +43,7 @@ export class PonentePhotoService {
       throw error;
     }
 
-    if (!perteneceACategoria(foto, 'imagenes')) {
+    if (!perteneceADestino(foto, 'imagenes')) {
       throw new NotFoundException('La foto indicada no existe');
     }
 

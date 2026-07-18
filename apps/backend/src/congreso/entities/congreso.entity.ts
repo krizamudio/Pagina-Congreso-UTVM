@@ -10,6 +10,9 @@ import {
 import { Conferencia } from '../../conferencia/entities/conferencia.entity';
 import { Taller } from '../../taller/entities/taller.entity';
 import { ForoEmpresarial } from '../../foro-empresarial/entities/foro-empresarial.entity';
+import { Banner } from '../../gestion-contenido/entities/banner.entity';
+import { Noticia } from '../../gestion-contenido/entities/noticia.entity';
+import { SeccionContenido } from '../../gestion-contenido/entities/seccion-contenido.entity';
 
 @Entity()
 export class Congreso {
@@ -60,4 +63,13 @@ export class Congreso {
 
   @OneToMany(() => ForoEmpresarial, (foro) => foro.congreso)
   foros_empresariales!: ForoEmpresarial[];
+
+  @OneToMany(() => Noticia, (noticia) => noticia.congreso)
+  noticias!: Noticia[];
+
+  @OneToMany(() => SeccionContenido, (seccion) => seccion.congreso)
+  secciones_contenido!: SeccionContenido[];
+
+  @OneToMany(() => Banner, (banner) => banner.congreso)
+  banners!: Banner[];
 }
