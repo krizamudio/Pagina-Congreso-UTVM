@@ -18,6 +18,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { QrAccesoModule } from './qr-acceso/qr-acceso.module';
 import { DiaEventoModule } from './dia-evento/dia-evento.module';
 import { ForoEmpresarialModule } from './foro-empresarial/foro-empresarial.module';
+import { GestionContenidoModule } from './gestion-contenido/gestion-contenido.module';
 
 @Module({
   imports: [
@@ -81,6 +82,7 @@ import { ForoEmpresarialModule } from './foro-empresarial/foro-empresarial.modul
     DiaEventoModule,
     QrAccesoModule,
     ForoEmpresarialModule,
+    GestionContenidoModule,
   ],
   controllers: [],
   providers: [

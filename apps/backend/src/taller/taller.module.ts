@@ -4,17 +4,11 @@ import { TallerController } from './taller.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Taller } from './entities/taller.entity';
 import { CommonModule } from '../common/common.module';
-import { TallerRelationsService } from './services/taller-relations.service';
-import { Congreso } from '../congreso/entities/congreso.entity';
-import { Ubicacion } from '../ubicacion/entities/ubicacion.entity';
-import { Ponente } from '../ponente/entities/ponente.entity';
+import { AgendaModule } from '../gestion-contenido/agenda/agenda.module';
 
 @Module({
   controllers: [TallerController],
-  providers: [TallerService, TallerRelationsService],
-  imports: [
-    TypeOrmModule.forFeature([Taller, Congreso, Ubicacion, Ponente]),
-    CommonModule,
-  ],
+  providers: [TallerService],
+  imports: [TypeOrmModule.forFeature([Taller]), CommonModule, AgendaModule],
 })
 export class TallerModule {}
