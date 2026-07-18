@@ -13,6 +13,7 @@ import { mapPonenteToResponse } from '../mappers/ponente.mapper';
 import { ResponsePonenteDto } from '../dto/response-ponente.dto';
 import { ResourceLockService } from '../../common/resource-lock.service';
 import { DatabaseErrorHandlerService } from '../../common/database/handle-database-error';
+import { FindPonenteDto } from '../dto/find-ponente.dto';
 
 //TODO: Falta hacer pruebas en esta parte, (Cuando este el front)
 
@@ -44,9 +45,13 @@ export class PonenteService {
     }
   }
 
-  async findAllPonente(): Promise<ResponsePonenteDto[]> {
+  async findAllPonente(query: FindPonenteDto): Promise<ResponsePonenteDto[]> {
+    const { tipo, limit, offset } = query;
     const ponentes = await this.ponenteRepository.find({
+      where: tipo ? { tipo } : {},
       relations: { foto: true },
+      take: limit,
+      skip: offset,
     });
 
     return ponentes.map(mapPonenteToResponse);

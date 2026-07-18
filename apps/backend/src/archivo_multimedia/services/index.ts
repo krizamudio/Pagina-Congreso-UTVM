@@ -10,5 +10,6 @@ export {
 } from './archivo-validation.helper';
 export type {
   ArchivoCategoria,
+  ArchivoCategoriaPublica,
   ArchivoDestino,
 } from './archivo-validation.helper';

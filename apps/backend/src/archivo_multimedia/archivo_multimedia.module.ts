@@ -28,6 +28,7 @@ import { CommonModule } from '../common/common.module';
     ArchivoMultimediaService,
     ArchivoStorageService,
     ArchivoConcurrencyInterceptor,
+    ArchivoRetryService,
   ],
 })
 export class ArchivoMultimediaModule {}

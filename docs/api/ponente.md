@@ -14,6 +14,7 @@ El backend usa validacion global con `ValidationPipe`, `whitelist: true`, `forbi
 | `nombre`          | string  | Si        | Maximo 200 caracteres                    |
 | `archivo_foto_id` | UUID v4 | No        | JPEG, PNG o WebP de `archivo-multimedia`  |
 | `institucion`     | string  | Si        | Maximo 200 caracteres                    |
+| `tipo`            | enum    | Si        | `Ponente` o `Panelista`                  |
 | `semblanza`       | string  | Si        | Maximo 2000 caracteres                   |
 | `tema`            | string  | Si        | Maximo 255 caracteres                    |
 | `visible_publico` | boolean | No        | Por defecto queda en `true` si se omite  |
@@ -36,6 +37,7 @@ Body:
   "nombre": "Dra. Mariana Lopez Hernandez",
   "archivo_foto_id": "3b241101-e2bb-4255-8caf-4136c566a962",
   "institucion": "Universidad Nacional Autonoma de Mexico",
+  "tipo": "Ponente",
   "semblanza": "Investigadora especializada en inteligencia artificial aplicada a educacion, con mas de 10 anos de experiencia en proyectos de innovacion academica.",
   "tema": "Inteligencia artificial aplicada a la educacion superior",
   "visible_publico": true
@@ -54,6 +56,7 @@ Respuesta esperada: `201 Created`.
     "url": "https://proyecto.supabase.co/storage/v1/object/public/bucket/imagenes/foto.jpg"
   },
   "institucion": "Universidad Nacional Autonoma de Mexico",
+  "tipo": "Ponente",
   "semblanza": "Investigadora especializada en inteligencia artificial aplicada a educacion, con mas de 10 anos de experiencia en proyectos de innovacion academica.",
   "tema": "Inteligencia artificial aplicada a la educacion superior",
   "visiblePublico": true
@@ -69,10 +72,10 @@ Errores posibles:
 
 ## GET /ponente
 
-Lista todos los ponentes.
+Lista ponentes y panelistas. Permite filtrar por tipo y paginar resultados.
 
 ```http
-GET {{base_url}}/ponente
+GET {{base_url}}/ponente?tipo=Ponente&limit=50&offset=0
 ```
 
 Respuesta esperada: `200 OK`.
@@ -88,6 +91,7 @@ Respuesta esperada: `200 OK`.
       "url": "https://proyecto.supabase.co/storage/v1/object/public/bucket/imagenes/foto.jpg"
     },
     "institucion": "Universidad Nacional Autonoma de Mexico",
+    "tipo": "Ponente",
     "semblanza": "Investigadora especializada en inteligencia artificial aplicada a educacion, con mas de 10 anos de experiencia en proyectos de innovacion academica.",
     "tema": "Inteligencia artificial aplicada a la educacion superior",
     "visiblePublico": true
@@ -117,6 +121,7 @@ Respuesta esperada: `200 OK`.
     "url": "https://proyecto.supabase.co/storage/v1/object/public/bucket/imagenes/foto.jpg"
   },
   "institucion": "Universidad Nacional Autonoma de Mexico",
+  "tipo": "Ponente",
   "semblanza": "Investigadora especializada en inteligencia artificial aplicada a educacion, con mas de 10 anos de experiencia en proyectos de innovacion academica.",
   "tema": "Inteligencia artificial aplicada a la educacion superior",
   "visiblePublico": true

@@ -12,7 +12,9 @@ export function usePanelesQuery() {
     error.value = null;
 
     try {
-      const response = await api.get('ponente');
+      const response = await api.get('ponente', {
+        params: { tipo: 'Panelista' },
+      });
       data.value = response.data as Panel[];
     } catch (err) {
       error.value = 'Error cargando paneles';

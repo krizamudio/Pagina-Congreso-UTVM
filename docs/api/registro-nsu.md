@@ -26,7 +26,14 @@ Los endpoints de registro usan `multipart/form-data` porque incluyen la subida d
 | Campo | Tipo | Requerido | Reglas |
 | --- | --- | --- | --- |
 | `participantes` | CreateParticipanteNsuDto[] | Si | Arreglo con minimo 1 participante |
-| `comprobante` | file | Si | PDF, JPG, JPEG o PNG, max 10MB |
+| `comprobante` | file | Si | PDF, JPG, JPEG o PNG validos, max 5MB |
+
+---
+
+## GET /comprobantes/:comprobanteId/visualizar
+
+Redirige a una URL firmada del voucher privado, valida por cinco minutos. El
+identificador se obtiene de `comprobante.id` en la respuesta del registro.
 
 ---
 
@@ -65,7 +72,7 @@ Campos del form-data:
 | Campo | Tipo | Descripcion |
 | --- | --- | --- |
 | `participantes` | string | Arreglo JSON de participantes |
-| `comprobante` | file | Archivo PDF, JPG, JPEG o PNG (max 10MB) |
+| `comprobante` | file | Archivo PDF, JPG, JPEG o PNG valido (max 5MB) |
 
 Ejemplo con curl:
 
@@ -101,7 +108,7 @@ Respuesta esperada: `201 Created`.
 Errores posibles:
 - `400 Bad Request` — campo `participantes` no es JSON valido.
 - `400 Bad Request` — archivo no adjuntado o formato no valido.
-- `400 Bad Request` — archivo supera 10MB.
+- `400 Bad Request` — archivo invalido o supera 5MB.
 
 ---
 

@@ -17,6 +17,7 @@ import { seconds, ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { QrAccesoModule } from './qr-acceso/qr-acceso.module';
 import { DiaEventoModule } from './dia-evento/dia-evento.module';
+import { ComprobanteModule } from './comprobante/comprobante.module';
 import { ForoEmpresarialModule } from './foro-empresarial/foro-empresarial.module';
 import { GestionContenidoModule } from './gestion-contenido/gestion-contenido.module';
 
@@ -81,6 +82,7 @@ import { GestionContenidoModule } from './gestion-contenido/gestion-contenido.mo
     UbicacionModule,
     DiaEventoModule,
     QrAccesoModule,
+    ComprobanteModule,
     ForoEmpresarialModule,
     GestionContenidoModule,
   ],

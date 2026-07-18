@@ -12,7 +12,7 @@ import { ResourceLockService } from '../../common/resource-lock.service';
 import { ArchivoMultimediaService } from './archivo_multimedia.service';
 import { perteneceADestino } from './archivo-validation.helper';
 import type {
-  ArchivoCategoria,
+  ArchivoCategoriaPublica,
   ArchivoDestino,
 } from './archivo-validation.helper';
 import { ArchivoRetryService } from './archivo-retry.service';
@@ -34,7 +34,7 @@ export class ArchivoStorageService {
 
   async uploadFile(
     archivo: Express.Multer.File,
-    categoria: ArchivoCategoria,
+    categoria: ArchivoCategoriaPublica,
     destino?: ArchivoDestino,
   ): Promise<ArchivoResponseDto> {
     const datos = await this.storage.upload(archivo, categoria, destino);
@@ -56,7 +56,7 @@ export class ArchivoStorageService {
 
   async getFile(
     id: string,
-    categoria: ArchivoCategoria,
+    categoria: ArchivoCategoriaPublica,
     destino?: ArchivoDestino,
   ): Promise<ArchivoResponseDto> {
     const registro = await this.getRegistro(id, categoria, destino);
@@ -66,7 +66,7 @@ export class ArchivoStorageService {
   updateFile(
     id: string,
     archivo: Express.Multer.File,
-    categoria: ArchivoCategoria,
+    categoria: ArchivoCategoriaPublica,
     destino?: ArchivoDestino,
   ): Promise<ArchivoResponseDto> {
     return this.locks.withLock(`archivo:${id}`, () =>
@@ -76,7 +76,7 @@ export class ArchivoStorageService {
 
   deleteFile(
     id: string,
-    categoria: ArchivoCategoria,
+    categoria: ArchivoCategoriaPublica,
     destino?: ArchivoDestino,
   ): Promise<string> {
     return this.locks.withLock(`archivo:${id}`, async () => {
@@ -101,7 +101,7 @@ export class ArchivoStorageService {
   private async updateLocked(
     id: string,
     archivo: Express.Multer.File,
-    categoria: ArchivoCategoria,
+    categoria: ArchivoCategoriaPublica,
     destino?: ArchivoDestino,
   ): Promise<ArchivoResponseDto> {
     const original = await this.getRegistro(id, categoria, destino);
@@ -162,7 +162,7 @@ export class ArchivoStorageService {
 
   private async getRegistro(
     id: string,
-    categoria: ArchivoCategoria,
+    categoria: ArchivoCategoriaPublica,
     destino?: ArchivoDestino,
   ): Promise<ArchivoMultimedia> {
     const registro = await this.archivos.findOne(id);

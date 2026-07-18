@@ -116,6 +116,7 @@ const { formData: form } = useFormPersistence<PonentePayload>('new-ponente-form'
   usuario_id: generateUUID(),
   archivo_foto_id: '',
   institucion: '',
+  tipo: 'Ponente',
   semblanza: '',
   tema: '',
   visible_publico: true,
