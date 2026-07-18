@@ -38,7 +38,7 @@
           dense
           dark
           @update:model-value="handleImageChange"
-          :rules="[requiredRule]"
+          :rules="[requiredFileRule]"
         >
           <template #prepend>
             <q-icon name="image" />
@@ -122,6 +122,7 @@ const { formData: form } = useFormPersistence<PonentePayload>('new-ponente-form'
 });
 
 const requiredRule = (value?: string | null) => (value?.trim().length ?? 0) > 0 || 'Este campo es obligatorio';
+const requiredFileRule = (value?: File | null) => value instanceof File || 'Este campo es obligatorio';
 
 const revokePreviewUrl = () => {
   if (imagePreviewUrl.value) {
