@@ -9,6 +9,7 @@ import {
 } from 'typeorm';
 import { Conferencia } from '../../conferencia/entities/conferencia.entity';
 import { Taller } from '../../taller/entities/taller.entity';
+import { ForoEmpresarial } from '../../foro-empresarial/entities/foro-empresarial.entity';
 
 @Entity()
 export class Congreso {
@@ -39,7 +40,6 @@ export class Congreso {
   @Column('timestamp')
   fecha_fin!: Date;
 
-
   @CreateDateColumn({ type: 'timestamp', name: 'created_at' })
   created_at!: Date;
 
@@ -57,4 +57,7 @@ export class Congreso {
 
   @OneToMany(() => Taller, (t) => t.congreso)
   talleres!: Taller[];
+
+  @OneToMany(() => ForoEmpresarial, (foro) => foro.congreso)
+  foros_empresariales!: ForoEmpresarial[];
 }
