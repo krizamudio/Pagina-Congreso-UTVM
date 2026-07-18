@@ -13,6 +13,9 @@ import { CongresoMapper } from './mappers/congreso.mapper';
 import { ValidadorCommon } from '../common/validador.provider';
 import { DatabaseErrorHandlerService } from '../common/database/handle-database-error';
 import { ForoEmpresarial } from '../foro-empresarial/entities/foro-empresarial.entity';
+import { Banner } from '../gestion-contenido/entities/banner.entity';
+import { Noticia } from '../gestion-contenido/entities/noticia.entity';
+import { SeccionContenido } from '../gestion-contenido/entities/seccion-contenido.entity';
 
 @Injectable()
 export class CongresoService {
@@ -21,6 +24,12 @@ export class CongresoService {
     private readonly congresoRepository: Repository<Congreso>,
     @InjectRepository(ForoEmpresarial)
     private readonly forosRepository: Repository<ForoEmpresarial>,
+    @InjectRepository(Noticia)
+    private readonly noticiasRepository: Repository<Noticia>,
+    @InjectRepository(SeccionContenido)
+    private readonly seccionesRepository: Repository<SeccionContenido>,
+    @InjectRepository(Banner)
+    private readonly bannersRepository: Repository<Banner>,
     private readonly validator: ValidadorCommon,
     private readonly databaseError: DatabaseErrorHandlerService,
   ) {}
@@ -113,6 +122,17 @@ export class CongresoService {
     if (tieneForosActivos) {
       throw new ConflictException(
         'No se puede eliminar el congreso mientras tenga foros empresariales activos',
+      );
+    }
+
+    const [tieneNoticias, tieneSecciones, tieneBanners] = await Promise.all([
+      this.noticiasRepository.exists({ where: { congreso: { id } } }),
+      this.seccionesRepository.exists({ where: { congreso: { id } } }),
+      this.bannersRepository.exists({ where: { congreso: { id } } }),
+    ]);
+    if (tieneNoticias || tieneSecciones || tieneBanners) {
+      throw new ConflictException(
+        'No se puede eliminar el congreso mientras tenga contenido oficial activo',
       );
     }
 

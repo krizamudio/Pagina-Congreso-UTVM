@@ -10,25 +10,15 @@ import {
   Min,
 } from 'class-validator';
 
-function sanitizeString(value: any) {
+function sanitizeString(value: unknown): unknown {
   if (typeof value !== 'string') return value;
-
-  let s = value.replace(/<[^>]*>/g, '').trim();
-  s = s.replace(
-    /(\b)(SELECT|INSERT|UPDATE|DELETE|DROP|ALTER|CREATE|TRUNCATE|EXEC|UNION|--|AND|OR)(\b)/gi,
-    '',
-  );
-  s = s.replace(
-    /(--|;|\/\*|\*\/|@@|@|char\(|nchar\(|varchar\(|nvarchar\(|cast\(|convert\()/gi,
-    '',
-  );
-
-  return s;
+  return value.trim();
 }
 
 export class CreateTallerDto {
   @IsUUID('4', { message: 'El campo "congreso_id" debe ser un UUID válido.' })
-  congreso_id?: string;
+  @IsNotEmpty({ message: 'El campo "congreso_id" es obligatorio.' })
+  congreso_id!: string;
 
   @IsString({ message: 'El campo "titulo" debe ser texto.' })
   @IsNotEmpty({ message: 'El campo "titulo" es obligatorio.' })
@@ -47,7 +37,8 @@ export class CreateTallerDto {
   descripcion!: string;
 
   @IsUUID('4', { message: 'El campo "tallerista_id" debe ser un UUID válido.' })
-  tallerista_id?: string;
+  @IsNotEmpty({ message: 'El campo "tallerista_id" es obligatorio.' })
+  tallerista_id!: string;
 
   @Type(() => Number)
   @IsInt({ message: 'El campo "cupo_maximo" debe ser un número entero.' })
@@ -77,7 +68,8 @@ export class CreateTallerDto {
   hora_fin!: string;
 
   @IsUUID('4', { message: 'El campo "ubicacion_id" debe ser un UUID válido.' })
-  ubicacion_id?: string;
+  @IsNotEmpty({ message: 'El campo "ubicacion_id" es obligatorio.' })
+  ubicacion_id!: string;
 
   @IsString({ message: 'El campo "requisitos" debe ser texto.' })
   @IsNotEmpty({ message: 'El campo "requisitos" es obligatorio.' })

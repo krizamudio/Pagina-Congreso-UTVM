@@ -9,7 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Not, Repository } from 'typeorm';
 
 import { ArchivoMultimedia } from '../../archivo_multimedia/entities/archivo_multimedia.entity';
-import { perteneceACategoria } from '../../archivo_multimedia/services/archivo-validation.helper';
+import { perteneceADestino } from '../../archivo_multimedia/services/archivo-validation.helper';
 import {
   ArchivoMultimediaService,
   ArchivoStorageService,
@@ -47,7 +47,7 @@ export class ForoEmpresarialLogoService {
       throw error;
     }
 
-    if (!perteneceACategoria(logo, 'imagenes')) {
+    if (!perteneceADestino(logo, 'imagenes')) {
       throw new NotFoundException('El logo indicado no existe');
     }
     await this.ensureAvailable(id, currentForoId);
