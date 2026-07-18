@@ -6,8 +6,10 @@ export { SupabaseStorageService } from './supabase-storage.service';
 export {
   ARCHIVO_UPLOAD_OPTIONS,
   crearPipeArchivo,
+  perteneceADestino,
 } from './archivo-validation.helper';
 export type {
   ArchivoCategoria,
   ArchivoCategoriaPublica,
+  ArchivoDestino,
 } from './archivo-validation.helper';

@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateUbicacionDto } from './dto/create-ubicacion.dto';
 import { UpdateUbicacionDto } from './dto/update-ubicacion.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -7,12 +11,15 @@ import { Repository } from 'typeorm';
 import { DatabaseErrorHandlerService } from '../common/database/handle-database-error';
 import { UbicacionMapperService } from './mappers/ubicacion.mapper.service';
 import { FindUbicacionDto } from './dto/find-ubicacion.dto';
+import { ForoEmpresarial } from '../foro-empresarial/entities/foro-empresarial.entity';
 
 @Injectable()
 export class UbicacionService {
   constructor(
     @InjectRepository(Ubicacion)
     private readonly ubicacionRepository: Repository<Ubicacion>,
+    @InjectRepository(ForoEmpresarial)
+    private readonly forosRepository: Repository<ForoEmpresarial>,
     private readonly databaseError: DatabaseErrorHandlerService,
     private readonly mapper: UbicacionMapperService,
   ) {}
@@ -75,6 +82,15 @@ export class UbicacionService {
   // TODO: Esta parte no implementa softDelete. Revisar si es necesario, ya que solo son dos campos.
   async remove(id: string): Promise<string> {
     try {
+      const tieneForosActivos = await this.forosRepository.exists({
+        where: { ubicacion: { id } },
+      });
+      if (tieneForosActivos) {
+        throw new ConflictException(
+          'No se puede eliminar la ubicación mientras tenga foros empresariales activos',
+        );
+      }
+
       const { affected } = await this.ubicacionRepository.delete(id);
 
       if (affected === 0) {
@@ -85,7 +101,12 @@ export class UbicacionService {
 
       return 'Ubicación eliminada correctamente';
     } catch (err) {
-      if (err instanceof NotFoundException) throw err;
+      if (
+        err instanceof NotFoundException ||
+        err instanceof ConflictException
+      ) {
+        throw err;
+      }
       this.databaseError.handle(err);
     }
   }

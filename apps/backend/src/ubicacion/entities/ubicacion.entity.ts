@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { Conferencia } from '../../conferencia/entities/conferencia.entity';
 import { Taller } from '../../taller/entities/taller.entity';
+import { ForoEmpresarial } from '../../foro-empresarial/entities/foro-empresarial.entity';
 
 @Entity()
 export class Ubicacion {
@@ -45,11 +46,13 @@ export class Ubicacion {
   })
   updated_at!: Date;
 
-
   //Relaciones
   @OneToMany(() => Conferencia, (conf) => conf.ubicacion)
   conferencias?: Conferencia[];
 
   @OneToMany(() => Taller, (t) => t.ubicacion)
   talleres?: Taller[];
+
+  @OneToMany(() => ForoEmpresarial, (foro) => foro.ubicacion)
+  foros_empresariales?: ForoEmpresarial[];
 }

@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateCongresoDto } from './dto/create-congreso.dto';
 import { UpdateCongresoDto } from './dto/update-congreso.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -8,12 +12,24 @@ import { CongresoFindOneResponseDto } from './dto/congreso-find-one.dto';
 import { CongresoMapper } from './mappers/congreso.mapper';
 import { ValidadorCommon } from '../common/validador.provider';
 import { DatabaseErrorHandlerService } from '../common/database/handle-database-error';
+import { ForoEmpresarial } from '../foro-empresarial/entities/foro-empresarial.entity';
+import { Banner } from '../gestion-contenido/entities/banner.entity';
+import { Noticia } from '../gestion-contenido/entities/noticia.entity';
+import { SeccionContenido } from '../gestion-contenido/entities/seccion-contenido.entity';
 
 @Injectable()
 export class CongresoService {
   constructor(
     @InjectRepository(Congreso)
     private readonly congresoRepository: Repository<Congreso>,
+    @InjectRepository(ForoEmpresarial)
+    private readonly forosRepository: Repository<ForoEmpresarial>,
+    @InjectRepository(Noticia)
+    private readonly noticiasRepository: Repository<Noticia>,
+    @InjectRepository(SeccionContenido)
+    private readonly seccionesRepository: Repository<SeccionContenido>,
+    @InjectRepository(Banner)
+    private readonly bannersRepository: Repository<Banner>,
     private readonly validator: ValidadorCommon,
     private readonly databaseError: DatabaseErrorHandlerService,
   ) {}
@@ -61,8 +77,7 @@ export class CongresoService {
 
   async update(id: string, updateCongresoDto: UpdateCongresoDto) {
     const { fecha_inicio, fecha_fin } = updateCongresoDto;
-    const { fechaInicio,fechaFin } =
-      await this.findOne(id);
+    const { fechaInicio, fechaFin } = await this.findOne(id);
     this.validator.ValidarFechasActualizacion(
       fechaInicio.toISOString(),
       fechaFin.toISOString(),
@@ -101,6 +116,25 @@ export class CongresoService {
   async remove(id: string) {
     //Se usa para saber si existe o no el congreso con ese ID
     const { nombre } = await this.findOne(id);
+    const tieneForosActivos = await this.forosRepository.exists({
+      where: { congreso: { id } },
+    });
+    if (tieneForosActivos) {
+      throw new ConflictException(
+        'No se puede eliminar el congreso mientras tenga foros empresariales activos',
+      );
+    }
+
+    const [tieneNoticias, tieneSecciones, tieneBanners] = await Promise.all([
+      this.noticiasRepository.exists({ where: { congreso: { id } } }),
+      this.seccionesRepository.exists({ where: { congreso: { id } } }),
+      this.bannersRepository.exists({ where: { congreso: { id } } }),
+    ]);
+    if (tieneNoticias || tieneSecciones || tieneBanners) {
+      throw new ConflictException(
+        'No se puede eliminar el congreso mientras tenga contenido oficial activo',
+      );
+    }
 
     try {
       await this.congresoRepository.softDelete(id);

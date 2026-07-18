@@ -1,12 +1,16 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
+/// <reference types="jest" />
+
 import { BadRequestException } from '@nestjs/common';
 
+import { ArchivoMultimedia } from '../entities/archivo_multimedia.entity';
 import {
   ARCHIVO_MAX_SIZE,
   crearPipeArchivo,
+  perteneceADestino,
 } from './archivo-validation.helper';
 
-function archivo(
+function comprobante(
   nombre: string,
   mimetype: string,
   buffer: Buffer,
@@ -21,6 +25,18 @@ function archivo(
   } as Express.Multer.File;
 }
 
+function archivo(path: string): ArchivoMultimedia {
+  return {
+    id: '7a04c281-043b-445f-9997-f6a10411da9d',
+    subido_por_usuario_id: '2f8063f8-357c-4bd1-b4b7-ece11f63141a',
+    ruta_archivo: 'https://storage.example.com/image.webp',
+    path,
+    tipo_mime: 'image/webp',
+    created_at: new Date(),
+    updated_at: new Date(),
+  };
+}
+
 describe('validacion de comprobantes', () => {
   it.each([
     ['pago.pdf', 'application/pdf', Buffer.from('%PDF-1.7')],
@@ -33,7 +49,7 @@ describe('validacion de comprobantes', () => {
   ])('acepta %s valido', async (nombre, mimetype, buffer) => {
     await expect(
       crearPipeArchivo('comprobantes').transform(
-        archivo(nombre, mimetype, buffer),
+        comprobante(nombre, mimetype, buffer),
       ),
     ).resolves.toBeDefined();
   });
@@ -45,13 +61,13 @@ describe('validacion de comprobantes', () => {
   ])('rechaza archivo inconsistente %s', async (nombre, mimetype, buffer) => {
     await expect(
       crearPipeArchivo('comprobantes').transform(
-        archivo(nombre, mimetype, buffer),
+        comprobante(nombre, mimetype, buffer),
       ),
     ).rejects.toBeInstanceOf(BadRequestException);
   });
 
   it('rechaza archivos mayores a 5 MB', async () => {
-    const grande = archivo(
+    const grande = comprobante(
       'pago.pdf',
       'application/pdf',
       Buffer.alloc(ARCHIVO_MAX_SIZE + 1),
@@ -61,5 +77,22 @@ describe('validacion de comprobantes', () => {
     await expect(
       crearPipeArchivo('comprobantes').transform(grande),
     ).rejects.toBeInstanceOf(BadRequestException);
+  });
+});
+
+describe('perteneceADestino', () => {
+  it('separa una foto general de las imágenes de contenido', () => {
+    expect(perteneceADestino(archivo('imagenes/foto.webp'), 'imagenes')).toBe(
+      true,
+    );
+    expect(
+      perteneceADestino(archivo('imagenes/noticias/portada.webp'), 'imagenes'),
+    ).toBe(false);
+  });
+
+  it('solo acepta el prefijo solicitado', () => {
+    const banner = archivo('imagenes/banners/principal.webp');
+    expect(perteneceADestino(banner, 'imagenes', 'banners')).toBe(true);
+    expect(perteneceADestino(banner, 'imagenes', 'noticias')).toBe(false);
   });
 });

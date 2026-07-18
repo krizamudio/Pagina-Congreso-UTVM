@@ -6,11 +6,13 @@ import {
   Patch,
   Param,
   Delete,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { TallerService } from './services/taller.service';
 import { CreateTallerDto } from './dto/create-taller.dto';
 import { UpdateTallerDto } from './dto/update-taller.dto';
 
+// TODO: Restringir las mutaciones al administrador autenticado.
 @Controller('taller')
 export class TallerController {
   constructor(private readonly tallerService: TallerService) {}
@@ -26,17 +28,20 @@ export class TallerController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.tallerService.findOneTaller(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTallerDto: UpdateTallerDto) {
+  update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateTallerDto: UpdateTallerDto,
+  ) {
     return this.tallerService.updateTaller(id, updateTallerDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.tallerService.removeTaller(id);
   }
 }

@@ -3,10 +3,8 @@ import { FileValidator, ParseFilePipe } from '@nestjs/common';
 import { ArchivoMultimedia } from '../entities/archivo_multimedia.entity';
 
 export type ArchivoCategoria = 'imagenes' | 'documentos' | 'comprobantes';
-export type ArchivoCategoriaPublica = Exclude<
-  ArchivoCategoria,
-  'comprobantes'
->;
+export type ArchivoCategoriaPublica = Exclude<ArchivoCategoria, 'comprobantes'>;
+export type ArchivoDestino = 'banners' | 'noticias';
 export type ArchivoSubido = Pick<
   Express.Multer.File,
   'originalname' | 'buffer' | 'mimetype' | 'size'
@@ -139,6 +137,18 @@ export function perteneceACategoria(
     Boolean(TIPOS_PERMITIDOS[categoria][archivo.tipo_mime]) &&
     archivo.path.startsWith(`${categoria}/`)
   );
+}
+
+export function perteneceADestino(
+  archivo: ArchivoMultimedia,
+  categoria: ArchivoCategoriaPublica,
+  destino?: ArchivoDestino,
+): boolean {
+  if (!perteneceACategoria(archivo, categoria)) return false;
+  if (destino) return archivo.path.startsWith(`${categoria}/${destino}/`);
+
+  const relativePath = archivo.path.slice(`${categoria}/`.length);
+  return relativePath.length > 0 && !relativePath.includes('/');
 }
 
 function obtenerExtensionOriginal(nombre: string): string {
