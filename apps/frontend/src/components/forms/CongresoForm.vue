@@ -1,10 +1,10 @@
 <template>
-  <q-form class="text-white" @submit.prevent="submit">
+  <q-form @submit.prevent="submit">
     <div class="row q-col-gutter-md">
       <q-input
         v-model.trim="form.nombre"
         class="col-12 col-md-6"
-        dark
+        :dark="!isLight"
         dense
         autofocus
         counter
@@ -15,7 +15,7 @@
       <q-input
         v-model.trim="form.eslogan"
         class="col-12 col-md-6"
-        dark
+        :dark="!isLight"
         dense
         counter
         maxlength="200"
@@ -25,7 +25,7 @@
       <q-input
         v-model.trim="form.ubicacion"
         class="col-12"
-        dark
+        :dark="!isLight"
         dense
         counter
         maxlength="255"
@@ -35,7 +35,7 @@
       <q-input
         v-model="form.fecha_inicio"
         class="col-12 col-md-6"
-        dark
+        :dark="!isLight"
         dense
         type="datetime-local"
         label="Fecha y hora de inicio"
@@ -44,7 +44,7 @@
       <q-input
         v-model="form.fecha_fin"
         class="col-12 col-md-6"
-        dark
+        :dark="!isLight"
         dense
         type="datetime-local"
         label="Fecha y hora de fin"
@@ -65,7 +65,10 @@
 
 <script setup lang="ts">
 import { reactive, watch } from "vue";
+import { useThemeMode } from "../../composables/useThemeMode";
 import type { Congreso, CongresoPayload } from "../../types";
+
+const { isLight } = useThemeMode();
 
 const props = withDefaults(
   defineProps<{

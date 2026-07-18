@@ -4,7 +4,7 @@
       <div class="col-12 col-md-6">
         <q-input
           v-model.trim="form.nombre"
-          dark
+          :dark="!isLight"
           dense
           autofocus
           counter
@@ -17,7 +17,7 @@
       <div class="col-12 col-md-6">
         <q-input
           v-model.trim="form.direccion"
-          dark
+          :dark="!isLight"
           dense
           counter
           maxlength="255"
@@ -30,7 +30,7 @@
         <q-select
           v-model="form.congreso_id"
           :options="congresoOptions"
-          dark
+          :dark="!isLight"
           dense
           emit-value
           map-options
@@ -47,7 +47,7 @@
         <q-select
           v-model="form.ubicacion_id"
           :options="ubicacionOptions"
-          dark
+          :dark="!isLight"
           dense
           emit-value
           map-options
@@ -72,7 +72,7 @@
       <div class="col-12">
         <q-input
           v-model.trim="form.resena"
-          dark
+          :dark="!isLight"
           dense
           autogrow
           counter
@@ -86,13 +86,13 @@
       <div class="col-12">
         <q-file
           v-model="selectedLogo"
-          dark
+          :dark="!isLight"
           dense
           clearable
-          accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+          accept="image/*"
           :max-file-size="MAX_LOGO_SIZE"
           label="Logo del foro (opcional)"
-          hint="JPEG, PNG o WebP; máximo 5 MB"
+          hint="Se convierte automáticamente a WebP; máximo 5 MB"
           @rejected="handleRejectedLogo"
         >
           <template #prepend>
@@ -123,7 +123,7 @@
       <div v-if="props.currentLogo && !selectedLogo" class="col-12">
         <q-checkbox
           v-model="eliminarLogo"
-          dark
+          :dark="!isLight"
           label="Eliminar el logo actual"
         />
       </div>
@@ -143,21 +143,18 @@
 </template>
 
 <script setup lang="ts">
-import {
-  computed,
-  onBeforeUnmount,
-  onMounted,
-  ref,
-  watch
-} from "vue";
+import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { useCongresosQuery } from "../../composables/useCongresosQuery";
 import { useFormPersistence } from "../../composables/useFormPersistence";
+import { useThemeMode } from "../../composables/useThemeMode";
 import { useUbicacionesQuery } from "../../composables/useUbicacionesQuery";
 import type {
   ForoEmpresarialFormSubmit,
   ForoEmpresarialLogo,
   ForoEmpresarialPayload
 } from "../../types";
+
+const { isLight } = useThemeMode();
 
 const MAX_LOGO_SIZE = 5 * 1024 * 1024;
 
@@ -266,8 +263,7 @@ const revokeLocalPreview = () => {
 };
 
 const handleRejectedLogo = () => {
-  logoError.value =
-    "El logo debe ser una imagen JPEG, PNG o WebP de máximo 5 MB.";
+  logoError.value = "Selecciona una imagen compatible de máximo 5 MB.";
 };
 
 const loadCatalogs = async () => {
@@ -302,8 +298,9 @@ onBeforeUnmount(revokeLocalPreview);
 
 <style scoped>
 .logo-preview-card {
-  background: rgba(255, 255, 255, 0.04);
-  border-color: rgba(255, 255, 255, 0.14);
+  color: var(--text-main);
+  background: var(--surface-strong);
+  border-color: var(--surface-border);
 }
 
 .logo-preview {

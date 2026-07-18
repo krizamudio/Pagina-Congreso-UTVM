@@ -1,11 +1,11 @@
 <template>
   <q-page class="q-pa-md">
-    <div class="row justify-between items-center q-mb-lg">
+    <div class="row items-center q-gutter-sm q-mb-lg">
+      <q-btn flat round icon="arrow_back" aria-label="Volver" @click="goBack" />
       <div>
         <div class="text-h4 text-weight-bold">Editar Taller</div>
         <div class="text-subtitle2 text-grey-7">Actualiza los datos del taller.</div>
       </div>
-      <q-btn label="Volver" flat text-color="white" @click="goBack" />
     </div>
 
     <q-card class="dashboard-card q-pa-md">

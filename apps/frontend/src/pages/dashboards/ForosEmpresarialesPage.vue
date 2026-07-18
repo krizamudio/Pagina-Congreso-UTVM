@@ -44,7 +44,7 @@ const confirmRemove = (id: string) => {
   $q.dialog({
     title: "Eliminar foro empresarial",
     message: "¿Seguro que deseas eliminar este foro empresarial?",
-    cancel: true,
+    cancel: { label: "Cancelar", flat: true },
     persistent: true
   }).onOk(async () => {
     if (deletingId.value) return;

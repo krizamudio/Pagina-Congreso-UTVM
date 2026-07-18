@@ -117,7 +117,7 @@ const confirmRemove = (id: string) =>
     .dialog({
       title: "Eliminar congreso",
       message: "¿Seguro que deseas eliminar este congreso?",
-      cancel: true,
+      cancel: { label: "Cancelar", flat: true },
       persistent: true
     })
     .onOk(async () => {

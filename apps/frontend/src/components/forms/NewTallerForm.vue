@@ -8,7 +8,7 @@
           :rules="[requiredRule]"
           dense
           autofocus
-          dark
+          :dark="!isLight"
         />
       </div>
 
@@ -25,7 +25,7 @@
           :loading="congresosLoading"
           :disable="congresosLoading"
           dense
-          dark
+          :dark="!isLight"
         />
       </div>
 
@@ -42,7 +42,7 @@
           :loading="talleristasLoading"
           :disable="talleristasLoading"
           dense
-          dark
+          :dark="!isLight"
         />
       </div>
 
@@ -54,7 +54,7 @@
           label="Cupo máximo"
           :rules="[requiredRule, positiveIntRule]"
           dense
-          dark
+          :dark="!isLight"
         />
       </div>
 
@@ -74,7 +74,7 @@
           type="textarea"
           autogrow
           dense
-          dark
+          :dark="!isLight"
         />
       </div>
 
@@ -85,7 +85,7 @@
           label="Fecha"
           :rules="[requiredRule]"
           dense
-          dark
+          :dark="!isLight"
         />
       </div>
 
@@ -97,7 +97,7 @@
           placeholder="HH:MM"
           :rules="[requiredRule]"
           dense
-          dark
+          :dark="!isLight"
         />
       </div>
 
@@ -109,7 +109,7 @@
           placeholder="HH:MM"
           :rules="[requiredRule]"
           dense
-          dark
+          :dark="!isLight"
         />
       </div>
 
@@ -126,39 +126,55 @@
           :loading="ubicacionesLoading"
           :disable="ubicacionesLoading"
           dense
-          dark
+          :dark="!isLight"
         />
       </div>
 
       <div class="col-12">
-        <q-input v-model="form.requisitos" label="Requisitos" type="textarea" autogrow dense dark />
+        <q-input
+          v-model="form.requisitos"
+          label="Requisitos"
+          type="textarea"
+          autogrow
+          dense
+          :dark="!isLight"
+        />
       </div>
     </div>
 
     <div class="row items-center justify-end q-gutter-sm q-mt-md">
-      <q-btn unelevated color="primary" label="Guardar taller" type="submit" :loading="props.loading" />
+      <q-btn
+        unelevated
+        color="primary"
+        label="Guardar taller"
+        type="submit"
+        :loading="props.loading"
+      />
     </div>
   </q-form>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue';
-import { useCongresosQuery } from '../../composables/useCongresosQuery';
-import { usePonente } from '../../composables/usePonente';
-import { useFormPersistence } from '../../composables/useFormPersistence';
-import { useUbicacionesQuery } from '../../composables/useUbicacionesQuery';
-import type { Ponente, TallerPayload } from '../../types';
+import { computed, onMounted } from "vue";
+import { useCongresosQuery } from "../../composables/useCongresosQuery";
+import { usePonente } from "../../composables/usePonente";
+import { useFormPersistence } from "../../composables/useFormPersistence";
+import { useThemeMode } from "../../composables/useThemeMode";
+import { useUbicacionesQuery } from "../../composables/useUbicacionesQuery";
+import type { Ponente, TallerPayload } from "../../types";
+
+const { isLight } = useThemeMode();
 
 interface Props {
   loading?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  loading: false,
+  loading: false
 });
 
 const emit = defineEmits<{
-  (e: 'submit', payload: TallerPayload): void;
+  (e: "submit", payload: TallerPayload): void;
 }>();
 
 const { useGetPonentes } = usePonente();
@@ -166,57 +182,60 @@ const {
   data: talleristas,
   isLoading: talleristasLoading,
   error: talleristasError,
-  refetch: loadTalleristas,
+  refetch: loadTalleristas
 } = useGetPonentes();
 const {
   data: congresos,
   isRefreshing: congresosLoading,
   error: congresosError,
-  load: loadCongresos,
+  load: loadCongresos
 } = useCongresosQuery();
 const {
   data: ubicaciones,
   isRefreshing: ubicacionesLoading,
   error: ubicacionesError,
-  load: loadUbicaciones,
+  load: loadUbicaciones
 } = useUbicacionesQuery();
 
-const { formData: form } = useFormPersistence<TallerPayload>('new-taller-form', {
-  congreso_id: '',
-  titulo: '',
-  descripcion: '',
-  tallerista_id: '',
-  cupo_maximo: 1,
-  fecha: '',
-  hora_inicio: '',
-  hora_fin: '',
-  ubicacion_id: '',
-  requisitos: '',
-});
+const { formData: form } = useFormPersistence<TallerPayload>(
+  "new-taller-form",
+  {
+    congreso_id: "",
+    titulo: "",
+    descripcion: "",
+    tallerista_id: "",
+    cupo_maximo: 1,
+    fecha: "",
+    hora_inicio: "",
+    hora_fin: "",
+    ubicacion_id: "",
+    requisitos: ""
+  }
+);
 
 const talleristaOptions = computed(() => {
   return talleristas.value.map((ponente: Ponente) => ({
     label: ponente.nombre,
-    value: ponente.id,
+    value: ponente.id
   }));
 });
 
 const congresoOptions = computed(() =>
-  congresos.value.map((congreso) => ({
+  congresos.value.map(congreso => ({
     label: congreso.nombre,
-    value: congreso.id,
-  })),
+    value: congreso.id
+  }))
 );
 
 const ubicacionOptions = computed(() =>
-  ubicaciones.value.map((ubicacion) => ({
+  ubicaciones.value.map(ubicacion => ({
     label: ubicacion.nombre,
-    value: ubicacion.id,
-  })),
+    value: ubicacion.id
+  }))
 );
 
 const catalogsError = computed(
-  () => talleristasError.value || congresosError.value || ubicacionesError.value,
+  () => talleristasError.value || congresosError.value || ubicacionesError.value
 );
 
 const loadCatalogs = async () => {
@@ -224,48 +243,35 @@ const loadCatalogs = async () => {
 
   if (
     !congresosError.value &&
-    !congresos.value.some((item) => item.id === form.value.congreso_id)
+    !congresos.value.some(item => item.id === form.value.congreso_id)
   ) {
-    form.value.congreso_id = '';
+    form.value.congreso_id = "";
   }
   if (
     !ubicacionesError.value &&
-    !ubicaciones.value.some((item) => item.id === form.value.ubicacion_id)
+    !ubicaciones.value.some(item => item.id === form.value.ubicacion_id)
   ) {
-    form.value.ubicacion_id = '';
+    form.value.ubicacion_id = "";
   }
   if (
     !talleristasError.value &&
-    !talleristas.value.some((item) => item.id === form.value.tallerista_id)
+    !talleristas.value.some(item => item.id === form.value.tallerista_id)
   ) {
-    form.value.tallerista_id = '';
+    form.value.tallerista_id = "";
   }
 };
 
-const requiredRule = (value: string) => !!value || 'Este campo es obligatorio';
-const positiveIntRule = (value: number) => Number.isInteger(value) && value > 0 || 'Debe ser un entero mayor a 0';
+const requiredRule = (value: string) => !!value || "Este campo es obligatorio";
+const positiveIntRule = (value: number) =>
+  (Number.isInteger(value) && value > 0) || "Debe ser un entero mayor a 0";
 
 const submit = () => {
   form.value.cupo_maximo = Number(form.value.cupo_maximo) || 1;
 
-  emit('submit', { ...form.value });
+  emit("submit", { ...form.value });
 };
 
 onMounted(() => {
   void loadCatalogs();
 });
 </script>
-
-<style scoped>
-.new-taller-form {
-  color: #ffffff;
-}
-
-.new-taller-form .q-input__control {
-  color: #ffffff;
-}
-
-.new-taller-form .q-field__label {
-  color: rgba(255, 255, 255, 0.75);
-}
-</style>

@@ -95,7 +95,7 @@ const confirmRemove = (id: string) =>
     .dialog({
       title: "Eliminar ubicación",
       message: "¿Seguro que deseas eliminar esta ubicación?",
-      cancel: true,
+      cancel: { label: "Cancelar", flat: true },
       persistent: true
     })
     .onOk(async () => {

@@ -106,6 +106,12 @@ const linksList: EssentialLinkProps[] = [
     caption: "Gestión de foros empresariales",
     icon: "business_center",
     link: "/foros-empresariales"
+  },
+  {
+    label: "Página oficial",
+    caption: "Noticias, agenda y contenido",
+    icon: "web",
+    link: "/pagina-oficial"
   }
 ];
 

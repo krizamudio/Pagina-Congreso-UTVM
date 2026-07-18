@@ -150,6 +150,44 @@ const routes: RouteRecordRaw[] = [
       },
 
       {
+        path: "pagina-oficial",
+        alias: "/pagina-oficial",
+        component: () => import("@/pages/dashboards/PaginaOficialPage.vue")
+      },
+      {
+        path: "pagina-oficial/noticias/nueva",
+        alias: "/pagina-oficial/noticias/nueva",
+        component: () => import("@/pages/dashboards/NoticiaEditorPage.vue")
+      },
+      {
+        path: "pagina-oficial/noticias/:id/editar",
+        alias: "/pagina-oficial/noticias/:id/editar",
+        component: () => import("@/pages/dashboards/NoticiaEditorPage.vue")
+      },
+      {
+        path: "pagina-oficial/secciones/nueva",
+        alias: "/pagina-oficial/secciones/nueva",
+        component: () =>
+          import("@/pages/dashboards/SeccionContenidoEditorPage.vue")
+      },
+      {
+        path: "pagina-oficial/secciones/:id/editar",
+        alias: "/pagina-oficial/secciones/:id/editar",
+        component: () =>
+          import("@/pages/dashboards/SeccionContenidoEditorPage.vue")
+      },
+      {
+        path: "pagina-oficial/banners/nuevo",
+        alias: "/pagina-oficial/banners/nuevo",
+        component: () => import("@/pages/dashboards/BannerEditorPage.vue")
+      },
+      {
+        path: "pagina-oficial/banners/:id/editar",
+        alias: "/pagina-oficial/banners/:id/editar",
+        component: () => import("@/pages/dashboards/BannerEditorPage.vue")
+      },
+
+      {
         path: "talleres",
         alias: "/talleres",
         component: () => import("@/pages/dashboards/TalleresPage.vue")

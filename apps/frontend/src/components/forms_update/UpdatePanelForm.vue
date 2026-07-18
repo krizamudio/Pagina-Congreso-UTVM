@@ -8,24 +8,40 @@
           :rules="[requiredRule]"
           dense
           autofocus
-          dark
+          :dark="!isLight"
         />
       </div>
 
       <div class="col-12 col-md-6">
-        <q-input v-model="form.institucion" label="Institución" dense dark />
+        <q-input
+          v-model="form.institucion"
+          label="Institución"
+          dense
+          :dark="!isLight"
+        />
       </div>
 
       <div class="col-12">
-        <q-input v-model="form.semblanza" label="Semblanza" type="textarea" autogrow dense dark />
+        <q-input
+          v-model="form.semblanza"
+          label="Semblanza"
+          type="textarea"
+          autogrow
+          dense
+          :dark="!isLight"
+        />
       </div>
 
       <div class="col-12 col-md-6">
-        <q-input v-model="form.tema" label="Tema" dense dark />
+        <q-input v-model="form.tema" label="Tema" dense :dark="!isLight" />
       </div>
 
       <div class="col-12 col-md-6">
-        <q-toggle v-model="form.visible_publico" label="Visible públicamente" dark />
+        <q-toggle
+          v-model="form.visible_publico"
+          label="Visible públicamente"
+          :dark="!isLight"
+        />
       </div>
 
       <div class="col-12">
@@ -36,7 +52,7 @@
           accept="image/*"
           clearable
           dense
-          dark
+          :dark="!isLight"
           @update:model-value="handleImageChange"
         >
           <template #prepend>
@@ -46,10 +62,14 @@
       </div>
 
       <div v-if="imagePreviewUrl" class="col-12 col-md-6">
-        <q-card flat bordered class="image-preview-card bg-grey-10">
+        <q-card flat bordered class="image-preview-card">
           <q-card-section>
             <div class="text-caption q-mb-sm">Vista previa</div>
-            <img :src="imagePreviewUrl" alt="Vista previa de foto de panelista" class="image-preview" />
+            <img
+              :src="imagePreviewUrl"
+              alt="Vista previa de foto de panelista"
+              class="image-preview"
+            />
             <div v-if="selectedImage" class="text-caption q-mt-sm text-grey-5">
               Archivo: {{ selectedImage.name }}
             </div>
@@ -79,9 +99,12 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, ref, watch } from 'vue';
-import { useFormPersistence } from '../../composables/useFormPersistence';
-import type { PanelPayload } from '../../types';
+import { onBeforeUnmount, ref, watch } from "vue";
+import { useFormPersistence } from "../../composables/useFormPersistence";
+import { useThemeMode } from "../../composables/useThemeMode";
+import type { PanelPayload } from "../../types";
+
+const { isLight } = useThemeMode();
 
 interface Props {
   loading?: boolean;
@@ -89,11 +112,11 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  loading: false,
+  loading: false
 });
 
 const emit = defineEmits<{
-  (e: 'submit', payload: { panelista: PanelPayload; foto: File | null }): void;
+  (e: "submit", payload: { panelista: PanelPayload; foto: File | null }): void;
 }>();
 
 const error = ref<string | null>(null);
@@ -102,33 +125,37 @@ const selectedImage = ref<File | null>(null);
 const imagePreviewUrl = ref<string | null>(null);
 
 function generateUUID() {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
     const r = (Math.random() * 16) | 0;
-    const v = c === 'x' ? r : (r & 0x3) | 0x8;
+    const v = c === "x" ? r : (r & 0x3) | 0x8;
     return v.toString(16);
   });
 }
 
 const defaultForm = (): PanelPayload => ({
-  nombre: '',
+  nombre: "",
   usuario_id: generateUUID(),
   archivo_foto_id: generateUUID(),
-  institucion: '',
-  semblanza: '',
-  tema: '',
-  visible_publico: true,
+  institucion: "",
+  semblanza: "",
+  tema: "",
+  visible_publico: true
 });
 
-const { formData: form, hydrateForm } = useFormPersistence<PanelPayload>('update-panel-form', defaultForm(), {
-  hydrateOnMounted: false,
-  mergeStrategy: 'base-over-saved',
-});
+const { formData: form, hydrateForm } = useFormPersistence<PanelPayload>(
+  "update-panel-form",
+  defaultForm(),
+  {
+    hydrateOnMounted: false,
+    mergeStrategy: "base-over-saved"
+  }
+);
 
 const syncForm = () => {
   hydrateForm({
     ...defaultForm(),
     ...props.initialData,
-    visible_publico: props.initialData?.visible_publico ?? true,
+    visible_publico: props.initialData?.visible_publico ?? true
   });
 };
 
@@ -137,10 +164,10 @@ watch(
   () => {
     syncForm();
   },
-  { immediate: true, deep: true },
+  { immediate: true, deep: true }
 );
 
-const requiredRule = (value: string) => !!value || 'Este campo es obligatorio';
+const requiredRule = (value: string) => !!value || "Este campo es obligatorio";
 
 const revokePreviewUrl = () => {
   if (imagePreviewUrl.value) {
@@ -166,9 +193,9 @@ const handleImageChange = (file: File | null) => {
 const submit = () => {
   error.value = null;
 
-  emit('submit', {
+  emit("submit", {
     panelista: { ...form.value },
-    foto: selectedImage.value,
+    foto: selectedImage.value
   });
 };
 
@@ -178,12 +205,10 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-.update-panel-form {
-  color: #ffffff;
-}
-
 .image-preview-card {
-  border-color: #394150;
+  color: var(--text-main);
+  background: var(--surface-strong);
+  border-color: var(--surface-border);
 }
 
 .image-preview {

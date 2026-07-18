@@ -1,13 +1,19 @@
 <template>
   <q-page class="hero-page q-pa-md">
-    <div class="row justify-between items-center q-mb-lg">
+    <div class="row items-center q-gutter-sm q-mb-lg">
+      <q-btn
+        flat
+        round
+        icon="arrow_back"
+        aria-label="Volver"
+        to="/foros-empresariales"
+      />
       <div>
         <div class="text-h4 text-weight-bold">Nuevo foro empresarial</div>
         <div class="text-subtitle2 text-grey-7">
           Registra la información y el logo del foro.
         </div>
       </div>
-      <q-btn flat label="Volver" to="/foros-empresariales" />
     </div>
 
     <q-card class="dashboard-card q-pa-md">
@@ -37,6 +43,7 @@ import type {
   ForoEmpresarialLogo,
   ForoEmpresarialPayload
 } from "../../types";
+import { convertImageToWebp } from "../../utils/convertImageToWebp";
 
 const router = useRouter();
 const $q = useQuasar();
@@ -45,14 +52,20 @@ const isPending = ref(false);
 const formRef = ref<{ clearDraft: () => void } | null>(null);
 
 const apiMessage = (error: unknown, fallback: string) => {
-  if (!isAxiosError(error)) return fallback;
-  const message = error.response?.data?.message;
-  return Array.isArray(message) ? message.join(" ") : message || fallback;
+  if (isAxiosError(error)) {
+    const message = error.response?.data?.message;
+    return Array.isArray(message) ? message.join(" ") : message || fallback;
+  }
+
+  return error instanceof Error && error.message.trim()
+    ? error.message
+    : fallback;
 };
 
 const uploadLogo = async (logo: File) => {
+  const optimizedLogo = await convertImageToWebp(logo);
   const formData = new FormData();
-  formData.append("foto", logo);
+  formData.append("foto", optimizedLogo);
   const response = await api.post<ForoEmpresarialLogo>("fotos", formData, {
     headers: { "Content-Type": "multipart/form-data" }
   });
