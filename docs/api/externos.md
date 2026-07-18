@@ -19,7 +19,14 @@ Los endpoints de registro usan `multipart/form-data` porque incluyen la subida d
 | `institucion` | string | No | Opcional, puede ser null |
 | `dias` | string[] | Si | Arreglo de dias |
 | `total` | number | Si | Monto a pagar |
-| `comprobante` | file | Si | PDF, JPG o PNG, max 5MB |
+| `comprobante` | file | Si | PDF, JPG, JPEG o PNG validos, max 5MB |
+
+---
+
+## GET /comprobantes/:comprobanteId/visualizar
+
+Redirige a una URL firmada del voucher privado, valida por cinco minutos. El
+identificador se obtiene de `comprobante.id` en la respuesta del externo.
 
 ---
 

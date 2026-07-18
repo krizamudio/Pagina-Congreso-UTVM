@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Congreso } from '../../congreso/entities/congreso.entity';
 import { Ponente } from '../../ponente/entities/ponente.entity';
+import { PonenteTipo } from '../../ponente/enums/ponente-tipo.enum';
 import { Ubicacion } from '../../ubicacion/entities/ubicacion.entity';
 import {
   ConferenciaRelacionIds,
@@ -56,11 +57,12 @@ export class ConferenciaRelacionesProvider {
     if (ids.ponente_id) {
       const existePonente = await this.ponenteRepository.existsBy({
         id: ids.ponente_id,
+        tipo: PonenteTipo.PONENTE,
       });
 
       if (!existePonente) {
         throw new NotFoundException(
-          `Ponente con id ${ids.ponente_id} no encontrado`,
+          `Ponente con id ${ids.ponente_id} no encontrado o el registro es un panelista`,
         );
       }
 

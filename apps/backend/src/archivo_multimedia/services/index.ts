@@ -7,4 +7,7 @@ export {
   ARCHIVO_UPLOAD_OPTIONS,
   crearPipeArchivo,
 } from './archivo-validation.helper';
-export type { ArchivoCategoria } from './archivo-validation.helper';
+export type {
+  ArchivoCategoria,
+  ArchivoCategoriaPublica,
+} from './archivo-validation.helper';

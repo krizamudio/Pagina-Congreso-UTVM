@@ -106,6 +106,5 @@ const handleSubmit = async ({ panelista, foto }: NewPanelSubmitPayload) => {
 <style scoped>
 .dashboard-card {
   background: rgba(9, 30, 26, 0.92);
-        uploadFormData.append('foto', foto);
 }
 </style>

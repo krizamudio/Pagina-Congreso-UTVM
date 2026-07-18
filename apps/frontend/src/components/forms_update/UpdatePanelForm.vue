@@ -114,6 +114,7 @@ const defaultForm = (): PanelPayload => ({
   usuario_id: generateUUID(),
   archivo_foto_id: generateUUID(),
   institucion: '',
+  tipo: 'Panelista',
   semblanza: '',
   tema: '',
   visible_publico: true,

@@ -11,7 +11,7 @@ import { ArchivoMultimediaMapper } from '../mappers';
 import { ResourceLockService } from '../../common/resource-lock.service';
 import { ArchivoMultimediaService } from './archivo_multimedia.service';
 import { perteneceACategoria } from './archivo-validation.helper';
-import type { ArchivoCategoria } from './archivo-validation.helper';
+import type { ArchivoCategoriaPublica } from './archivo-validation.helper';
 import { ArchivoRetryService } from './archivo-retry.service';
 import { SupabaseStorageService } from './supabase-storage.service';
 
@@ -31,7 +31,7 @@ export class ArchivoStorageService {
 
   async uploadFile(
     archivo: Express.Multer.File,
-    categoria: ArchivoCategoria,
+    categoria: ArchivoCategoriaPublica,
   ): Promise<ArchivoResponseDto> {
     const datos = await this.storage.upload(archivo, categoria);
 
@@ -52,7 +52,7 @@ export class ArchivoStorageService {
 
   async getFile(
     id: string,
-    categoria: ArchivoCategoria,
+    categoria: ArchivoCategoriaPublica,
   ): Promise<ArchivoResponseDto> {
     const registro = await this.getRegistro(id, categoria);
     return this.mapper.toResponse(registro);
@@ -61,14 +61,14 @@ export class ArchivoStorageService {
   updateFile(
     id: string,
     archivo: Express.Multer.File,
-    categoria: ArchivoCategoria,
+    categoria: ArchivoCategoriaPublica,
   ): Promise<ArchivoResponseDto> {
     return this.locks.withLock(`archivo:${id}`, () =>
       this.updateLocked(id, archivo, categoria),
     );
   }
 
-  deleteFile(id: string, categoria: ArchivoCategoria): Promise<string> {
+  deleteFile(id: string, categoria: ArchivoCategoriaPublica): Promise<string> {
     return this.locks.withLock(`archivo:${id}`, async () => {
       const registro = await this.getRegistro(id, categoria);
       await this.archivos.delete(registro);
@@ -91,7 +91,7 @@ export class ArchivoStorageService {
   private async updateLocked(
     id: string,
     archivo: Express.Multer.File,
-    categoria: ArchivoCategoria,
+    categoria: ArchivoCategoriaPublica,
   ): Promise<ArchivoResponseDto> {
     const original = await this.getRegistro(id, categoria);
     const datosNuevos = await this.storage.upload(archivo, categoria);
@@ -151,7 +151,7 @@ export class ArchivoStorageService {
 
   private async getRegistro(
     id: string,
-    categoria: ArchivoCategoria,
+    categoria: ArchivoCategoriaPublica,
   ): Promise<ArchivoMultimedia> {
     const registro = await this.archivos.findOne(id);
     if (!perteneceACategoria(registro, categoria)) {

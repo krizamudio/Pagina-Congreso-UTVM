@@ -26,7 +26,10 @@
           <q-card flat bordered class="summary-card dashboard-card">
             <q-card-section>
               <div class="text-caption text-grey-7">Participantes</div>
-              <div class="text-h5 text-weight-bold">{{ registro.total_participantes }}</div>
+              <div class="text-h5 text-weight-bold">
+                {{ registro.participantes.length }} / {{ registro.total_participantes }}
+              </div>
+              <div class="text-caption text-grey-7">Activos / registrados</div>
             </q-card-section>
           </q-card>
         </div>
@@ -56,6 +59,7 @@
             <q-card-section>
               <div class="text-caption text-grey-7">Comprobante</div>
               <div class="text-body2 ellipsis">{{ normalizeText(registro.comprobante?.nombre_original) || 'Sin comprobante' }}</div>
+              <q-btn v-if="registro.comprobante" class="q-mt-xs" dense flat icon="open_in_new" color="primary" label="Ver voucher" @click="abrirComprobante(registro.comprobante.id)" />
             </q-card-section>
           </q-card>
         </div>
@@ -111,6 +115,7 @@ import { useQuasar, type QTableColumn } from 'quasar';
 import { useRoute, useRouter } from 'vue-router';
 import { useParticipantesAdmin } from '../../composables/useParticipantesAdmin';
 import { getQrApiError, qrAccessService } from '../../services/qrAccessService';
+import { abrirComprobante } from '../../services/comprobanteService';
 import type { ParticipanteEstatus, ParticipanteNsuDetalle, RegistroNsu } from '../../types';
 
 const route = useRoute() as unknown as { params: { id?: string } };

@@ -96,8 +96,9 @@
             </template>
 
             <template #body-cell-comprobante="props">
-              <q-td>
-                {{ normalizeText(props.row.comprobante?.nombre_original) || 'Sin comprobante' }}
+              <q-td class="row items-center no-wrap q-gutter-xs">
+                <span>{{ normalizeText(props.row.comprobante?.nombre_original) || 'Sin comprobante' }}</span>
+                <q-btn v-if="props.row.comprobante" dense flat round icon="open_in_new" color="primary" title="Ver voucher" @click="abrirComprobante(props.row.comprobante.id)" />
               </q-td>
             </template>
 
@@ -131,8 +132,9 @@
             </template>
 
             <template #body-cell-comprobante="props">
-              <q-td>
-                {{ normalizeText(props.row.comprobante?.nombre_original) || 'Sin comprobante' }}
+              <q-td class="row items-center no-wrap q-gutter-xs">
+                <span>{{ normalizeText(props.row.comprobante?.nombre_original) || 'Sin comprobante' }}</span>
+                <q-btn v-if="props.row.comprobante" dense flat round icon="open_in_new" color="primary" title="Ver voucher" @click="abrirComprobante(props.row.comprobante.id)" />
               </q-td>
             </template>
 
@@ -231,6 +233,7 @@ import { useQuasar, type QTableColumn } from 'quasar';
 import { useRouter } from 'vue-router';
 import { api } from '../../services/api';
 import { getQrApiError, qrAccessService } from '../../services/qrAccessService';
+import { abrirComprobante } from '../../services/comprobanteService';
 import { useParticipantesAdmin } from '../../composables/useParticipantesAdmin';
 import type { QrParticipantType } from '../../types/qr-access';
 import type {

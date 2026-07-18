@@ -17,6 +17,7 @@ import { seconds, ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { QrAccesoModule } from './qr-acceso/qr-acceso.module';
 import { DiaEventoModule } from './dia-evento/dia-evento.module';
+import { ComprobanteModule } from './comprobante/comprobante.module';
 
 @Module({
   imports: [
@@ -79,6 +80,7 @@ import { DiaEventoModule } from './dia-evento/dia-evento.module';
     UbicacionModule,
     DiaEventoModule,
     QrAccesoModule,
+    ComprobanteModule,
   ],
   controllers: [],
   providers: [

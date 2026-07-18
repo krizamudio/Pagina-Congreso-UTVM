@@ -24,6 +24,11 @@ import { CommonModule } from '../common/common.module';
     ArchivoMultimediaMapper,
   ],
   imports: [TypeOrmModule.forFeature([ArchivoMultimedia]), CommonModule],
-  exports: [ArchivoMultimediaService, ArchivoStorageService],
+  exports: [
+    ArchivoMultimediaService,
+    ArchivoStorageService,
+    ArchivoConcurrencyInterceptor,
+    ArchivoRetryService,
+  ],
 })
 export class ArchivoMultimediaModule {}

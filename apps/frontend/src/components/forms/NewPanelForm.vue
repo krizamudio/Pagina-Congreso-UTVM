@@ -108,6 +108,7 @@ const { formData: form } = useFormPersistence<PanelPayload>('new-panel-form', {
   usuario_id: generateUUID(),
   archivo_foto_id: generateUUID(),
   institucion: '',
+  tipo: 'Panelista',
   semblanza: '',
   tema: '',
   visible_publico: true,
