@@ -60,14 +60,19 @@ const columns: QTableColumn[] = [
   {
     name: 'tallerista_id',
     label: 'Panelista',
-    field: (row: Taller) => props.talleristaNames[row.tallerista_id] ?? row.tallerista_id,
+    field: (row: Taller) => row.ponente?.nombre ?? props.talleristaNames[row.tallerista_id] ?? row.tallerista_id,
     align: 'left',
   },
   { name: 'cupo_maximo', label: 'Cupo', field: 'cupo_maximo', align: 'center' },
   { name: 'fecha', label: 'Fecha', field: 'fecha', align: 'center' },
   { name: 'hora_inicio', label: 'Inicio', field: 'hora_inicio', align: 'center' },
   { name: 'hora_fin', label: 'Fin', field: 'hora_fin', align: 'center' },
-  { name: 'ubicacion_id', label: 'Ubicación ID', field: 'ubicacion_id', align: 'left' },
+  {
+    name: 'ubicacion_id',
+    label: 'Ubicación',
+    field: (row: Taller) => row.ubicacion?.nombre ?? row.ubicacion_id,
+    align: 'left',
+  },
   { name: 'acciones', label: 'Acciones', field: 'acciones', align: 'center' },
 ];
 </script>

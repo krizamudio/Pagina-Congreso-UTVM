@@ -35,10 +35,8 @@ import type { TallerPayload } from '../../types';
 const router = useRouter();
 const $q = useQuasar();
 const { getById, update } = useTalleresQuery();
-const recordId = computed(() => {
-  const hashSegments = window.location.hash.split('/').filter(Boolean);
-  return hashSegments[2] ?? '';
-});
+const route = useRoute() as unknown as { params: { id?: string } };
+const recordId = computed(() => route.params.id ?? '');
 
 const data = ref<TallerPayload | null>(null);
 const initialTallerData = computed<Partial<TallerPayload>>(() => {

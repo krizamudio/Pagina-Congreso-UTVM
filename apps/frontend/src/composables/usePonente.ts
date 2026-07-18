@@ -10,6 +10,7 @@ export function usePonente() {
 
     const refetch = async () => {
       isLoading.value = true;
+      error.value = null;
       try {
         const response = await api.get('ponente', {
           params: { limit, offset },

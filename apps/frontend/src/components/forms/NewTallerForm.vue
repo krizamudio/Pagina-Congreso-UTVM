@@ -13,11 +13,17 @@
       </div>
 
       <div class="col-12 col-md-6">
-        <q-input
+        <q-select
           v-model="form.congreso_id"
-          label="Congreso ID (autogenerado)"
+          :options="congresoOptions"
+          option-label="label"
+          option-value="value"
+          emit-value
+          map-options
+          label="Congreso"
           :rules="[requiredRule]"
-          readonly
+          :loading="congresosLoading"
+          :disable="congresosLoading"
           dense
           dark
         />
@@ -35,14 +41,9 @@
           :rules="[requiredRule]"
           :loading="talleristasLoading"
           :disable="talleristasLoading"
-          :display-value="selectedTalleristaLabel"
           dense
           dark
-        >
-          <template #selected>
-            <span>{{ selectedTalleristaLabel }}</span>
-          </template>
-        </q-select>
+        />
       </div>
 
       <div class="col-12 col-md-6">
@@ -57,8 +58,13 @@
         />
       </div>
 
-      <div class="col-12" v-if="talleristasError">
-        <div class="text-negative">{{ talleristasError }}</div>
+      <div v-if="catalogsError" class="col-12">
+        <q-banner rounded class="bg-red-10 text-white">
+          {{ catalogsError }}
+          <template #action>
+            <q-btn flat label="Reintentar" @click="loadCatalogs" />
+          </template>
+        </q-banner>
       </div>
 
       <div class="col-12">
@@ -108,11 +114,17 @@
       </div>
 
       <div class="col-12">
-        <q-input
+        <q-select
           v-model="form.ubicacion_id"
-          label="Ubicacion ID (autogenerado)"
+          :options="ubicacionOptions"
+          option-label="label"
+          option-value="value"
+          emit-value
+          map-options
+          label="Ubicación"
           :rules="[requiredRule]"
-          readonly
+          :loading="ubicacionesLoading"
+          :disable="ubicacionesLoading"
           dense
           dark
         />
@@ -126,15 +138,15 @@
     <div class="row items-center justify-end q-gutter-sm q-mt-md">
       <q-btn unelevated color="primary" label="Guardar taller" type="submit" :loading="props.loading" />
     </div>
-
-    <div v-if="error" class="q-mt-md text-negative">{{ error }}</div>
   </q-form>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted } from 'vue';
+import { useCongresosQuery } from '../../composables/useCongresosQuery';
 import { usePonente } from '../../composables/usePonente';
 import { useFormPersistence } from '../../composables/useFormPersistence';
+import { useUbicacionesQuery } from '../../composables/useUbicacionesQuery';
 import type { Ponente, TallerPayload } from '../../types';
 
 interface Props {
@@ -149,7 +161,6 @@ const emit = defineEmits<{
   (e: 'submit', payload: TallerPayload): void;
 }>();
 
-const error = ref<string | null>(null);
 const { useGetPonentes } = usePonente();
 const {
   data: talleristas,
@@ -157,21 +168,21 @@ const {
   error: talleristasError,
   refetch: loadTalleristas,
 } = useGetPonentes();
-
-const generateUUID = () => {
-  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
-    return crypto.randomUUID();
-  }
-
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (char) => {
-    const random = (Math.random() * 16) | 0;
-    const value = char === 'x' ? random : (random & 0x3) | 0x8;
-    return value.toString(16);
-  });
-};
+const {
+  data: congresos,
+  isRefreshing: congresosLoading,
+  error: congresosError,
+  load: loadCongresos,
+} = useCongresosQuery();
+const {
+  data: ubicaciones,
+  isRefreshing: ubicacionesLoading,
+  error: ubicacionesError,
+  load: loadUbicaciones,
+} = useUbicacionesQuery();
 
 const { formData: form } = useFormPersistence<TallerPayload>('new-taller-form', {
-  congreso_id: generateUUID(),
+  congreso_id: '',
   titulo: '',
   descripcion: '',
   tallerista_id: '',
@@ -179,7 +190,7 @@ const { formData: form } = useFormPersistence<TallerPayload>('new-taller-form', 
   fecha: '',
   hora_inicio: '',
   hora_fin: '',
-  ubicacion_id: generateUUID(),
+  ubicacion_id: '',
   requisitos: '',
 });
 
@@ -190,31 +201,58 @@ const talleristaOptions = computed(() => {
   }));
 });
 
-const selectedTalleristaLabel = computed(() => {
-  return talleristaOptions.value.find((option) => option.value === form.value.tallerista_id)?.label ?? form.value.tallerista_id;
-});
+const congresoOptions = computed(() =>
+  congresos.value.map((congreso) => ({
+    label: congreso.nombre,
+    value: congreso.id,
+  })),
+);
+
+const ubicacionOptions = computed(() =>
+  ubicaciones.value.map((ubicacion) => ({
+    label: ubicacion.nombre,
+    value: ubicacion.id,
+  })),
+);
+
+const catalogsError = computed(
+  () => talleristasError.value || congresosError.value || ubicacionesError.value,
+);
+
+const loadCatalogs = async () => {
+  await Promise.all([loadTalleristas(), loadCongresos(), loadUbicaciones()]);
+
+  if (
+    !congresosError.value &&
+    !congresos.value.some((item) => item.id === form.value.congreso_id)
+  ) {
+    form.value.congreso_id = '';
+  }
+  if (
+    !ubicacionesError.value &&
+    !ubicaciones.value.some((item) => item.id === form.value.ubicacion_id)
+  ) {
+    form.value.ubicacion_id = '';
+  }
+  if (
+    !talleristasError.value &&
+    !talleristas.value.some((item) => item.id === form.value.tallerista_id)
+  ) {
+    form.value.tallerista_id = '';
+  }
+};
 
 const requiredRule = (value: string) => !!value || 'Este campo es obligatorio';
 const positiveIntRule = (value: number) => Number.isInteger(value) && value > 0 || 'Debe ser un entero mayor a 0';
 
 const submit = () => {
-  error.value = null;
-
-  if (!form.value.congreso_id) {
-    form.value.congreso_id = generateUUID();
-  }
-
-  if (!form.value.ubicacion_id) {
-    form.value.ubicacion_id = generateUUID();
-  }
-
   form.value.cupo_maximo = Number(form.value.cupo_maximo) || 1;
 
   emit('submit', { ...form.value });
 };
 
 onMounted(() => {
-  void loadTalleristas();
+  void loadCatalogs();
 });
 </script>
 

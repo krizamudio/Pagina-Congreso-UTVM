@@ -14,6 +14,11 @@ export type PonentePayload = Omit<Ponente, "id">;
 export type Panel = Ponente;
 export type PanelPayload = PonentePayload;
 
+export interface ConferenciaReferencia {
+  id: string;
+  nombre: string;
+}
+
 export interface Conferencia {
   id: string;
   congreso_id: string;
@@ -24,9 +29,15 @@ export interface Conferencia {
   hora_inicio: string;
   hora_fin: string;
   ubicacion_id: string;
+  congreso?: ConferenciaReferencia;
+  ponente?: ConferenciaReferencia;
+  ubicacion?: ConferenciaReferencia;
 }
 
-export type ConferenciaPayload = Omit<Conferencia, "id">;
+export type ConferenciaPayload = Omit<
+  Conferencia,
+  "id" | "congreso" | "ponente" | "ubicacion"
+>;
 
 export interface Taller {
   id: string;
@@ -42,11 +53,19 @@ export interface Taller {
   requisitos: string;
   fecha_creacion: string;
   fecha_actualizacion?: string;
+  congreso?: ConferenciaReferencia;
+  ponente?: ConferenciaReferencia;
+  ubicacion?: ConferenciaReferencia;
 }
 
 export type TallerPayload = Omit<
   Taller,
-  "id" | "fecha_creacion" | "fecha_actualizacion"
+  | "id"
+  | "fecha_creacion"
+  | "fecha_actualizacion"
+  | "congreso"
+  | "ponente"
+  | "ubicacion"
 >;
 
 export interface Congreso {
@@ -73,6 +92,41 @@ export interface Ubicacion {
 }
 
 export type UbicacionPayload = Omit<Ubicacion, "id">;
+
+export interface ForoEmpresarialReferencia {
+  id: string;
+  nombre: string;
+}
+
+export interface ForoEmpresarialLogo {
+  id: string;
+  url: string;
+}
+
+export interface ForoEmpresarial {
+  id: string;
+  nombre: string;
+  logo: ForoEmpresarialLogo | null;
+  direccion: string;
+  resena: string;
+  congreso: ForoEmpresarialReferencia;
+  ubicacion: ForoEmpresarialReferencia;
+}
+
+export interface ForoEmpresarialPayload {
+  nombre: string;
+  archivo_logo_id?: string | null;
+  direccion: string;
+  resena: string;
+  congreso_id: string;
+  ubicacion_id: string;
+}
+
+export interface ForoEmpresarialFormSubmit {
+  foro: Omit<ForoEmpresarialPayload, "archivo_logo_id">;
+  logo: File | null;
+  eliminarLogo: boolean;
+}
 
 export type ParticipanteTipo = 'ems' | 'utvm' | 'nsu' | 'externo';
 export type ParticipanteEstatus = 'pendiente' | 'validado' | 'rechazado';

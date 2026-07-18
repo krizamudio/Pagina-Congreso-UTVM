@@ -13,12 +13,17 @@
       </div>
 
       <div class="col-12 col-md-6">
-        <q-input
+        <q-select
           v-model="form.congreso_id"
+          :options="congresoOptions"
+          option-label="label"
+          option-value="value"
+          emit-value
+          map-options
           label="Congreso"
           :rules="[requiredRule]"
-          hint="Escribe el nombre del congreso o pega su UUID"
-          persistent-hint
+          :loading="congresosLoading"
+          :disable="congresosLoading"
           dense
           dark
         />
@@ -36,18 +41,18 @@
           :rules="[requiredRule]"
           :loading="ponentesLoading"
           :disable="ponentesLoading"
-          :display-value="selectedPonenteLabel"
           dense
           dark
-        >
-          <template #selected>
-            <span>{{ selectedPonenteLabel }}</span>
-          </template>
-        </q-select>
+        />
       </div>
 
-      <div v-if="ponentesError" class="col-12 text-negative">
-        {{ ponentesError }}
+      <div v-if="catalogsError" class="col-12">
+        <q-banner rounded class="bg-red-10 text-white">
+          {{ catalogsError }}
+          <template #action>
+            <q-btn flat label="Reintentar" @click="loadCatalogs" />
+          </template>
+        </q-banner>
       </div>
 
       <div class="col-12">
@@ -90,12 +95,17 @@
       </div>
 
       <div class="col-12">
-        <q-input
+        <q-select
           v-model="form.ubicacion_id"
+          :options="ubicacionOptions"
+          option-label="label"
+          option-value="value"
+          emit-value
+          map-options
           label="Ubicación"
           :rules="[requiredRule]"
-          hint="Escribe el nombre de la ubicación o pega su UUID"
-          persistent-hint
+          :loading="ubicacionesLoading"
+          :disable="ubicacionesLoading"
           dense
           dark
         />
@@ -116,11 +126,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
-import { useQuasar } from 'quasar';
+import { computed, onMounted } from 'vue';
+import { useCongresosQuery } from '../../composables/useCongresosQuery';
 import { usePonente } from '../../composables/usePonente';
 import { useFormPersistence } from '../../composables/useFormPersistence';
-import { api } from '../../services/api';
+import { useUbicacionesQuery } from '../../composables/useUbicacionesQuery';
 import type { ConferenciaPayload, Ponente } from '../../types';
 
 interface Props {
@@ -135,11 +145,20 @@ const emit = defineEmits<{
   (e: 'submit', payload: ConferenciaPayload): void;
 }>();
 
-const $q = useQuasar();
 const { useGetPonentes } = usePonente();
 const { data: ponentes, isLoading: ponentesLoading, error: ponentesError, refetch: loadPonentes } = useGetPonentes();
-const congresosCatalog = ref<Array<{ id: string; nombre: string }>>([]);
-const ubicacionesCatalog = ref<Array<{ id: string; nombre: string }>>([]);
+const {
+  data: congresos,
+  isRefreshing: congresosLoading,
+  error: congresosError,
+  load: loadCongresos,
+} = useCongresosQuery();
+const {
+  data: ubicaciones,
+  isRefreshing: ubicacionesLoading,
+  error: ubicacionesError,
+  load: loadUbicaciones,
+} = useUbicacionesQuery();
 
 const { formData: form } = useFormPersistence<ConferenciaPayload>('new-conferencia-form', {
   congreso_id: '',
@@ -159,89 +178,35 @@ const ponenteOptions = computed(() => {
   }));
 });
 
-const selectedPonenteLabel = computed(() => {
-  return ponenteOptions.value.find((option) => option.value === form.value.ponente_id)?.label ?? form.value.ponente_id;
-});
+const congresoOptions = computed(() =>
+  congresos.value.map((congreso) => ({
+    label: congreso.nombre,
+    value: congreso.id,
+  })),
+);
 
-const isUuid = (value: string) => {
-  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
-};
+const ubicacionOptions = computed(() =>
+  ubicaciones.value.map((ubicacion) => ({
+    label: ubicacion.nombre,
+    value: ubicacion.id,
+  })),
+);
 
-const normalize = (value: string) => value.trim().toLowerCase();
-
-const resolveByNameOrId = (
-  rawValue: string,
-  catalog: Array<{ id: string; nombre: string }>,
-) => {
-  const value = rawValue.trim();
-  if (!value) return value;
-  if (isUuid(value)) return value;
-
-  const match = catalog.find((item) => normalize(item.nombre) === normalize(value));
-  return match?.id ?? value;
-};
+const catalogsError = computed(
+  () => ponentesError.value || congresosError.value || ubicacionesError.value,
+);
 
 const loadCatalogs = async () => {
-  try {
-    const [congresosResponse, ubicacionesResponse] = await Promise.all([
-      api.get('congreso'),
-      api.get('ubicacion'),
-    ]);
-
-    const congresos = Array.isArray(congresosResponse.data) ? congresosResponse.data : [];
-    const ubicaciones = Array.isArray(ubicacionesResponse.data) ? ubicacionesResponse.data : [];
-
-    congresosCatalog.value = congresos
-      .filter((item: any) => item?.id && item?.nombre)
-      .map((item: any) => ({ id: String(item.id), nombre: String(item.nombre) }));
-
-    ubicacionesCatalog.value = ubicaciones
-      .filter((item: any) => item?.id && item?.nombre)
-      .map((item: any) => ({ id: String(item.id), nombre: String(item.nombre) }));
-  } catch (catalogError) {
-    console.warn('No se pudo cargar catálogo de congreso/ubicación', catalogError);
-  }
+  await Promise.all([loadPonentes(), loadCongresos(), loadUbicaciones()]);
 };
 
 const requiredRule = (value: string) => !!value || 'Este campo es obligatorio';
 
-const notifyValidationError = (message: string) => {
-  if (typeof $q.notify === 'function') {
-    $q.notify({
-      type: 'negative',
-      message,
-      position: 'top',
-      timeout: 3200,
-      multiLine: true,
-      progress: true,
-      textColor: 'white',
-      classes: 'app-notify app-notify-negative',
-    });
-  }
-};
-
 const submit = () => {
-  const congresoId = resolveByNameOrId(form.value.congreso_id, congresosCatalog.value);
-  const ubicacionId = resolveByNameOrId(form.value.ubicacion_id, ubicacionesCatalog.value);
-
-  if (!isUuid(congresoId)) {
-    notifyValidationError('No se encontró el congreso. Escribe un nombre existente o un UUID válido.');
-    return;
-  }
-
-  if (!isUuid(ubicacionId)) {
-    notifyValidationError('No se encontró la ubicación. Escribe un nombre existente o un UUID válido.');
-    return;
-  }
-
-  form.value.congreso_id = congresoId;
-  form.value.ubicacion_id = ubicacionId;
-
   emit('submit', { ...form.value });
 };
 
 onMounted(() => {
-  void loadPonentes();
   void loadCatalogs();
 });
 </script>

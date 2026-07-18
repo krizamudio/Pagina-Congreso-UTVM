@@ -10,7 +10,6 @@
 
       <div class="row items-center q-gutter-sm">
         <q-btn flat icon="arrow_back" label="Volver" @click="goBack" />
-        <q-btn icon="refresh" label="Recargar" color="primary" :loading="isLoading" @click="load" />
       </div>
     </div>
 
@@ -91,11 +90,11 @@
 
             <template #body-cell-acciones="props">
               <q-td align="center" class="actions-cell">
-                <q-btn class="nsu-action-btn nsu-action-pending" dense flat round icon="pending" color="orange" :disable="isSaving || isLoading" @click="setParticipantStatus(props.row.id, 'PENDIENTE')" />
-                <q-btn class="nsu-action-btn nsu-action-valid" dense flat round icon="check_circle" color="positive" :disable="isSaving || isLoading" @click="setParticipantStatus(props.row.id, 'VALIDADO')" />
-                <q-btn class="nsu-action-btn nsu-action-reject" dense flat round icon="cancel" color="negative" :disable="isSaving || isLoading" @click="setParticipantStatus(props.row.id, 'RECHAZADO')" />
-                <q-btn class="nsu-action-btn nsu-action-qr" dense flat round icon="qr_code_2" color="positive" title="Enviar QR" :disable="isSaving || isLoading || !props.row.correo_verificado || props.row.estado_pago !== 'VALIDADO'" :loading="qrSendingId === props.row.id" @click="sendQr(props.row.id)" />
-                <q-btn class="nsu-action-btn nsu-action-delete" dense flat round icon="delete" color="grey-7" :disable="isSaving || isLoading" @click="deleteParticipant(props.row.id)" />
+                <q-btn dense flat round icon="pending" color="orange" :disable="isSaving || isLoading" @click="setParticipantStatus(props.row.id, 'PENDIENTE')" />
+                <q-btn dense flat round icon="check_circle" color="positive" :disable="isSaving || isLoading" @click="setParticipantStatus(props.row.id, 'VALIDADO')" />
+                <q-btn dense flat round icon="cancel" color="negative" :disable="isSaving || isLoading" @click="setParticipantStatus(props.row.id, 'RECHAZADO')" />
+                <q-btn dense flat round icon="qr_code_2" color="positive" title="Enviar QR" :disable="isSaving || isLoading || !props.row.correo_verificado || props.row.estado_pago !== 'VALIDADO'" :loading="qrSendingId === props.row.id" @click="sendQr(props.row.id)" />
+                <q-btn dense flat round icon="delete" color="negative" :disable="isSaving || isLoading" @click="deleteParticipant(props.row.id)" />
               </q-td>
             </template>
           </q-table>
@@ -300,35 +299,6 @@ onMounted(() => {
   border-radius: 20px;
 }
 
-.registro-nsu-detalle-page :deep(.dashboard-table .nsu-action-btn .q-icon) {
-  color: #ffffff !important;
-}
-
-.registro-nsu-detalle-page :deep(.dashboard-table .nsu-action-btn) {
-  display: inline-flex !important;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  min-width: 32px;
-  border-radius: 999px;
-  border: 1px solid transparent;
-  opacity: 1 !important;
-}
-
-.registro-nsu-detalle-page :deep(.dashboard-table .nsu-action-btn .q-btn__content),
-.registro-nsu-detalle-page :deep(.dashboard-table .nsu-action-btn .q-icon),
-.registro-nsu-detalle-page :deep(.dashboard-table .nsu-action-btn .material-icons),
-.registro-nsu-detalle-page :deep(.dashboard-table .nsu-action-btn .material-symbols-outlined) {
-  opacity: 1 !important;
-  visibility: visible !important;
-  font-size: 20px !important;
-}
-
-.registro-nsu-detalle-page :deep(.dashboard-table .nsu-action-btn.q-btn--disabled) {
-  opacity: 0.72 !important;
-}
-
 .registro-nsu-detalle-page :deep(.dashboard-table .actions-cell) {
   white-space: nowrap;
   overflow: visible !important;
@@ -338,37 +308,4 @@ onMounted(() => {
   margin: 0 2px;
 }
 
-.registro-nsu-detalle-page :deep(.dashboard-table .nsu-action-pending) {
-  color: #ffffff !important;
-  background: #ef6c00 !important;
-  border-color: #e65100 !important;
-  box-shadow: 0 6px 14px rgba(239, 108, 0, 0.38) !important;
-}
-
-.registro-nsu-detalle-page :deep(.dashboard-table .nsu-action-valid) {
-  color: #ffffff !important;
-  background: #1b8f3c !important;
-  border-color: #0f6e2b !important;
-  box-shadow: 0 6px 14px rgba(27, 143, 60, 0.4) !important;
-}
-
-.registro-nsu-detalle-page :deep(.dashboard-table .nsu-action-reject) {
-  color: #ffffff !important;
-  background: #d81b60 !important;
-  border-color: #ad1457 !important;
-  box-shadow: 0 6px 14px rgba(216, 27, 96, 0.4) !important;
-}
-
-.registro-nsu-detalle-page :deep(.dashboard-table .nsu-action-delete) {
-  color: #ffffff !important;
-  background: #455a64 !important;
-  border-color: #37474f !important;
-  box-shadow: 0 6px 14px rgba(55, 71, 79, 0.36) !important;
-}
-
-.registro-nsu-detalle-page :deep(.dashboard-table .nsu-action-qr) {
-  color: #ffffff !important;
-  background: #00897b !important;
-  border-color: #00695c !important;
-}
 </style>

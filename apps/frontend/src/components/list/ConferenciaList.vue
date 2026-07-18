@@ -60,14 +60,24 @@ const columns: QTableColumn[] = [
   {
     name: 'ponente_id',
     label: 'Ponente',
-    field: (row: Conferencia) => props.ponenteNames[row.ponente_id] ?? row.ponente_id,
+    field: (row: Conferencia) => row.ponente?.nombre ?? props.ponenteNames[row.ponente_id] ?? row.ponente_id,
     align: 'left',
   },
   { name: 'fecha', label: 'Fecha', field: 'fecha', align: 'center' },
   { name: 'hora_inicio', label: 'Inicio', field: 'hora_inicio', align: 'center' },
   { name: 'hora_fin', label: 'Fin', field: 'hora_fin', align: 'center' },
-  { name: 'congreso_id', label: 'Congreso ID', field: 'congreso_id', align: 'left' },
-  { name: 'ubicacion_id', label: 'Ubicación ID', field: 'ubicacion_id', align: 'left' },
+  {
+    name: 'congreso_id',
+    label: 'Congreso',
+    field: (row: Conferencia) => row.congreso?.nombre ?? row.congreso_id,
+    align: 'left',
+  },
+  {
+    name: 'ubicacion_id',
+    label: 'Ubicación',
+    field: (row: Conferencia) => row.ubicacion?.nombre ?? row.ubicacion_id,
+    align: 'left',
+  },
   { name: 'acciones', label: 'Acciones', field: 'acciones', align: 'center' },
 ];
 </script>

@@ -40,6 +40,8 @@ body,
 }
 
 .app-drawer {
+  --drawer-item-text: #f5fbf9;
+  --drawer-caption-text: #aabdb7;
   background: #091e1a;
   border-right: 1px solid rgba(255, 255, 255, 0.08);
 }
@@ -371,15 +373,21 @@ body.theme-light .app-header .text-caption {
 }
 
 body.theme-light .app-drawer {
+  --drawer-item-text: #173a33;
+  --drawer-caption-text: #5b706b;
   background: #f8fcfb;
   border-right: 1px solid rgba(16, 43, 37, 0.12);
 }
 
 body.theme-light .essential-link,
-body.theme-light .essential-link .q-item-label,
-body.theme-light .essential-link .q-item-label.caption,
+body.theme-light .essential-link__label,
+body.theme-light .essential-link__icon,
 body.theme-light .drawer-title {
   color: #173a33 !important;
+}
+
+body.theme-light .essential-link__caption {
+  color: #5b706b !important;
 }
 
 body.theme-light .essential-link--active {
@@ -480,39 +488,6 @@ body.theme-light .participantes-page .admin-card .q-tab-panel {
 body.theme-light .participantes-page .admin-card .text-grey-7,
 body.theme-light .participantes-page .admin-card .text-caption {
   color: #5b7570 !important;
-}
-
-/* NSU action icons must remain visible in light mode */
-body.theme-light .dashboard-table .nsu-action-btn {
-  opacity: 1 !important;
-}
-
-body.theme-light .dashboard-table .nsu-action-btn.q-btn--disabled {
-  opacity: 0.68 !important;
-}
-
-body.theme-light .dashboard-table .nsu-action-btn .q-icon {
-  color: currentColor !important;
-}
-
-body.theme-light .dashboard-table .nsu-action-view {
-  color: #1976d2 !important;
-}
-
-body.theme-light .dashboard-table .nsu-action-pending {
-  color: #fb8c00 !important;
-}
-
-body.theme-light .dashboard-table .nsu-action-valid {
-  color: #2e7d32 !important;
-}
-
-body.theme-light .dashboard-table .nsu-action-reject {
-  color: #c2185b !important;
-}
-
-body.theme-light .dashboard-table .nsu-action-delete {
-  color: #455a64 !important;
 }
 
 body.theme-light .text-white,

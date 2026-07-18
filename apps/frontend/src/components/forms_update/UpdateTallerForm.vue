@@ -13,10 +13,17 @@
       </div>
 
       <div class="col-12 col-md-6">
-        <q-input
+        <q-select
           v-model="form.congreso_id"
-          label="Congreso ID"
-          readonly
+          :options="congresoOptions"
+          option-label="label"
+          option-value="value"
+          emit-value
+          map-options
+          label="Congreso"
+          :rules="[requiredRule]"
+          :loading="congresosLoading"
+          :disable="congresosLoading"
           dense
           dark
         />
@@ -34,14 +41,9 @@
           :rules="[requiredRule]"
           :loading="talleristasLoading"
           :disable="talleristasLoading"
-          :display-value="selectedTalleristaLabel"
           dense
           dark
-        >
-          <template #selected>
-            <span>{{ selectedTalleristaLabel }}</span>
-          </template>
-        </q-select>
+        />
       </div>
 
       <div class="col-12 col-md-6">
@@ -56,8 +58,13 @@
         />
       </div>
 
-      <div v-if="talleristasError" class="col-12 text-negative">
-        {{ talleristasError }}
+      <div v-if="catalogsError" class="col-12">
+        <q-banner rounded class="bg-red-10 text-white">
+          {{ catalogsError }}
+          <template #action>
+            <q-btn flat label="Reintentar" @click="loadCatalogs" />
+          </template>
+        </q-banner>
       </div>
 
       <div class="col-12">
@@ -100,10 +107,17 @@
       </div>
 
       <div class="col-12 col-md-6">
-        <q-input
+        <q-select
           v-model="form.ubicacion_id"
-          label="Ubicación ID"
-          readonly
+          :options="ubicacionOptions"
+          option-label="label"
+          option-value="value"
+          emit-value
+          map-options
+          label="Ubicación"
+          :rules="[requiredRule]"
+          :loading="ubicacionesLoading"
+          :disable="ubicacionesLoading"
           dense
           dark
         />
@@ -123,15 +137,15 @@
         :loading="props.loading"
       />
     </div>
-
-    <div v-if="error" class="q-mt-md text-negative">{{ error }}</div>
   </q-form>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onMounted, watch } from 'vue';
+import { useCongresosQuery } from '../../composables/useCongresosQuery';
 import { usePonente } from '../../composables/usePonente';
 import { useFormPersistence } from '../../composables/useFormPersistence';
+import { useUbicacionesQuery } from '../../composables/useUbicacionesQuery';
 import type { Ponente, TallerPayload } from '../../types';
 
 interface Props {
@@ -148,7 +162,6 @@ const emit = defineEmits<{
   (e: 'submit', payload: TallerPayload): void;
 }>();
 
-const error = ref<string | null>(null);
 const { useGetPonentes } = usePonente();
 const {
   data: talleristas,
@@ -156,6 +169,18 @@ const {
   error: talleristasError,
   refetch: loadTalleristas,
 } = useGetPonentes();
+const {
+  data: congresos,
+  isRefreshing: congresosLoading,
+  error: congresosError,
+  load: loadCongresos,
+} = useCongresosQuery();
+const {
+  data: ubicaciones,
+  isRefreshing: ubicacionesLoading,
+  error: ubicacionesError,
+  load: loadUbicaciones,
+} = useUbicacionesQuery();
 
 const defaultForm = (): TallerPayload => ({
   congreso_id: '',
@@ -197,38 +222,32 @@ const talleristaOptions = computed(() => {
   }));
 });
 
-const selectedTalleristaLabel = computed(() => {
-  return talleristaOptions.value.find((option) => option.value === form.value.tallerista_id)?.label ?? form.value.tallerista_id;
-});
+const congresoOptions = computed(() =>
+  congresos.value.map((congreso) => ({
+    label: congreso.nombre,
+    value: congreso.id,
+  })),
+);
 
-const isUuid = (value: string) => {
-  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
-};
+const ubicacionOptions = computed(() =>
+  ubicaciones.value.map((ubicacion) => ({
+    label: ubicacion.nombre,
+    value: ubicacion.id,
+  })),
+);
 
-const resolveTalleristaId = (value: string) => {
-  const trimmed = value.trim();
-  if (!trimmed) return trimmed;
-  if (isUuid(trimmed)) return trimmed;
+const catalogsError = computed(
+  () => talleristasError.value || congresosError.value || ubicacionesError.value,
+);
 
-  const match = talleristaOptions.value.find((option) => {
-    return option.label.trim().toLowerCase() === trimmed.toLowerCase();
-  });
-
-  return match?.value ?? trimmed;
+const loadCatalogs = async () => {
+  await Promise.all([loadTalleristas(), loadCongresos(), loadUbicaciones()]);
 };
 
 const requiredRule = (value: string | number) => value !== '' && value !== null && value !== undefined || 'Este campo es obligatorio';
 const positiveIntRule = (value: number) => Number.isInteger(value) && value > 0 || 'Debe ser un entero mayor a 0';
 
 const submit = () => {
-  error.value = null;
-  form.value.tallerista_id = resolveTalleristaId(form.value.tallerista_id);
-
-  if (!isUuid(form.value.tallerista_id)) {
-    error.value = 'El tallerista debe ser un registro existente.';
-    return;
-  }
-
   form.value.cupo_maximo = Number(form.value.cupo_maximo) || 1;
 
   emit('submit', {
@@ -246,7 +265,7 @@ const submit = () => {
 };
 
 onMounted(() => {
-  void loadTalleristas();
+  void loadCatalogs();
 });
 </script>
 

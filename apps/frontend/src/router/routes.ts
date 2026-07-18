@@ -132,19 +132,21 @@ const routes: RouteRecordRaw[] = [
       },
 
       {
-        path: "paneles",
-        alias: "/paneles",
-        component: () => import("@/pages/dashboards/PanelesPage.vue")
+        path: "foros-empresariales",
+        alias: "/foros-empresariales",
+        component: () => import("@/pages/dashboards/ForosEmpresarialesPage.vue")
       },
       {
-        path: "paneles/nuevo",
-        alias: "/paneles/nuevo",
-        component: () => import("@/pages/dashboards/NuevaPanelPage.vue")
+        path: "foros-empresariales/nuevo",
+        alias: "/foros-empresariales/nuevo",
+        component: () =>
+          import("@/pages/dashboards/NuevoForoEmpresarialPage.vue")
       },
       {
-        path: "paneles/:id/editar",
-        alias: "/paneles/:id/editar",
-        component: () => import("@/pages/dashboards/EditarPanelPage.vue")
+        path: "foros-empresariales/:id/editar",
+        alias: "/foros-empresariales/:id/editar",
+        component: () =>
+          import("@/pages/dashboards/EditarForoEmpresarialPage.vue")
       },
 
       {

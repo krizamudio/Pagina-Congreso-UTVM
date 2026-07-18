@@ -8,7 +8,6 @@
         </div>
       </div>
 
-      <q-btn label="Recargar" icon="refresh" color="primary" :loading="isRefreshing" @click="load" />
     </div>
 
     <div class="row q-col-gutter-md q-mb-md">
@@ -103,10 +102,10 @@
 
             <template #body-cell-acciones="props">
               <q-td align="center" class="actions-cell">
-                <q-btn class="nsu-action-btn nsu-action-view" dense flat round icon="visibility" color="primary" :disable="isRefreshing || saving" @click="goToNsuDetail(props.row.id)" />
-                <q-btn class="nsu-action-btn nsu-action-valid" dense flat round icon="check_circle" color="positive" @click="setNsuStatus(props.row.id, 'VALIDADO')" />
-                <q-btn class="nsu-action-btn nsu-action-reject" dense flat round icon="cancel" color="negative" @click="setNsuStatus(props.row.id, 'RECHAZADO')" />
-                <q-btn class="nsu-action-btn nsu-action-delete" dense flat round icon="delete" color="grey-7" @click="deleteNsu(props.row.id)" />
+                <q-btn dense flat round icon="visibility" color="primary" :disable="isRefreshing || saving" @click="goToNsuDetail(props.row.id)" />
+                <q-btn dense flat round icon="check_circle" color="positive" @click="setNsuStatus(props.row.id, 'VALIDADO')" />
+                <q-btn dense flat round icon="cancel" color="negative" @click="setNsuStatus(props.row.id, 'RECHAZADO')" />
+                <q-btn dense flat round icon="delete" color="negative" @click="deleteNsu(props.row.id)" />
               </q-td>
             </template>
           </q-table>
@@ -686,35 +685,6 @@ onMounted(() => {
   padding: 16px;
 }
 
-.admin-card :deep(.dashboard-table .nsu-action-btn .q-icon) {
-  color: #ffffff !important;
-}
-
-.admin-card :deep(.dashboard-table .nsu-action-btn) {
-  display: inline-flex !important;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  min-width: 32px;
-  border-radius: 999px;
-  border: 1px solid transparent;
-  opacity: 1 !important;
-}
-
-.admin-card :deep(.dashboard-table .nsu-action-btn .q-btn__content),
-.admin-card :deep(.dashboard-table .nsu-action-btn .q-icon),
-.admin-card :deep(.dashboard-table .nsu-action-btn .material-icons),
-.admin-card :deep(.dashboard-table .nsu-action-btn .material-symbols-outlined) {
-  opacity: 1 !important;
-  visibility: visible !important;
-  font-size: 20px !important;
-}
-
-.admin-card :deep(.dashboard-table .nsu-action-btn.q-btn--disabled) {
-  opacity: 0.72 !important;
-}
-
 .admin-card :deep(.dashboard-table .actions-cell) {
   white-space: nowrap;
   overflow: visible !important;
@@ -722,34 +692,6 @@ onMounted(() => {
 
 .admin-card :deep(.dashboard-table .actions-cell .q-btn) {
   margin: 0 2px;
-}
-
-.admin-card :deep(.dashboard-table .nsu-action-view) {
-  color: #ffffff !important;
-  background: #1565c0 !important;
-  border-color: #0d47a1 !important;
-  box-shadow: 0 6px 14px rgba(21, 101, 192, 0.4) !important;
-}
-
-.admin-card :deep(.dashboard-table .nsu-action-valid) {
-  color: #ffffff !important;
-  background: #1b8f3c !important;
-  border-color: #0f6e2b !important;
-  box-shadow: 0 6px 14px rgba(27, 143, 60, 0.4) !important;
-}
-
-.admin-card :deep(.dashboard-table .nsu-action-reject) {
-  color: #ffffff !important;
-  background: #d81b60 !important;
-  border-color: #ad1457 !important;
-  box-shadow: 0 6px 14px rgba(216, 27, 96, 0.4) !important;
-}
-
-.admin-card :deep(.dashboard-table .nsu-action-delete) {
-  color: #ffffff !important;
-  background: #455a64 !important;
-  border-color: #37474f !important;
-  box-shadow: 0 6px 14px rgba(55, 71, 79, 0.36) !important;
 }
 
 .admin-card :deep(.q-tab .q-icon),
@@ -790,50 +732,6 @@ onMounted(() => {
 :global(body.theme-light) .participantes-page .admin-card :deep(.text-grey-7),
 :global(body.theme-light) .participantes-page .admin-card :deep(.text-caption) {
   color: #5b7570 !important;
-}
-
-:global(body.theme-light) .participantes-page .dashboard-table .nsu-action-view .q-icon {
-  color: #ffffff !important;
-}
-
-:global(body.theme-light) .participantes-page .dashboard-table .nsu-action-view {
-  color: #ffffff !important;
-  background: #1565c0 !important;
-  border-color: #0d47a1 !important;
-  box-shadow: 0 6px 14px rgba(21, 101, 192, 0.4) !important;
-}
-
-:global(body.theme-light) .participantes-page .dashboard-table .nsu-action-valid .q-icon {
-  color: #ffffff !important;
-}
-
-:global(body.theme-light) .participantes-page .dashboard-table .nsu-action-valid {
-  color: #ffffff !important;
-  background: #1b8f3c !important;
-  border-color: #0f6e2b !important;
-  box-shadow: 0 6px 14px rgba(27, 143, 60, 0.4) !important;
-}
-
-:global(body.theme-light) .participantes-page .dashboard-table .nsu-action-reject .q-icon {
-  color: #ffffff !important;
-}
-
-:global(body.theme-light) .participantes-page .dashboard-table .nsu-action-reject {
-  color: #ffffff !important;
-  background: #d81b60 !important;
-  border-color: #ad1457 !important;
-  box-shadow: 0 6px 14px rgba(216, 27, 96, 0.4) !important;
-}
-
-:global(body.theme-light) .participantes-page .dashboard-table .nsu-action-delete .q-icon {
-  color: #ffffff !important;
-}
-
-:global(body.theme-light) .participantes-page .dashboard-table .nsu-action-delete {
-  color: #ffffff !important;
-  background: #455a64 !important;
-  border-color: #37474f !important;
-  box-shadow: 0 6px 14px rgba(55, 71, 79, 0.36) !important;
 }
 
 </style>

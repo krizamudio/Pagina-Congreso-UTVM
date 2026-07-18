@@ -2,12 +2,14 @@
   <router-link v-if="isInternal" :to="link" class="essential-link-link">
     <q-item clickable v-ripple :class="['essential-link', activeClass]">
       <q-item-section v-if="icon" avatar>
-        <q-icon :name="icon" />
+        <q-icon :name="icon" class="essential-link__icon" />
       </q-item-section>
 
       <q-item-section>
-        <q-item-label>{{ label }}</q-item-label>
-        <q-item-label caption>{{ caption }}</q-item-label>
+        <q-item-label class="essential-link__label">{{ label }}</q-item-label>
+        <q-item-label caption class="essential-link__caption">
+          {{ caption }}
+        </q-item-label>
       </q-item-section>
     </q-item>
   </router-link>
@@ -21,12 +23,14 @@
     class="essential-link"
   >
     <q-item-section v-if="icon" avatar>
-      <q-icon :name="icon" />
+      <q-icon :name="icon" class="essential-link__icon" />
     </q-item-section>
 
     <q-item-section>
-      <q-item-label>{{ label }}</q-item-label>
-      <q-item-label caption>{{ caption }}</q-item-label>
+      <q-item-label class="essential-link__label">{{ label }}</q-item-label>
+      <q-item-label caption class="essential-link__caption">
+        {{ caption }}
+      </q-item-label>
     </q-item-section>
   </q-item>
 </template>
@@ -68,20 +72,21 @@ const activeClass = computed(() => {
 }
 
 .essential-link {
-  color: #ffffff;
+  color: var(--drawer-item-text, #ffffff);
 }
 
-.essential-link .q-item-label,
-.essential-link .q-item-label.caption {
-  color: #ffffff;
+.essential-link__label,
+.essential-link__icon {
+  color: var(--drawer-item-text, #ffffff) !important;
+}
+
+.essential-link__caption {
+  color: var(--drawer-caption-text, #aabdb7) !important;
+  opacity: 1;
 }
 
 .essential-link--active {
   background: rgba(0, 230, 118, 0.14);
 }
 
-.essential-link--active .q-item-label,
-.essential-link--active .q-item-label.caption {
-  color: #ffffff !important;
-}
 </style>

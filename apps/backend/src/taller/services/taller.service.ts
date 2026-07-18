@@ -7,8 +7,9 @@ import { CreateTallerDto } from '../dto/create-taller.dto';
 import { UpdateTallerDto } from '../dto/update-taller.dto';
 import { Taller } from '../entities/taller.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DeepPartial, Repository } from 'typeorm';
 import { ValidadorCommon } from '../../common/validador.provider';
+import { TallerRelationsService } from './taller-relations.service';
 
 @Injectable()
 export class TallerService {
@@ -16,17 +17,28 @@ export class TallerService {
     @InjectRepository(Taller)
     private readonly tallerRepository: Repository<Taller>,
     private readonly validador: ValidadorCommon,
+    private readonly relationsService: TallerRelationsService,
   ) {}
 
   //TODO: La logica de aqui debe validar que si hay dos talleres en el mismo horario que no esten en la misma ubicacion
   async createTaller(createTallerDto: CreateTallerDto): Promise<Taller> {
-    const { fecha, hora_fin, hora_inicio } = createTallerDto;
+    const { congreso_id, ubicacion_id, tallerista_id, ...tallerData } =
+      createTallerDto;
+    const { fecha, hora_fin, hora_inicio } = tallerData;
 
     this.validador.FechaValida(fecha);
 
     this.validador.ValidarHoras(hora_fin, hora_inicio);
 
-    const tallerCreado = this.tallerRepository.create(createTallerDto);
+    const relations = await this.relationsService.resolve({
+      congreso_id,
+      ubicacion_id,
+      tallerista_id,
+    });
+    const tallerCreado = this.tallerRepository.create({
+      ...tallerData,
+      ...relations,
+    } as DeepPartial<Taller>);
 
     try {
       await this.tallerRepository.save(tallerCreado);
@@ -37,13 +49,18 @@ export class TallerService {
   }
 
   async findAllTalleres(): Promise<Taller[]> {
-    const talleres: Taller[] = await this.tallerRepository.find();
+    const talleres: Taller[] = await this.tallerRepository.find({
+      relations: { congreso: true, ubicacion: true, ponente: true },
+    });
 
     return talleres;
   }
 
   async findOneTaller(id: string): Promise<Taller> {
-    const taller: Taller | null = await this.tallerRepository.findOneBy({ id });
+    const taller: Taller | null = await this.tallerRepository.findOne({
+      where: { id },
+      relations: { congreso: true, ubicacion: true, ponente: true },
+    });
 
     if (taller === null || taller === undefined) {
       throw new NotFoundException(
@@ -58,7 +75,9 @@ export class TallerService {
     id: string,
     updateTallerDto: UpdateTallerDto,
   ): Promise<Taller> {
-    const { fecha, hora_fin, hora_inicio } = updateTallerDto;
+    const { congreso_id, ubicacion_id, tallerista_id, ...tallerData } =
+      updateTallerDto;
+    const { fecha, hora_fin, hora_inicio } = tallerData;
 
     const { hora_fin: hora_fin_actual, hora_inicio: hora_inicio_actual } =
       await this.findOneTaller(id);
@@ -72,9 +91,15 @@ export class TallerService {
       hora_inicio,
     );
 
+    const relations = await this.relationsService.resolve({
+      congreso_id,
+      ubicacion_id,
+      tallerista_id,
+    });
     const taller: Taller | undefined = await this.tallerRepository.preload({
       id,
-      ...updateTallerDto,
+      ...tallerData,
+      ...relations,
     });
 
     if (!taller) {

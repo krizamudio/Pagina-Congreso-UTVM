@@ -2,6 +2,36 @@ import { ref } from 'vue';
 import { api } from '../services/api';
 import type { Conferencia, ConferenciaPayload } from '../types';
 
+interface ConferenciaApiResponse {
+  id: string;
+  titulo: string;
+  resumen: string;
+  fecha: string;
+  hora_inicio: string;
+  hora_fin: string;
+  congreso_id?: string;
+  ponente_id?: string;
+  ubicacion_id?: string;
+  congreso?: { id: string; nombre: string };
+  ponente?: { id: string; nombre: string };
+  ubicacion?: { id: string; nombre: string };
+}
+
+const normalizeConferencia = (record: ConferenciaApiResponse): Conferencia => ({
+  id: record.id,
+  titulo: record.titulo,
+  resumen: record.resumen,
+  fecha: record.fecha,
+  hora_inicio: record.hora_inicio,
+  hora_fin: record.hora_fin,
+  congreso_id: record.congreso_id ?? record.congreso?.id ?? '',
+  ponente_id: record.ponente_id ?? record.ponente?.id ?? '',
+  ubicacion_id: record.ubicacion_id ?? record.ubicacion?.id ?? '',
+  ...(record.congreso ? { congreso: record.congreso } : {}),
+  ...(record.ponente ? { ponente: record.ponente } : {}),
+  ...(record.ubicacion ? { ubicacion: record.ubicacion } : {}),
+});
+
 export function useConferenciasQuery() {
   const data = ref<Conferencia[]>([]);
   const isRefreshing = ref(false);
@@ -12,8 +42,8 @@ export function useConferenciasQuery() {
     error.value = null;
 
     try {
-      const response = await api.get('conferencias');
-      data.value = response.data as Conferencia[];
+      const response = await api.get<ConferenciaApiResponse[]>('conferencias');
+      data.value = response.data.map(normalizeConferencia);
     } catch (err) {
       error.value = 'Error cargando conferencias';
       console.error(err);
@@ -23,18 +53,18 @@ export function useConferenciasQuery() {
   };
 
   const getById = async (id: string) => {
-    const response = await api.get(`conferencias/${id}`);
-    return response.data as Conferencia;
+    const response = await api.get<ConferenciaApiResponse>(`conferencias/${id}`);
+    return normalizeConferencia(response.data);
   };
 
   const create = async (payload: ConferenciaPayload) => {
-    const response = await api.post('conferencias', payload);
-    return response.data as Conferencia;
+    const response = await api.post<ConferenciaApiResponse>('conferencias', payload);
+    return normalizeConferencia(response.data);
   };
 
   const update = async (id: string, payload: Partial<ConferenciaPayload>) => {
-    const response = await api.patch(`conferencias/${id}`, payload);
-    return response.data as Conferencia;
+    const response = await api.patch<ConferenciaApiResponse>(`conferencias/${id}`, payload);
+    return normalizeConferencia(response.data);
   };
 
   const remove = async (id: string) => {

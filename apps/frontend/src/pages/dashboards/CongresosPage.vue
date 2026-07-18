@@ -9,11 +9,6 @@
       >
       <div class="row q-gutter-sm"
         ><q-btn
-          outline
-          color="primary"
-          icon="refresh"
-          label="Recargar"
-          @click="load" /><q-btn
           unelevated
           color="primary"
           icon="add"

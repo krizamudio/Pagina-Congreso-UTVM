@@ -60,28 +60,10 @@ const { isLight, toggleTheme } = useThemeMode();
 
 const linksList: EssentialLinkProps[] = [
   {
-    label: "Registro de Participantes",
-    caption: "Externos",
-    icon: "how_to_reg",
-    link: "/registro-externo"
-  },
-  {
-    label: "Registro NSU",
-    caption: "Formulario de registro",
-    icon: "school",
-    link: "/registro_nsu"
-  },
-  {
-    label: "Registro EMS",
-    caption: "Participantes EMS",
-    icon: "groups",
-    link: "/registro_ems"
-  },
-  {
-    label: "Registro UTVM",
-    caption: "Participantes UTVM",
-    icon: "account_balance",
-    link: "/registro_utvm"
+    label: "Dashboard de administrador",
+    caption: "Resumen general",
+    icon: "dashboard",
+    link: "/admin/dashboard"
   },
   {
     label: 'Participantes',
@@ -120,10 +102,10 @@ const linksList: EssentialLinkProps[] = [
     link: "/ponentes"
   },
   {
-    label: "Paneles",
-    caption: "Gestión de panelistas",
-    icon: "rss_feed",
-    link: "/paneles"
+    label: "Foros empresariales",
+    caption: "Gestión de foros empresariales",
+    icon: "business_center",
+    link: "/foros-empresariales"
   }
 ];
 

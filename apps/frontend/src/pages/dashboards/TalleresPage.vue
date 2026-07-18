@@ -9,7 +9,6 @@
       </div>
 
       <div class="row items-center q-gutter-sm">
-        <q-btn label="Recargar" icon="refresh" color="primary" @click="load" />
         <q-btn label="Nuevo taller" icon="add" unelevated color="primary" @click="goToNew" />
       </div>
     </div>
