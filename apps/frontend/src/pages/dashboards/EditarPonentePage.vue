@@ -71,6 +71,7 @@ const initialPonenteData = computed<Partial<PonentePayload>>(() => {
     usuario_id: raw.usuario_id ?? raw.usuarioId ?? "",
     archivo_foto_id: raw.archivo_foto_id ?? raw.foto?.id ?? "",
     institucion: raw.institucion ?? "",
+    tipo: "Ponente",
     semblanza: raw.semblanza ?? "",
     tema: raw.tema ?? "",
     visible_publico: raw.visible_publico ?? raw.visiblePublico ?? true
@@ -121,6 +122,7 @@ const handleSubmit = async ({
     const payload: Partial<PonentePayload> = {
       nombre: ponente.nombre,
       institucion: ponente.institucion,
+      tipo: "Ponente",
       semblanza: ponente.semblanza,
       tema: ponente.tema,
       visible_publico: ponente.visible_publico ?? true

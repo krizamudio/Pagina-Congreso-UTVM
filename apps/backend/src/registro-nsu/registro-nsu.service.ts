@@ -1,20 +1,19 @@
 import { BadRequestException, ConflictException, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
-import { createHmac, randomUUID, timingSafeEqual } from 'crypto';
-import { existsSync, mkdirSync, writeFileSync } from 'fs';
-import { extname, join } from 'path';
-import { In, Repository, IsNull, Not } from 'typeorm';
+import { createHmac, timingSafeEqual } from 'crypto';
+import { DataSource, In, Repository, IsNull, Not } from 'typeorm';
 import { CreateRegistroNsuDto } from './dto/create-registro-nsu.dto';
 import { UpdateRegistroNsuDto } from './dto/update-registro-nsu.dto';
 import { UpdateParticipanteNsuStatusDto } from './dto/update-participante-nsu-status.dto';
-import { ArchivoComprobante } from './entities/archivo-comprobante.entity';
 import { ParticipanteNsu } from './entities/participante-nsu.entity';
 import { RegistroNsu } from './entities/registro-nsu.entity';
 import { GeneradorCommon } from '../common/generador.common';
 import { EnviarQrAccesoDto } from '../participante-qr/dto/enviar-qr-acceso.dto';
 import { ParticipanteQrEnvioService } from '../participante-qr/participante-qr-envio.service';
 import { ParticipanteTipo } from '../participante-acceso/participante-tipo.enum';
+import { ComprobanteService } from '../comprobante/comprobante.service';
+import type { ArchivoComprobante } from '../comprobante/entities/archivo-comprobante.entity';
 
 @Injectable()
 export class RegistroNsuService {
@@ -26,12 +25,11 @@ export class RegistroNsuService {
     @Inject('PARTICIPANTE_NSU_REPOSITORY')
     private readonly participanteRepository: Repository<ParticipanteNsu>,
 
-    @Inject('ARCHIVO_COMPROBANTE_REPOSITORY')
-    private readonly archivoRepository: Repository<ArchivoComprobante>,
-
     private readonly configService: ConfigService,
     private readonly generador: GeneradorCommon,
     private readonly qrEnvio: ParticipanteQrEnvioService,
+    private readonly dataSource: DataSource,
+    private readonly comprobantes: ComprobanteService,
   ) {}
 
   async create(createRegistroNsuDto: CreateRegistroNsuDto) {
@@ -138,59 +136,58 @@ export class RegistroNsuService {
       }
     });
 
-    const uploadDir = join(process.cwd(), 'uploads', 'comprobantes');
-
-    if (!existsSync(uploadDir)) {
-      mkdirSync(uploadDir, { recursive: true });
-    }
-
-    const extension = extname(comprobante.originalname);
-    const nombreGuardado = `${randomUUID()}${extension}`;
-    const rutaArchivo = join(uploadDir, nombreGuardado);
-
-    writeFileSync(rutaArchivo, comprobante.buffer);
-
-    const archivo = this.archivoRepository.create({
-      nombre_original: comprobante.originalname,
-      nombre_guardado: nombreGuardado,
-      ruta: rutaArchivo,
-      mime_type: comprobante.mimetype,
-      size: comprobante.size,
-    });
-
-    const archivoGuardado = await this.archivoRepository.save(archivo);
-
     const totalGeneral = participantesDto.reduce((total, participante) => {
       return total + Number(participante.montoNumero || 0);
     }, 0);
 
-    const registro = this.registroRepository.create({
-      total_general: totalGeneral,
-      total_participantes: participantesDto.length,
-      estado_pago: 'PENDIENTE',
-      comprobante: archivoGuardado,
-    });
+    let archivoGuardado: ArchivoComprobante | undefined;
+    let registroGuardado!: RegistroNsu;
+    let participantesGuardados: ParticipanteNsu[] = [];
 
-    const registroGuardado = await this.registroRepository.save(registro);
+    try {
+      await this.dataSource.transaction(async (manager) => {
+        archivoGuardado = await this.comprobantes.create(
+          comprobante,
+          'nsu',
+          manager,
+        );
 
-    const participantes = participantesDto.map((participante, index) => {
-      return this.participanteRepository.create({
-        registro: registroGuardado,
-        es_tutor: index === 0,
-        correo_verificado: false,
-        nombre_completo: participante.nombreCompleto.trim(),
-        correo: participante.correo.trim().toLowerCase(),
-        institucion: participante.institucion.trim(),
-        carrera: participante.carrera.trim(),
-        telefono: participante.telefono.trim(),
-        dias: participante.dias,
-        monto_individual: participante.montoNumero,
-        estado_pago: 'PENDIENTE',
+        const registroRepository = manager.getRepository(RegistroNsu);
+        const participanteRepository = manager.getRepository(ParticipanteNsu);
+
+        registroGuardado = await registroRepository.save(
+          registroRepository.create({
+            total_general: totalGeneral,
+            total_participantes: participantesDto.length,
+            estado_pago: 'PENDIENTE',
+            comprobante: archivoGuardado,
+          }),
+        );
+
+        participantesGuardados = await participanteRepository.save(
+          participantesDto.map((participante, index) =>
+            participanteRepository.create({
+              registro: registroGuardado,
+              es_tutor: index === 0,
+              correo_verificado: false,
+              nombre_completo: participante.nombreCompleto.trim(),
+              correo: participante.correo.trim().toLowerCase(),
+              institucion: participante.institucion.trim(),
+              carrera: participante.carrera.trim(),
+              telefono: participante.telefono.trim(),
+              dias: participante.dias,
+              monto_individual: participante.montoNumero,
+              estado_pago: 'PENDIENTE',
+            }),
+          ),
+        );
       });
-    });
-
-    const participantesGuardados =
-      await this.participanteRepository.save(participantes);
+    } catch (error) {
+      if (archivoGuardado?.path) {
+        await this.comprobantes.removeObject(archivoGuardado.path);
+      }
+      throw error;
+    }
 
     for (const participante of participantesGuardados) {
       const verificationToken = this.crearTokenVerificacionParticipante(
@@ -422,6 +419,10 @@ export class RegistroNsuService {
     return this.runRegistroAction(id, async () => {
       await this.ensureRegistroExists(id);
 
+      if (updateRegistroNsuDto.estado_pago === 'VALIDADO') {
+        await this.validarConteoParticipantes(id);
+      }
+
       if (updateRegistroNsuDto.estado_pago) {
         await this.aplicarEstadoATodosParticipantes(
           id,
@@ -455,6 +456,10 @@ export class RegistroNsuService {
 
       if (!participante) {
         throw new BadRequestException('Participante NSU no encontrado');
+      }
+
+      if (updateParticipanteNsuStatusDto.estado_pago === 'VALIDADO') {
+        await this.validarConteoParticipantes(registroId);
       }
 
       await this.participanteRepository.update(participante.id, {
@@ -551,7 +556,7 @@ export class RegistroNsuService {
   }
 
   private async sincronizarEstadoRegistro(id: string) {
-    const registro = await this.ensureRegistroExists(id);
+    await this.ensureRegistroExists(id);
     const participantes = await this.getParticipantesActivos(id);
 
     await this.registroRepository.update(id, {
@@ -566,6 +571,29 @@ export class RegistroNsuService {
         deleted_at: IsNull(),
       },
     });
+  }
+
+  private async validarConteoParticipantes(registroId: string): Promise<void> {
+    const registro = await this.registroRepository.findOne({
+      where: { id: registroId, deleted_at: IsNull() },
+      select: { id: true, total_participantes: true },
+    });
+    const participantesActivos = await this.participanteRepository.count({
+      where: {
+        registro: { id: registroId },
+        deleted_at: IsNull(),
+      },
+    });
+
+    if (
+      !registro ||
+      participantesActivos === 0 ||
+      registro.total_participantes !== participantesActivos
+    ) {
+      throw new ConflictException(
+        'El numero de participantes no coincide con el registro',
+      );
+    }
   }
 
   private calcularEstadoRegistro(participantes: ParticipanteNsu[]) {

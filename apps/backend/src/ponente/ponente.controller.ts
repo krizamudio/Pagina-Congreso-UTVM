@@ -7,11 +7,13 @@ import {
   Param,
   Delete,
   ParseUUIDPipe,
+  Query,
 } from '@nestjs/common';
 import { PonenteService } from './services/ponente.service';
 import { CreatePonenteDto } from './dto/create-ponente.dto';
 import { UpdatePonenteDto } from './dto/update-ponente.dto';
 import { ResponsePonenteDto } from './dto/response-ponente.dto';
+import { FindPonenteDto } from './dto/find-ponente.dto';
 
 @Controller('ponente')
 export class PonenteController {
@@ -25,8 +27,8 @@ export class PonenteController {
   }
 
   @Get()
-  findAll() {
-    return this.ponenteService.findAllPonente();
+  findAll(@Query() query: FindPonenteDto) {
+    return this.ponenteService.findAllPonente(query);
   }
 
   @Get(':id')

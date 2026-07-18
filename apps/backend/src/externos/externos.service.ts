@@ -7,34 +7,23 @@ import {
 
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, IsNull, Not } from 'typeorm';
+import { DataSource, Repository, IsNull, Not } from 'typeorm';
 import * as nodemailer from 'nodemailer';
 
 import {
   createHmac,
-  randomUUID,
   timingSafeEqual,
 } from 'crypto';
-
-import {
-  existsSync,
-  mkdirSync,
-  writeFileSync,
-} from 'fs';
-
-import {
-  extname,
-  join,
-} from 'path';
 
 import { Externo } from './entities/externo.entity';
 import { CreateExternoDto } from './dto/create-externo.dto';
 import { UpdateExternoDto } from './dto/update-externo.dto';
-import { ArchivoComprobante } from '../registro-nsu/entities/archivo-comprobante.entity';
 import { GeneradorCommon } from '../common/generador.common';
 import { EnviarQrAccesoDto } from '../participante-qr/dto/enviar-qr-acceso.dto';
 import { ParticipanteQrEnvioService } from '../participante-qr/participante-qr-envio.service';
 import { ParticipanteTipo } from '../participante-acceso/participante-tipo.enum';
+import { ComprobanteService } from '../comprobante/comprobante.service';
+import type { ArchivoComprobante } from '../comprobante/entities/archivo-comprobante.entity';
 
 @Injectable()
 export class ExternosService {
@@ -42,12 +31,11 @@ export class ExternosService {
     @InjectRepository(Externo)
     private readonly externoRepository: Repository<Externo>,
 
-    @InjectRepository(ArchivoComprobante)
-    private readonly archivoRepository: Repository<ArchivoComprobante>,
-
     private readonly configService: ConfigService,
     private readonly generador: GeneradorCommon,
     private readonly qrEnvio: ParticipanteQrEnvioService,
+    private readonly dataSource: DataSource,
+    private readonly comprobantes: ComprobanteService,
   ) {}
 
   async create(
@@ -70,21 +58,35 @@ export class ExternosService {
       );
     }
 
-    const archivoGuardado =
-      await this.guardarArchivoComprobante(comprobante);
+    let archivoGuardado: ArchivoComprobante | undefined;
+    let externoGuardado!: Externo;
 
-    const externo = this.externoRepository.create({
-      ...createExternoDto,
-      correo: correoNormalizado,
-      institucion: createExternoDto.institucion || null,
-      apellidoMaterno: createExternoDto.apellidoMaterno || null,
-      comprobante: archivoGuardado,
-      correoVerificado: false,
-      status: 'pendiente_verificacion',
-    });
-
-    const externoGuardado =
-      await this.externoRepository.save(externo);
+    try {
+      await this.dataSource.transaction(async (manager) => {
+        archivoGuardado = await this.comprobantes.create(
+          comprobante,
+          'externos',
+          manager,
+        );
+        const externoRepository = manager.getRepository(Externo);
+        externoGuardado = await externoRepository.save(
+          externoRepository.create({
+            ...createExternoDto,
+            correo: correoNormalizado,
+            institucion: createExternoDto.institucion || null,
+            apellidoMaterno: createExternoDto.apellidoMaterno || null,
+            comprobante: archivoGuardado,
+            correoVerificado: false,
+            status: 'pendiente_verificacion',
+          }),
+        );
+      });
+    } catch (error) {
+      if (archivoGuardado?.path) {
+        await this.comprobantes.removeObject(archivoGuardado.path);
+      }
+      throw error;
+    }
 
     const verificationToken = this.crearTokenVerificacion(
       externoGuardado.id,
@@ -170,6 +172,15 @@ export class ExternosService {
   ) {
     const externo = await this.findOne(id);
 
+    if (
+      updateExternoDto.status === 'validado' &&
+      !externo.correoVerificado
+    ) {
+      throw new BadRequestException(
+        'No se puede validar un registro con correo pendiente de verificacion',
+      );
+    }
+
     Object.assign(externo, updateExternoDto);
 
     return await this.externoRepository.save(externo);
@@ -233,48 +244,6 @@ export class ExternosService {
       id,
       participante.dias,
     );
-  }
-
-  private async guardarArchivoComprobante(
-    comprobante: Express.Multer.File,
-  ) {
-    const uploadDir = join(
-      process.cwd(),
-      'uploads',
-      'comprobantes',
-    );
-
-    if (!existsSync(uploadDir)) {
-      mkdirSync(uploadDir, {
-        recursive: true,
-      });
-    }
-
-    const extension = extname(comprobante.originalname);
-    const nombreGuardado = `${randomUUID()}${extension}`;
-
-    const rutaArchivoFisica = join(
-      uploadDir,
-      nombreGuardado,
-    );
-
-    const rutaRelativa =
-      `uploads/comprobantes/${nombreGuardado}`;
-
-    writeFileSync(
-      rutaArchivoFisica,
-      comprobante.buffer,
-    );
-
-    const archivo = this.archivoRepository.create({
-      nombre_original: comprobante.originalname,
-      nombre_guardado: nombreGuardado,
-      ruta: rutaRelativa,
-      mime_type: comprobante.mimetype,
-      size: comprobante.size,
-    });
-
-    return await this.archivoRepository.save(archivo);
   }
 
   private crearTokenVerificacion(

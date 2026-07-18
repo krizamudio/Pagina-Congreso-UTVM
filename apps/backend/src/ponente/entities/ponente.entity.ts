@@ -12,6 +12,7 @@ import {
 import { Conferencia } from '../../conferencia/entities/conferencia.entity';
 import { Taller } from '../../taller/entities/taller.entity';
 import { ArchivoMultimedia } from '../../archivo_multimedia/entities/archivo_multimedia.entity';
+import { PonenteTipo } from '../enums/ponente-tipo.enum';
 
 @Entity()
 export class Ponente {
@@ -33,6 +34,13 @@ export class Ponente {
     length: 200,
   })
   institucion!: string;
+
+  @Column({
+    type: 'enum',
+    enum: PonenteTipo,
+    default: PonenteTipo.PONENTE,
+  })
+  tipo!: PonenteTipo;
 
   @Column('text')
   semblanza!: string;

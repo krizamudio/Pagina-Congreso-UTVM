@@ -1,9 +1,13 @@
 import { ref } from 'vue';
 import { api } from '../services/api';
-import type { Ponente, PonentePayload } from '../types';
+import type { Ponente, PonentePayload, PonenteTipo } from '../types';
 
 export function usePonente() {
-  const useGetPonentes = (limit = 50, offset = 0) => {
+  const useGetPonentes = (
+    limit = 50,
+    offset = 0,
+    tipo: PonenteTipo = 'Ponente',
+  ) => {
     const data = ref<Ponente[]>([]);
     const isLoading = ref(false);
     const error = ref<string | null>(null);
@@ -13,7 +17,7 @@ export function usePonente() {
       error.value = null;
       try {
         const response = await api.get('ponente', {
-          params: { limit, offset },
+          params: { limit, offset, tipo },
         });
         data.value = response.data as Ponente[];
       } catch (err) {

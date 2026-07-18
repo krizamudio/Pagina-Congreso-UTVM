@@ -9,7 +9,7 @@ import {
   DeleteDateColumn,
 } from 'typeorm';
 import { ParticipanteNsu } from './participante-nsu.entity';
-import { ArchivoComprobante } from './archivo-comprobante.entity';
+import { ArchivoComprobante } from '../../comprobante/entities/archivo-comprobante.entity';
 
 @Entity('registro_nsu')
 export class RegistroNsu {

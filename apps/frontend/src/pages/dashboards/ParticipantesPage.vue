@@ -202,11 +202,21 @@
             </template>
 
             <template #body-cell-comprobante="props">
-              <q-td>
+              <q-td class="row items-center no-wrap q-gutter-xs">
                 {{
                   normalizeText(props.row.comprobante?.nombre_original) ||
                   "Sin comprobante"
                 }}
+                <q-btn
+                  v-if="props.row.comprobante"
+                  dense
+                  flat
+                  round
+                  icon="open_in_new"
+                  color="primary"
+                  title="Ver comprobante"
+                  @click="abrirComprobante(props.row.comprobante.id)"
+                />
               </q-td>
             </template>
 
@@ -287,11 +297,21 @@
             </template>
 
             <template #body-cell-comprobante="props">
-              <q-td>
+              <q-td class="row items-center no-wrap q-gutter-xs">
                 {{
                   normalizeText(props.row.comprobante?.nombre_original) ||
                   "Sin comprobante"
                 }}
+                <q-btn
+                  v-if="props.row.comprobante"
+                  dense
+                  flat
+                  round
+                  icon="open_in_new"
+                  color="primary"
+                  title="Ver comprobante"
+                  @click="abrirComprobante(props.row.comprobante.id)"
+                />
               </q-td>
             </template>
 
@@ -606,6 +626,7 @@ import { computed, onMounted, reactive, ref } from "vue";
 import { useQuasar, type QTableColumn } from "quasar";
 import { useRouter } from "vue-router";
 import { api } from "../../services/api";
+import { abrirComprobante } from "../../services/comprobanteService";
 import { getQrApiError, qrAccessService } from "../../services/qrAccessService";
 import { useDeleteConfirmation } from "../../composables/useDeleteConfirmation";
 import { useParticipantesAdmin } from "../../composables/useParticipantesAdmin";

@@ -1,12 +1,14 @@
 import { Transform } from 'class-transformer';
 import {
   IsBoolean,
+  IsEnum,
   IsNotEmpty,
   IsOptional,
   IsString,
   IsUUID,
   MaxLength,
 } from 'class-validator';
+import { PonenteTipo } from '../enums/ponente-tipo.enum';
 
 function trimString(value: unknown): unknown {
   return typeof value === 'string' ? value.trim() : value;
@@ -39,6 +41,11 @@ export class CreatePonenteDto {
   })
   @Transform(({ value }) => trimString(value))
   institucion!: string;
+
+  @IsEnum(PonenteTipo, {
+    message: 'El tipo debe ser Ponente o Panelista',
+  })
+  tipo!: PonenteTipo;
 
   @IsString({ message: 'El campo "semblanza" debe ser texto.' })
   @IsNotEmpty({ message: 'El campo "semblanza" es obligatorio.' })

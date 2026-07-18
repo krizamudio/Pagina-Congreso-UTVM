@@ -1,9 +1,12 @@
+export type PonenteTipo = 'Ponente' | 'Panelista';
+
 export interface Ponente {
   id: string;
   usuario_id: string;
   nombre: string;
   archivo_foto_id: string;
   institucion: string;
+  tipo: PonenteTipo;
   semblanza: string;
   tema: string;
   visible_publico?: boolean;
@@ -134,12 +137,8 @@ export type ParticipanteEstatus = 'pendiente' | 'validado' | 'rechazado';
 export interface ArchivoComprobante {
   id: string;
   nombre_original: string;
-  nombre_guardado: string;
-  ruta: string;
   mime_type: string;
   size: number;
-  created_at?: string;
-  updated_at?: string;
 }
 
 export interface ParticipanteEms {

@@ -19,6 +19,7 @@ import { QrAccesoModule } from './qr-acceso/qr-acceso.module';
 import { DiaEventoModule } from './dia-evento/dia-evento.module';
 import { ForoEmpresarialModule } from './foro-empresarial/foro-empresarial.module';
 import { GestionContenidoModule } from './gestion-contenido/gestion-contenido.module';
+import { ComprobanteModule } from './comprobante/comprobante.module';
 
 @Module({
   imports: [
@@ -83,6 +84,7 @@ import { GestionContenidoModule } from './gestion-contenido/gestion-contenido.mo
     QrAccesoModule,
     ForoEmpresarialModule,
     GestionContenidoModule,
+    ComprobanteModule,
   ],
   controllers: [],
   providers: [

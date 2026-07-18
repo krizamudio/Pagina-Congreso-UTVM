@@ -22,9 +22,11 @@
           <q-card flat bordered class="summary-card dashboard-card">
             <q-card-section>
               <div class="text-caption text-grey-7">Participantes</div>
-              <div class="text-h5 text-weight-bold">{{
-                registro.total_participantes
-              }}</div>
+              <div class="text-h5 text-weight-bold">
+                {{ registro.participantes.length }} /
+                {{ registro.total_participantes }}
+              </div>
+              <div class="text-caption text-grey-7">Activos / registrados</div>
             </q-card-section>
           </q-card>
         </div>
@@ -59,6 +61,16 @@
                 normalizeText(registro.comprobante?.nombre_original) ||
                 "Sin comprobante"
               }}</div>
+              <q-btn
+                v-if="registro.comprobante"
+                class="q-mt-xs"
+                dense
+                flat
+                icon="open_in_new"
+                color="primary"
+                label="Ver comprobante"
+                @click="abrirComprobante(registro.comprobante.id)"
+              />
             </q-card-section>
           </q-card>
         </div>
@@ -194,6 +206,7 @@ import { useQuasar, type QTableColumn } from "quasar";
 import { useRoute, useRouter } from "vue-router";
 import { useDeleteConfirmation } from "../../composables/useDeleteConfirmation";
 import { useParticipantesAdmin } from "../../composables/useParticipantesAdmin";
+import { abrirComprobante } from "../../services/comprobanteService";
 import { getQrApiError, qrAccessService } from "../../services/qrAccessService";
 import type {
   ParticipanteEstatus,
