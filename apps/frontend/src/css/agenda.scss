@@ -884,3 +884,132 @@ $border-green: rgba(0, 230, 118, 0.28);
     box-shadow: none;
   }
 }
+
+/* ===============================
+   Solución para eventos empalmados
+   =============================== */
+
+.agenda-row {
+  align-items: stretch;
+  transition: min-height 0.2s ease;
+}
+
+.agenda-room {
+  align-items: flex-start;
+  padding-top: 24px;
+}
+
+.agenda-events-area {
+  position: relative;
+  overflow: visible;
+}
+
+.agenda-event {
+  top: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  max-height: 78px;
+}
+
+.agenda-event.has-overlap {
+  padding: 10px 11px;
+  min-width: 132px;
+  box-shadow:
+    0 14px 30px rgba(0, 0, 0, 0.26),
+    0 0 0 1px rgba(255, 255, 255, 0.035);
+}
+
+.agenda-event.has-overlap strong {
+  font-size: 0.82rem;
+  line-height: 1.18;
+  -webkit-line-clamp: 2;
+}
+
+.agenda-event.has-overlap .event-time {
+  margin-top: 5px;
+  font-size: 0.74rem;
+}
+
+.agenda-event.has-overlap:hover {
+  z-index: 80 !important;
+}
+/* ===============================
+   Eventos empalmados en agenda
+   =============================== */
+
+.agenda-row {
+  align-items: stretch;
+  transition: min-height 0.2s ease;
+}
+
+.agenda-room {
+  align-items: flex-start;
+  padding-top: 24px;
+}
+
+.agenda-events-area {
+  position: relative;
+  overflow: visible;
+}
+
+.agenda-event {
+  top: auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  max-height: 78px;
+}
+
+.agenda-event.has-overlap {
+  padding: 10px 11px;
+  min-width: 132px;
+  box-shadow:
+    0 14px 30px rgba(0, 0, 0, 0.26),
+    0 0 0 1px rgba(255, 255, 255, 0.035);
+}
+
+.agenda-event.has-overlap strong {
+  font-size: 0.82rem;
+  line-height: 1.18;
+  -webkit-line-clamp: 2;
+}
+
+.agenda-event.has-overlap .event-time {
+  margin-top: 5px;
+  font-size: 0.74rem;
+}
+
+.agenda-event.has-overlap:hover {
+  z-index: 80 !important;
+}
+/* ===============================
+   Agenda móvil: solo vista lista
+   =============================== */
+
+@media (max-width: 900px) {
+  .agenda-view-switch {
+    display: none !important;
+  }
+
+  .agenda-table-wrapper {
+    display: none !important;
+  }
+
+  .agenda-list-view,
+  .agenda-list-view.is-hidden {
+    display: grid !important;
+  }
+
+  .agenda-top-row {
+    justify-content: center;
+  }
+
+  .agenda-days {
+    width: 100%;
+  }
+
+  .agenda-day-btn {
+    min-width: 100%;
+  }
+}

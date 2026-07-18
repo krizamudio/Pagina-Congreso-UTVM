@@ -1,11 +1,38 @@
+/* =========================================================
+   TALLERES - Congreso UTVM
+   Paleta base:
+   Fondo: #071E1B
+   Primario / CTA: #00E676
+   Apoyo / Éxito: #66F5B5
+   Secundario: #00B86B
+   Blanco: #FFFFFF
+   Superficie: #1F2A28
+   Texto secundario: #8CA09A
+   Bordes: #E6ECEA
+   ========================================================= */
+
+$color-bg: #071e1b;
+$color-bg-dark: #031411;
+$color-primary: #00e676;
+$color-success: #66f5b5;
+$color-secondary: #00b86b;
+$color-white: #ffffff;
+$color-surface: #1f2a28;
+$color-text-soft: #8ca09a;
+$color-border: #e6ecea;
+
+$color-warning: #ffd54f;
+$color-danger: #ff5252;
+$color-muted: #b7bec8;
+
 .talleres-page {
   min-height: calc(100vh - 64px);
   padding: 34px 22px;
   background:
-    radial-gradient(circle at 75% 16%, rgba(0, 230, 118, 0.22), transparent 34%),
-    radial-gradient(circle at 12% 76%, rgba(0, 184, 107, 0.14), transparent 30%),
-    linear-gradient(135deg, #071e1b 0%, #031411 100%);
-  color: #ffffff;
+    radial-gradient(circle at 75% 16%, rgba($color-primary, 0.12), transparent 34%),
+    radial-gradient(circle at 12% 76%, rgba($color-secondary, 0.08), transparent 30%),
+    linear-gradient(135deg, $color-bg 0%, $color-bg-dark 100%);
+  color: $color-white;
 }
 
 .talleres-container {
@@ -14,7 +41,10 @@
   margin: 0 auto;
 }
 
-/* Header */
+/* ===============================
+   Header
+   =============================== */
+
 .talleres-header {
   display: flex;
   justify-content: space-between;
@@ -28,7 +58,7 @@
 
   h1 {
     margin: 10px 0;
-    color: #ffffff;
+    color: $color-white;
     font-size: clamp(2.7rem, 6vw, 4.4rem);
     line-height: 0.96;
     font-weight: 900;
@@ -37,7 +67,7 @@
 
   p {
     margin: 0;
-    color: rgba(255, 255, 255, 0.62);
+    color: rgba($color-white, 0.62);
     font-size: clamp(1rem, 2vw, 1.18rem);
     line-height: 1.55;
   }
@@ -47,7 +77,7 @@
   display: inline-flex;
   align-items: center;
   gap: 9px;
-  color: #66f5b5;
+  color: $color-success;
   font-size: 0.86rem;
   font-weight: 900;
   text-transform: uppercase;
@@ -71,14 +101,14 @@
   min-height: 28px;
   padding: 5px 12px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.78);
+  background: rgba($color-white, 0.1);
+  color: rgba($color-white, 0.78);
   font-size: 0.82rem;
   font-weight: 800;
 
   &.featured {
-    background: rgba(0, 230, 118, 0.14);
-    color: #66f5b5;
+    background: rgba($color-success, 0.12);
+    color: $color-success;
   }
 }
 
@@ -86,18 +116,21 @@
   height: 44px;
   padding: 0 18px;
   border-radius: 999px;
-  background: rgba(0, 230, 118, 0.12) !important;
-  border: 1px solid rgba(0, 230, 118, 0.28);
-  color: #66f5b5 !important;
+  background: rgba($color-success, 0.1) !important;
+  border: 1px solid rgba($color-success, 0.24);
+  color: $color-success !important;
   font-weight: 900;
   white-space: nowrap;
 
   &:hover {
-    background: rgba(0, 230, 118, 0.2) !important;
+    background: rgba($color-success, 0.16) !important;
   }
 }
 
-/* Layout */
+/* ===============================
+   Layout
+   =============================== */
+
 .talleres-layout {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 250px;
@@ -107,27 +140,33 @@
 
 .talleres-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(255px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(285px, 1fr));
+  grid-auto-rows: 1fr;
   gap: 16px;
-  align-items: start;
+  align-items: stretch;
 }
 
-/* Card */
+/* ===============================
+   Card base
+   =============================== */
+
 .taller-card {
   position: relative;
-  align-self: start;
   overflow: hidden;
-  height: auto;
-  min-height: 0;
+  height: 100%;
+  min-height: 455px;
+  max-height: 455px;
+  display: flex;
+  flex-direction: column;
   padding: 16px;
   border-radius: 20px;
   background:
-    radial-gradient(circle at 85% 15%, rgba(0, 230, 118, 0.16), transparent 38%),
-    linear-gradient(145deg, rgba(20, 46, 36, 0.9), rgba(5, 24, 20, 0.95));
-  border: 1px solid rgba(0, 230, 118, 0.28);
+    radial-gradient(circle at 85% 15%, rgba($color-success, 0.08), transparent 38%),
+    linear-gradient(145deg, rgba(24, 35, 33, 0.96), rgba(8, 20, 18, 0.98));
+  border: 1px solid rgba($color-success, 0.2);
   box-shadow:
-    0 18px 42px rgba(0, 0, 0, 0.28),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.025);
+    0 18px 42px rgba(0, 0, 0, 0.3),
+    inset 0 0 0 1px rgba($color-white, 0.025);
   cursor: pointer;
   backdrop-filter: blur(14px);
   transition:
@@ -138,10 +177,10 @@
 
   &:hover {
     transform: translateY(-5px);
+    border-color: rgba($color-success, 0.34);
     box-shadow:
-      0 24px 56px rgba(0, 0, 0, 0.36),
-      0 0 0 1px rgba(0, 230, 118, 0.22),
-      0 0 34px rgba(0, 230, 118, 0.1);
+      0 24px 56px rgba(0, 0, 0, 0.38),
+      0 0 0 1px rgba($color-success, 0.12);
   }
 
   &:active {
@@ -160,7 +199,7 @@
   width: 150px;
   height: 150px;
   border-radius: 50%;
-  background: rgba(0, 230, 118, 0.16);
+  background: rgba($color-success, 0.08);
   filter: blur(38px);
   pointer-events: none;
 }
@@ -182,9 +221,9 @@
   place-items: center;
   padding: 8px;
   border-radius: 15px;
-  background: rgba(0, 230, 118, 0.12);
-  border: 1px solid rgba(0, 230, 118, 0.3);
-  color: #ffffff;
+  background: rgba($color-success, 0.08);
+  border: 1px solid rgba($color-success, 0.26);
+  color: $color-white;
 
   strong {
     display: block;
@@ -196,7 +235,7 @@
   span {
     display: block;
     margin-top: 5px;
-    color: #66f5b5;
+    color: $color-success;
     font-size: 0.62rem;
     font-weight: 900;
     text-transform: uppercase;
@@ -210,8 +249,8 @@
   min-height: 29px;
   padding: 5px 10px;
   border-radius: 999px;
-  background: rgba(0, 230, 118, 0.14);
-  color: #9dffc5;
+  background: rgba($color-success, 0.1);
+  color: $color-success;
   font-size: 0.7rem;
   font-weight: 900;
 }
@@ -223,20 +262,25 @@
   background: currentColor;
 }
 
-/* Tallerista */
+/* ===============================
+   Tallerista
+   =============================== */
+
 .taller-speaker {
   position: relative;
   z-index: 1;
   display: flex;
   align-items: center;
   gap: 12px;
+  min-height: 96px;
+  max-height: 96px;
   padding: 10px;
   margin-bottom: 14px;
   border-radius: 18px;
   background:
-    radial-gradient(circle at 18% 50%, rgba(0, 230, 118, 0.14), transparent 42%),
-    rgba(255, 255, 255, 0.055);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+    radial-gradient(circle at 18% 50%, rgba($color-success, 0.1), transparent 42%),
+    rgba($color-white, 0.052);
+  border: 1px solid rgba($color-white, 0.08);
 }
 
 .taller-speaker-avatar {
@@ -251,14 +295,13 @@
   overflow: hidden;
   border-radius: 50%;
   background:
-    radial-gradient(circle at top, rgba(102, 245, 181, 0.32), transparent 58%),
-    linear-gradient(145deg, rgba(0, 230, 118, 0.24), rgba(255, 255, 255, 0.06));
-  border: 2px solid rgba(102, 245, 181, 0.55);
+    radial-gradient(circle at top, rgba($color-success, 0.24), transparent 58%),
+    linear-gradient(145deg, rgba($color-success, 0.16), rgba($color-white, 0.06));
+  border: 2px solid rgba($color-success, 0.46);
   box-shadow:
-    0 0 0 6px rgba(0, 230, 118, 0.08),
-    0 14px 30px rgba(0, 0, 0, 0.32),
-    0 0 24px rgba(0, 230, 118, 0.16);
-  color: #ffffff;
+    0 0 0 6px rgba($color-success, 0.06),
+    0 14px 30px rgba(0, 0, 0, 0.32);
+  color: $color-white;
   font-size: 1rem;
   font-weight: 900;
   flex-shrink: 0;
@@ -286,7 +329,7 @@
 
   span {
     display: block;
-    color: rgba(255, 255, 255, 0.52);
+    color: rgba($color-white, 0.52);
     font-size: 0.67rem;
     font-weight: 900;
     text-transform: uppercase;
@@ -294,37 +337,49 @@
   }
 
   strong {
-    display: block;
+    display: -webkit-box;
     margin-top: 2px;
-    color: #ffffff;
+    color: $color-white;
     font-size: 0.98rem;
     line-height: 1.08;
     font-weight: 900;
+    overflow: hidden;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
   }
 
   small {
     display: block;
     margin-top: 3px;
-    color: rgba(255, 255, 255, 0.58);
+    color: rgba($color-white, 0.58);
     font-size: 0.78rem;
     line-height: 1.15;
     font-weight: 800;
   }
 }
 
-/* Info card */
+/* ===============================
+   Contenido de tarjeta
+   =============================== */
+
 .taller-card-info {
   position: relative;
   z-index: 1;
 
   h3 {
+    min-height: 68px;
+    max-height: 68px;
     margin: 12px 0 0;
-    color: #ffffff;
+    color: $color-white;
     font-size: 1.42rem;
     line-height: 1.08;
     font-weight: 900;
     letter-spacing: -0.045em;
-    text-shadow: 0 0 22px rgba(102, 245, 181, 0.18);
+    text-shadow: 0 0 18px rgba($color-white, 0.08);
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
 
     &::after {
       content: "";
@@ -333,12 +388,11 @@
       height: 3px;
       margin-top: 8px;
       border-radius: 999px;
-      background: linear-gradient(90deg, #00e676, rgba(102, 245, 181, 0.15));
+      background: linear-gradient(90deg, $color-success, rgba($color-success, 0.12));
     }
   }
 }
 
-/* La descripción queda oculta en la tarjeta para que no se alargue */
 .taller-desc {
   display: none;
 }
@@ -346,33 +400,42 @@
 .taller-meta {
   display: grid;
   gap: 7px;
+  min-height: 104px;
+  max-height: 104px;
   padding: 12px;
   margin-top: 16px;
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.055);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba($color-white, 0.052);
+  border: 1px solid rgba($color-white, 0.08);
 }
 
 .taller-meta-item {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: rgba(255, 255, 255, 0.72);
+  color: rgba($color-white, 0.72);
   font-size: 0.78rem;
   font-weight: 800;
 
   .q-icon {
-    color: #00e676;
+    color: $color-success;
     font-size: 17px;
+  }
+
+  span {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
   }
 }
 
 .taller-progress-wrap {
   position: relative;
   z-index: 1;
-  margin-top: 14px;
+  margin-top: auto;
   padding-top: 12px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: 1px solid rgba($color-white, 0.08);
 }
 
 .taller-progress-row {
@@ -385,9 +448,9 @@
   flex: 1;
   height: 10px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.08);
+  background: rgba($color-white, 0.09);
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba($color-white, 0.04);
 }
 
 .taller-progress-bar {
@@ -401,14 +464,18 @@
   text-align: right;
   font-size: 0.74rem;
   font-weight: 900;
-  color: rgba(255, 255, 255, 0.72);
+  color: rgba($color-white, 0.72);
 }
 
 .taller-progress-caption {
   margin: 8px 0 0;
-  color: rgba(255, 255, 255, 0.56);
+  color: rgba($color-white, 0.56);
   font-size: 0.74rem;
   font-weight: 800;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
 .taller-card-action {
@@ -421,9 +488,9 @@
   margin-top: 12px;
   padding: 8px 10px;
   border-radius: 14px;
-  color: #66f5b5;
-  background: rgba(0, 230, 118, 0.09);
-  border: 1px solid rgba(0, 230, 118, 0.18);
+  color: $color-success;
+  background: rgba($color-success, 0.08);
+  border: 1px solid rgba($color-success, 0.15);
   font-weight: 900;
   font-size: 0.78rem;
 
@@ -432,39 +499,42 @@
   }
 }
 
-/* Semáforo */
+/* ===============================
+   Semáforo
+   =============================== */
+
 .taller-card.estado-verde {
   background:
-    radial-gradient(circle at 82% 18%, rgba(0, 230, 118, 0.2), transparent 38%),
-    linear-gradient(145deg, rgba(17, 55, 40, 0.92), rgba(5, 24, 20, 0.94));
-  border-color: rgba(0, 230, 118, 0.42);
+    radial-gradient(circle at 82% 18%, rgba($color-success, 0.13), transparent 38%),
+    linear-gradient(145deg, rgba(25, 39, 35, 0.96), rgba(8, 20, 18, 0.98));
+  border-color: rgba($color-success, 0.3);
 
   .status-dot {
-    color: #66f5b5;
+    color: $color-success;
   }
 
   .taller-progress-bar {
-    background: linear-gradient(90deg, #00e676, #66f5b5);
+    background: linear-gradient(90deg, $color-primary, $color-success);
   }
 }
 
 .taller-card.estado-amarillo {
   background:
-    radial-gradient(circle at 82% 18%, rgba(255, 213, 79, 0.28), transparent 40%),
-    linear-gradient(145deg, rgba(67, 57, 26, 0.9), rgba(12, 26, 20, 0.94));
-  border-color: rgba(255, 213, 79, 0.58);
+    radial-gradient(circle at 82% 18%, rgba($color-warning, 0.23), transparent 40%),
+    linear-gradient(145deg, rgba(53, 48, 28, 0.94), rgba(12, 24, 21, 0.98));
+  border-color: rgba($color-warning, 0.52);
 
   .status-dot {
-    color: #ffd54f;
+    color: $color-warning;
   }
 
   .taller-status-pill {
-    background: rgba(255, 213, 79, 0.18);
+    background: rgba($color-warning, 0.16);
     color: #fff176;
   }
 
   .taller-progress-bar {
-    background: linear-gradient(90deg, #ffd54f, #fff176);
+    background: linear-gradient(90deg, $color-warning, #fff176);
   }
 
   .taller-card-info h3,
@@ -473,41 +543,39 @@
   }
 
   .taller-card-action {
-    background: rgba(255, 213, 79, 0.1);
-    border-color: rgba(255, 213, 79, 0.25);
+    background: rgba($color-warning, 0.1);
+    border-color: rgba($color-warning, 0.24);
   }
 
   .taller-speaker-avatar {
-    border-color: rgba(255, 241, 118, 0.72);
+    border-color: rgba(#fff176, 0.66);
     box-shadow:
-      0 0 0 6px rgba(255, 213, 79, 0.1),
-      0 14px 30px rgba(0, 0, 0, 0.32),
-      0 0 24px rgba(255, 213, 79, 0.2);
+      0 0 0 6px rgba($color-warning, 0.09),
+      0 14px 30px rgba(0, 0, 0, 0.32);
   }
 }
 
 .taller-card.estado-rojo {
   background:
-    radial-gradient(circle at 82% 18%, rgba(255, 82, 82, 0.36), transparent 42%),
-    radial-gradient(circle at 10% 88%, rgba(255, 82, 82, 0.13), transparent 30%),
-    linear-gradient(145deg, rgba(70, 25, 25, 0.94), rgba(15, 24, 22, 0.96));
-  border-color: rgba(255, 82, 82, 0.78);
+    radial-gradient(circle at 82% 18%, rgba($color-danger, 0.3), transparent 42%),
+    radial-gradient(circle at 10% 88%, rgba($color-danger, 0.08), transparent 30%),
+    linear-gradient(145deg, rgba(58, 27, 27, 0.96), rgba(14, 21, 20, 0.98));
+  border-color: rgba($color-danger, 0.7);
   box-shadow:
     0 20px 50px rgba(0, 0, 0, 0.32),
-    0 0 0 1px rgba(255, 82, 82, 0.22),
-    0 0 34px rgba(255, 82, 82, 0.14);
+    0 0 0 1px rgba($color-danger, 0.18);
 
   .status-dot {
-    color: #ff5252;
+    color: $color-danger;
   }
 
   .taller-status-pill {
-    background: rgba(255, 82, 82, 0.22);
+    background: rgba($color-danger, 0.2);
     color: #ffb3b3;
   }
 
   .taller-progress-bar {
-    background: linear-gradient(90deg, #ff5252, #ff8a80);
+    background: linear-gradient(90deg, $color-danger, #ff8a80);
   }
 
   .taller-card-info h3,
@@ -516,32 +584,31 @@
   }
 
   .taller-card-action {
-    background: rgba(255, 82, 82, 0.12);
-    border-color: rgba(255, 82, 82, 0.3);
+    background: rgba($color-danger, 0.12);
+    border-color: rgba($color-danger, 0.3);
   }
 
   .taller-speaker-avatar {
-    border-color: rgba(255, 130, 130, 0.75);
+    border-color: rgba(#ff8a80, 0.72);
     box-shadow:
-      0 0 0 6px rgba(255, 82, 82, 0.1),
-      0 14px 30px rgba(0, 0, 0, 0.32),
-      0 0 28px rgba(255, 82, 82, 0.22);
+      0 0 0 6px rgba($color-danger, 0.1),
+      0 14px 30px rgba(0, 0, 0, 0.32);
   }
 }
 
 .taller-card.estado-gris {
   background:
-    radial-gradient(circle at 82% 18%, rgba(183, 190, 200, 0.18), transparent 40%),
-    linear-gradient(145deg, rgba(44, 50, 52, 0.9), rgba(12, 18, 18, 0.95));
-  border-color: rgba(183, 190, 200, 0.38);
-  filter: grayscale(0.1);
+    radial-gradient(circle at 82% 18%, rgba($color-muted, 0.14), transparent 40%),
+    linear-gradient(145deg, rgba(42, 48, 50, 0.94), rgba(12, 18, 18, 0.98));
+  border-color: rgba($color-muted, 0.34);
+  filter: grayscale(0.08);
 
   .status-dot {
-    color: #b7bec8;
+    color: $color-muted;
   }
 
   .taller-status-pill {
-    background: rgba(183, 190, 200, 0.14);
+    background: rgba($color-muted, 0.14);
     color: #d5dbe3;
   }
 
@@ -551,34 +618,37 @@
 
   .taller-card-action {
     color: #d5dbe3;
-    background: rgba(183, 190, 200, 0.08);
-    border-color: rgba(183, 190, 200, 0.18);
+    background: rgba($color-muted, 0.08);
+    border-color: rgba($color-muted, 0.18);
   }
 
   .taller-speaker-avatar {
-    border-color: rgba(213, 219, 227, 0.55);
+    border-color: rgba(#d5dbe3, 0.55);
     box-shadow:
-      0 0 0 6px rgba(183, 190, 200, 0.08),
+      0 0 0 6px rgba($color-muted, 0.08),
       0 14px 30px rgba(0, 0, 0, 0.32);
   }
 }
 
-/* Leyenda */
+/* ===============================
+   Leyenda
+   =============================== */
+
 .talleres-legend {
   position: sticky;
   top: 24px;
   padding: 18px 16px;
   border-radius: 20px;
   background:
-    linear-gradient(145deg, rgba(31, 42, 40, 0.78), rgba(7, 30, 27, 0.82));
-  border: 1px solid rgba(0, 230, 118, 0.18);
+    linear-gradient(145deg, rgba(29, 39, 37, 0.88), rgba(9, 24, 22, 0.92));
+  border: 1px solid rgba($color-success, 0.14);
   box-shadow: 0 18px 45px rgba(0, 0, 0, 0.28);
 
   h3 {
     margin: 0 0 18px;
     font-size: 1rem;
     font-weight: 900;
-    color: #ffffff;
+    color: $color-white;
   }
 }
 
@@ -589,7 +659,7 @@
   padding: 10px;
   margin-bottom: 12px;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.045);
+  background: rgba($color-white, 0.045);
 
   strong {
     display: block;
@@ -599,7 +669,7 @@
 
   p {
     margin: 0;
-    color: rgba(255, 255, 255, 0.58);
+    color: rgba($color-white, 0.58);
     font-size: 0.76rem;
     line-height: 1.45;
   }
@@ -615,22 +685,25 @@
 }
 
 .legend-item.verde {
-  color: #00e676;
+  color: $color-success;
 }
 
 .legend-item.amarillo {
-  color: #ffd54f;
+  color: $color-warning;
 }
 
 .legend-item.rojo {
-  color: #ff5252;
+  color: $color-danger;
 }
 
 .legend-item.gris {
-  color: #b7bec8;
+  color: $color-muted;
 }
 
-/* Estados vacíos */
+/* ===============================
+   Estados vacíos
+   =============================== */
+
 .sin-talleres {
   min-height: 300px;
   display: grid;
@@ -638,17 +711,17 @@
   gap: 8px;
   padding: 38px;
   border-radius: 22px;
-  background: rgba(31, 42, 40, 0.68);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.62);
+  background: rgba(29, 39, 37, 0.74);
+  border: 1px solid rgba($color-white, 0.08);
+  color: rgba($color-white, 0.62);
   text-align: center;
 
   .q-icon {
-    color: #00e676;
+    color: $color-success;
   }
 
   strong {
-    color: #ffffff;
+    color: $color-white;
     font-size: 1.15rem;
   }
 
@@ -665,7 +738,10 @@
   }
 }
 
-/* Modal */
+/* ===============================
+   Modal detalle
+   =============================== */
+
 .taller-overlay {
   position: fixed;
   inset: 0;
@@ -687,11 +763,11 @@
   padding: 26px;
   border-radius: 26px;
   background:
-    radial-gradient(circle at 78% 12%, rgba(0, 230, 118, 0.16), transparent 34%),
-    linear-gradient(145deg, rgba(27, 42, 38, 0.98), rgba(4, 22, 18, 0.98));
-  border: 1px solid rgba(0, 230, 118, 0.28);
+    radial-gradient(circle at 78% 12%, rgba($color-success, 0.1), transparent 34%),
+    linear-gradient(145deg, rgba(27, 38, 36, 0.98), rgba(5, 20, 18, 0.98));
+  border: 1px solid rgba($color-success, 0.22);
   box-shadow: 0 35px 90px rgba(0, 0, 0, 0.55);
-  color: #ffffff;
+  color: $color-white;
 }
 
 .taller-detalle-close {
@@ -699,9 +775,9 @@
   top: 14px;
   right: 14px;
   z-index: 5;
-  color: #ffffff !important;
-  background: rgba(255, 255, 255, 0.06) !important;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: $color-white !important;
+  background: rgba($color-white, 0.06) !important;
+  border: 1px solid rgba($color-white, 0.08);
 }
 
 .taller-detalle-body {
@@ -712,7 +788,7 @@
 
 .taller-detalle-left {
   padding-right: 22px;
-  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  border-right: 1px solid rgba($color-white, 0.08);
 }
 
 .taller-detalle-hero {
@@ -735,14 +811,13 @@
   overflow: hidden;
   border-radius: 50%;
   background:
-    radial-gradient(circle at top, rgba(102, 245, 181, 0.32), transparent 58%),
-    linear-gradient(145deg, rgba(0, 230, 118, 0.28), rgba(255, 255, 255, 0.06));
-  border: 3px solid rgba(102, 245, 181, 0.65);
+    radial-gradient(circle at top, rgba($color-success, 0.24), transparent 58%),
+    linear-gradient(145deg, rgba($color-success, 0.18), rgba($color-white, 0.06));
+  border: 3px solid rgba($color-success, 0.56);
   box-shadow:
-    0 0 0 10px rgba(0, 230, 118, 0.08),
-    0 24px 56px rgba(0, 0, 0, 0.4),
-    0 0 38px rgba(0, 230, 118, 0.18);
-  color: #ffffff;
+    0 0 0 10px rgba($color-success, 0.06),
+    0 24px 56px rgba(0, 0, 0, 0.4);
+  color: $color-white;
   font-size: 1.8rem;
   font-weight: 900;
   flex-shrink: 0;
@@ -769,14 +844,14 @@
   min-height: 28px;
   padding: 4px 12px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.12);
-  color: #ffffff;
+  background: rgba($color-white, 0.12);
+  color: $color-white;
   font-size: 0.82rem;
   font-weight: 800;
 
   &.featured {
-    background: rgba(0, 230, 118, 0.14);
-    color: #66f5b5;
+    background: rgba($color-success, 0.12);
+    color: $color-success;
   }
 }
 
@@ -792,7 +867,7 @@
 
   p {
     margin: 0;
-    color: rgba(255, 255, 255, 0.66);
+    color: rgba($color-white, 0.66);
     font-size: 1.05rem;
     font-weight: 800;
   }
@@ -811,17 +886,17 @@
   min-height: 94px;
   padding: 15px;
   border-radius: 16px;
-  background: rgba(31, 42, 40, 0.68);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(29, 39, 37, 0.74);
+  border: 1px solid rgba($color-white, 0.08);
 
   .q-icon {
-    color: #00e676;
+    color: $color-success;
     font-size: 26px;
   }
 
   span {
     display: block;
-    color: rgba(255, 255, 255, 0.56);
+    color: rgba($color-white, 0.56);
     font-size: 0.82rem;
     font-weight: 800;
   }
@@ -829,7 +904,7 @@
   strong {
     display: block;
     margin-top: 6px;
-    color: #ffffff;
+    color: $color-white;
     font-size: 0.95rem;
     line-height: 1.35;
     font-weight: 900;
@@ -837,8 +912,44 @@
 }
 
 .detalle-progress {
-  margin-top: 16px;
-  margin-bottom: 22px;
+  width: 100%;
+  margin-top: 18px;
+  margin-bottom: 24px;
+  padding-top: 14px;
+  border-top: 1px solid rgba($color-white, 0.09);
+}
+
+.taller-detalle .taller-progress-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.taller-detalle .taller-progress {
+  flex: 1;
+  height: 13px;
+  min-width: 0;
+  border-radius: 999px;
+  background: rgba($color-white, 0.12);
+  border: 1px solid rgba($color-white, 0.08);
+  overflow: hidden;
+}
+
+.taller-detalle .taller-progress-bar {
+  display: block;
+  height: 100%;
+  min-width: 4px;
+  border-radius: 999px;
+  transition: width 0.25s ease;
+}
+
+.taller-detalle .taller-progress-label {
+  min-width: 96px;
+  text-align: right;
+  color: rgba($color-white, 0.82);
+  font-size: 0.78rem;
+  font-weight: 900;
 }
 
 .taller-detalle-section {
@@ -846,14 +957,14 @@
 
   h3 {
     margin: 0 0 12px;
-    color: #ffffff;
+    color: $color-white;
     font-size: 1.15rem;
     font-weight: 900;
   }
 
   p,
   li {
-    color: rgba(255, 255, 255, 0.68);
+    color: rgba($color-white, 0.68);
     font-size: 0.95rem;
     line-height: 1.7;
   }
@@ -879,9 +990,9 @@
   padding: 20px;
   border-radius: 22px;
   background:
-    radial-gradient(circle at top right, rgba(0, 230, 118, 0.12), transparent 38%),
-    rgba(255, 255, 255, 0.045);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+    radial-gradient(circle at top right, rgba($color-success, 0.08), transparent 38%),
+    rgba($color-white, 0.045);
+  border: 1px solid rgba($color-white, 0.08);
 
   .taller-detalle-section {
     margin-top: 0;
@@ -898,13 +1009,13 @@
   width: 100%;
   height: 46px;
   border-radius: 999px;
-  background: rgba(0, 230, 118, 0.14) !important;
-  border: 1px solid rgba(0, 230, 118, 0.36);
-  color: #66f5b5 !important;
+  background: rgba($color-success, 0.12) !important;
+  border: 1px solid rgba($color-success, 0.3);
+  color: $color-success !important;
   font-weight: 900;
 
   &:hover {
-    background: rgba(0, 230, 118, 0.22) !important;
+    background: rgba($color-success, 0.18) !important;
   }
 
   &:disabled {
@@ -912,70 +1023,96 @@
   }
 }
 
-/* Modal por estado */
+/* ===============================
+   Modal por estado
+   =============================== */
+
 .taller-detalle.estado-verde {
-  border-color: rgba(0, 230, 118, 0.42);
+  border-color: rgba($color-success, 0.34);
+
+  .taller-progress-bar {
+    background: linear-gradient(90deg, $color-primary, $color-success);
+    box-shadow: 0 0 18px rgba($color-success, 0.22);
+  }
 }
 
 .taller-detalle.estado-amarillo {
   background:
-    radial-gradient(circle at 78% 12%, rgba(255, 213, 79, 0.24), transparent 38%),
-    linear-gradient(145deg, rgba(61, 53, 24, 0.98), rgba(4, 22, 18, 0.98));
-  border-color: rgba(255, 213, 79, 0.55);
+    radial-gradient(circle at 78% 12%, rgba($color-warning, 0.2), transparent 38%),
+    linear-gradient(145deg, rgba(53, 48, 28, 0.98), rgba(5, 20, 18, 0.98));
+  border-color: rgba($color-warning, 0.55);
 
   .taller-detalle-avatar,
   .info-card .q-icon {
-    border-color: rgba(255, 213, 79, 0.5);
+    border-color: rgba($color-warning, 0.5);
     color: #fff176;
+  }
+
+  .taller-progress-bar {
+    background: linear-gradient(90deg, $color-warning, #fff176);
+    box-shadow: 0 0 18px rgba($color-warning, 0.28);
   }
 
   .hero-tag.featured,
   .btn-taller-inscribirse {
-    background: rgba(255, 213, 79, 0.16) !important;
-    border-color: rgba(255, 213, 79, 0.36) !important;
+    background: rgba($color-warning, 0.16) !important;
+    border-color: rgba($color-warning, 0.36) !important;
     color: #fff176 !important;
   }
 }
 
 .taller-detalle.estado-rojo {
   background:
-    radial-gradient(circle at 78% 12%, rgba(255, 82, 82, 0.28), transparent 38%),
-    radial-gradient(circle at 10% 86%, rgba(255, 82, 82, 0.1), transparent 28%),
-    linear-gradient(145deg, rgba(60, 25, 25, 0.98), rgba(5, 20, 18, 0.98));
-  border-color: rgba(255, 82, 82, 0.72);
+    radial-gradient(circle at 78% 12%, rgba($color-danger, 0.24), transparent 38%),
+    radial-gradient(circle at 10% 86%, rgba($color-danger, 0.08), transparent 28%),
+    linear-gradient(145deg, rgba(54, 26, 26, 0.98), rgba(5, 20, 18, 0.98));
+  border-color: rgba($color-danger, 0.72);
   box-shadow:
     0 35px 90px rgba(0, 0, 0, 0.58),
-    0 0 54px rgba(255, 82, 82, 0.18);
+    0 0 54px rgba($color-danger, 0.14);
 
   .taller-detalle-avatar,
   .info-card .q-icon {
-    border-color: rgba(255, 82, 82, 0.52);
+    border-color: rgba($color-danger, 0.52);
     color: #ffb3b3;
+  }
+
+  .taller-progress-bar {
+    background: linear-gradient(90deg, $color-danger, #ff8a80);
+    box-shadow: 0 0 18px rgba($color-danger, 0.3);
   }
 
   .hero-tag.featured,
   .btn-taller-inscribirse {
-    background: rgba(255, 82, 82, 0.18) !important;
-    border-color: rgba(255, 82, 82, 0.42) !important;
+    background: rgba($color-danger, 0.18) !important;
+    border-color: rgba($color-danger, 0.42) !important;
     color: #ffb3b3 !important;
   }
 }
 
 .taller-detalle.estado-gris {
   background:
-    radial-gradient(circle at 78% 12%, rgba(183, 190, 200, 0.18), transparent 38%),
+    radial-gradient(circle at 78% 12%, rgba($color-muted, 0.16), transparent 38%),
     linear-gradient(145deg, rgba(42, 48, 50, 0.98), rgba(7, 18, 18, 0.98));
-  border-color: rgba(183, 190, 200, 0.42);
+  border-color: rgba($color-muted, 0.42);
+
+  .taller-progress-bar {
+    background: linear-gradient(90deg, #9ea7b3, #c6ccd5);
+    box-shadow: 0 0 14px rgba($color-muted, 0.18);
+  }
 
   .hero-tag.featured,
   .btn-taller-inscribirse {
-    background: rgba(183, 190, 200, 0.13) !important;
-    border-color: rgba(183, 190, 200, 0.28) !important;
+    background: rgba($color-muted, 0.13) !important;
+    border-color: rgba($color-muted, 0.28) !important;
     color: #d5dbe3 !important;
   }
 }
 
-/* Responsive */
+/* ===============================
+   Responsive
+   =============================== */
+
 @media (max-width: 1024px) {
   .talleres-layout {
     grid-template-columns: 1fr;
@@ -1019,6 +1156,17 @@
 
   .taller-detalle-right {
     margin-top: 8px;
+  }
+}
+
+@media (max-width: 700px) {
+  .talleres-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .taller-card {
+    min-height: 430px;
+    max-height: none;
   }
 }
 
@@ -1072,75 +1220,7 @@
   .hero-tags {
     justify-content: center;
   }
-}
 
-/* ===============================
-   Barra visible en detalle del taller
-   =============================== */
-
-.taller-detalle .detalle-progress {
-  width: 100%;
-  margin-top: 18px;
-  margin-bottom: 24px;
-  padding-top: 14px;
-  border-top: 1px solid rgba(255, 255, 255, 0.09);
-}
-
-.taller-detalle .taller-progress-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-}
-
-.taller-detalle .taller-progress {
-  flex: 1;
-  height: 13px;
-  min-width: 0;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  overflow: hidden;
-}
-
-.taller-detalle .taller-progress-bar {
-  display: block;
-  height: 100%;
-  min-width: 4px;
-  border-radius: 999px;
-  transition: width 0.25s ease;
-}
-
-.taller-detalle .taller-progress-label {
-  min-width: 96px;
-  text-align: right;
-  color: rgba(255, 255, 255, 0.82);
-  font-size: 0.78rem;
-  font-weight: 900;
-}
-
-/* Colores de la barra dentro del modal según semáforo */
-.taller-detalle.estado-verde .taller-progress-bar {
-  background: linear-gradient(90deg, #00e676, #66f5b5);
-  box-shadow: 0 0 18px rgba(0, 230, 118, 0.28);
-}
-
-.taller-detalle.estado-amarillo .taller-progress-bar {
-  background: linear-gradient(90deg, #ffd54f, #fff176);
-  box-shadow: 0 0 18px rgba(255, 213, 79, 0.28);
-}
-
-.taller-detalle.estado-rojo .taller-progress-bar {
-  background: linear-gradient(90deg, #ff5252, #ff8a80);
-  box-shadow: 0 0 18px rgba(255, 82, 82, 0.3);
-}
-
-.taller-detalle.estado-gris .taller-progress-bar {
-  background: linear-gradient(90deg, #9ea7b3, #c6ccd5);
-  box-shadow: 0 0 14px rgba(183, 190, 200, 0.18);
-}
-
-@media (max-width: 560px) {
   .taller-detalle .taller-progress-row {
     align-items: flex-start;
     flex-direction: column;
@@ -1154,83 +1234,5 @@
   .taller-detalle .taller-progress-label {
     min-width: auto;
     text-align: left;
-  }
-}
-/* ===============================
-   Igualar tamaño de tarjetas
-   =============================== */
-
-.talleres-grid {
-  display: grid !important;
-  grid-template-columns: repeat(auto-fill, minmax(285px, 1fr)) !important;
-  grid-auto-rows: 1fr !important;
-  align-items: stretch !important;
-}
-
-.taller-card {
-  height: 100% !important;
-  min-height: 455px !important;
-  max-height: 455px !important;
-  display: flex !important;
-  flex-direction: column !important;
-  padding: 16px !important;
-}
-
-/* Evita que el nombre del taller haga crecer la tarjeta */
-.taller-card-info h3 {
-  min-height: 68px !important;
-  max-height: 68px !important;
-  overflow: hidden !important;
-  display: -webkit-box !important;
-  -webkit-line-clamp: 2 !important;
-  -webkit-box-orient: vertical !important;
-}
-
-/* Mantiene el bloque del tallerista parejo */
-.taller-speaker {
-  min-height: 96px !important;
-  max-height: 96px !important;
-}
-
-.taller-speaker-info strong {
-  display: -webkit-box !important;
-  -webkit-line-clamp: 2 !important;
-  -webkit-box-orient: vertical !important;
-  overflow: hidden !important;
-}
-
-/* Mantiene la información de hora, ubicación y cupo pareja */
-.taller-meta {
-  min-height: 104px !important;
-  max-height: 104px !important;
-}
-
-/* Manda la barra y el botón hacia abajo */
-.taller-progress-wrap {
-  margin-top: auto !important;
-}
-
-.taller-card-action {
-  margin-top: 12px !important;
-}
-
-/* Si el texto es muy largo, no rompe la card */
-.taller-meta-item span,
-.taller-progress-caption {
-  overflow: hidden !important;
-  display: -webkit-box !important;
-  -webkit-line-clamp: 2 !important;
-  -webkit-box-orient: vertical !important;
-}
-
-/* Responsive */
-@media (max-width: 700px) {
-  .talleres-grid {
-    grid-template-columns: 1fr !important;
-  }
-
-  .taller-card {
-    min-height: 430px !important;
-    max-height: none !important;
   }
 }

@@ -25,28 +25,19 @@
         </div>
       </div>
 
-      <div
-        v-if="cargandoAgenda"
-        class="agenda-empty"
-      >
+      <div v-if="cargandoAgenda" class="agenda-empty">
         <q-icon name="hourglass_top" />
         <strong>Cargando agenda...</strong>
         <span>Estamos consultando las actividades registradas.</span>
       </div>
 
-      <div
-        v-else-if="errorAgenda"
-        class="agenda-empty"
-      >
+      <div v-else-if="errorAgenda" class="agenda-empty">
         <q-icon name="error_outline" />
         <strong>No se pudo cargar la agenda</strong>
         <span>{{ errorAgenda }}</span>
       </div>
 
-      <div
-        v-else-if="eventos.length === 0"
-        class="agenda-empty"
-      >
+      <div v-else-if="eventos.length === 0" class="agenda-empty">
         <q-icon name="event_busy" />
         <strong>No hay actividades registradas</strong>
         <span>Cuando el administrador registre conferencias o talleres, aparecerán aquí.</span>
@@ -99,19 +90,13 @@
           class="agenda-table-wrapper"
           :class="{ 'is-hidden': vistaActiva !== 'calendario' }"
         >
-          <div
-            class="agenda-table"
-            :style="agendaTableStyle"
-          >
+          <div class="agenda-table" :style="agendaTableStyle">
             <div class="agenda-time-header">
               <div class="agenda-hour-title">
                 Hora / Sala
               </div>
 
-              <div
-                class="agenda-hours"
-                :style="gridHorasStyle"
-              >
+              <div class="agenda-hours" :style="gridHorasStyle">
                 <div
                   v-for="hora in horas"
                   :key="hora.value"
@@ -126,12 +111,10 @@
               v-for="sala in salas"
               :key="sala.id"
               class="agenda-row"
+              :style="getAgendaRowStyle(sala)"
             >
               <div class="agenda-room">
-                <div
-                  class="room-icon"
-                  :class="`room-${sala.color}`"
-                >
+                <div class="room-icon" :class="`room-${sala.color}`">
                   <q-icon :name="sala.icon" />
                 </div>
 
@@ -141,11 +124,8 @@
                 </div>
               </div>
 
-              <div class="agenda-events-area">
-                <div
-                  class="hour-lines"
-                  :style="gridLineasStyle"
-                >
+              <div class="agenda-events-area" :style="getEventsAreaStyle(sala)">
+                <div class="hour-lines" :style="gridLineasStyle">
                   <span
                     v-for="linea in lineasHoras"
                     :key="linea"
@@ -158,7 +138,10 @@
                   class="agenda-event"
                   :class="[
                     `event-${evento.tipo}`,
-                    { 'is-clickable': esEventoSeleccionable(evento) },
+                    {
+                      'is-clickable': esEventoSeleccionable(evento),
+                      'has-overlap': evento.totalCarriles > 1,
+                    },
                   ]"
                   :style="getEventStyle(evento)"
                   @click="irADetalleEvento(evento)"
@@ -182,10 +165,7 @@
           class="agenda-list-view"
           :class="{ 'is-hidden': vistaActiva !== 'lista' }"
         >
-          <div
-            v-if="eventosDelDia.length === 0"
-            class="agenda-empty"
-          >
+          <div v-if="eventosDelDia.length === 0" class="agenda-empty">
             <q-icon name="event_busy" />
             <strong>No hay actividades para este día.</strong>
             <span>Selecciona otro día para consultar más actividades.</span>
@@ -291,6 +271,7 @@ interface SalaAgenda {
   ubicacion: string;
   icon: string;
   color: string;
+  carriles: number;
 }
 
 interface EventoAgenda {
@@ -303,6 +284,11 @@ interface EventoAgenda {
   tipo: TipoEvento;
   inicio: string;
   fin: string;
+}
+
+interface EventoAgendaRender extends EventoAgenda {
+  carril: number;
+  totalCarriles: number;
 }
 
 interface UbicacionApi {
@@ -337,6 +323,11 @@ interface TallerApi {
   ubicacion_id?: string | null;
   ubicacion?: UbicacionApi | null;
 }
+
+const EVENTO_ALTO = 78;
+const EVENTO_GAP = 10;
+const EVENTO_TOP = 16;
+const FILA_BASE = 124;
 
 const diaActivo = ref('');
 const vistaActiva = ref<'calendario' | 'lista'>('calendario');
@@ -374,7 +365,8 @@ const eventosDelDia = computed(() =>
     .filter((evento) => evento.dia === diaActivo.value)
     .sort(
       (a, b) =>
-        convertirMinutos(a.inicio) - convertirMinutos(b.inicio),
+        convertirMinutos(a.inicio) - convertirMinutos(b.inicio) ||
+        convertirMinutos(a.fin) - convertirMinutos(b.fin),
     ),
 );
 
@@ -395,6 +387,7 @@ const salas = computed<SalaAgenda[]>(() => {
     ubicacion: evento.salaDetalle,
     icon: getIconoSala(index),
     color: colores[index % colores.length] ?? 'blue',
+    carriles: calcularCarrilesSala(evento.salaId),
   }));
 });
 
@@ -612,10 +605,57 @@ function obtenerDetalleUbicacion(ubicacion: UbicacionApi) {
   return 'Sede del congreso';
 }
 
-function eventosPorSala(salaId: string) {
-  return eventosDelDia.value.filter(
+function eventosPorSala(salaId: string): EventoAgendaRender[] {
+  const eventosSala = eventosDelDia.value
+    .filter((evento) => evento.salaId === salaId)
+    .sort(
+      (a, b) =>
+        convertirMinutos(a.inicio) - convertirMinutos(b.inicio) ||
+        convertirMinutos(a.fin) - convertirMinutos(b.fin),
+    );
+
+  return asignarCarriles(eventosSala);
+}
+
+function asignarCarriles(eventosSala: EventoAgenda[]): EventoAgendaRender[] {
+  const carrilesFin: number[] = [];
+
+  const eventosConCarril = eventosSala.map((evento) => {
+    const inicio = convertirMinutos(evento.inicio);
+    const fin = convertirMinutos(evento.fin);
+
+    let carril = carrilesFin.findIndex(
+      (finCarril) => finCarril <= inicio,
+    );
+
+    if (carril === -1) {
+      carril = carrilesFin.length;
+      carrilesFin.push(fin);
+    } else {
+      carrilesFin[carril] = fin;
+    }
+
+    return {
+      ...evento,
+      carril,
+      totalCarriles: 1,
+    };
+  });
+
+  const totalCarriles = Math.max(carrilesFin.length, 1);
+
+  return eventosConCarril.map((evento) => ({
+    ...evento,
+    totalCarriles,
+  }));
+}
+
+function calcularCarrilesSala(salaId: string) {
+  const eventosSala = eventosDelDia.value.filter(
     (evento) => evento.salaId === salaId,
   );
+
+  return asignarCarriles(eventosSala)[0]?.totalCarriles ?? 1;
 }
 
 function getSalaEvento(evento: EventoAgenda) {
@@ -695,14 +735,38 @@ function calcularPorcentaje(hora: string) {
   return Math.min(Math.max(porcentaje, 0), 100);
 }
 
-function getEventStyle(evento: EventoAgenda) {
+function calcularAlturaFila(carriles: number) {
+  return Math.max(
+    FILA_BASE,
+    EVENTO_TOP * 2 + carriles * EVENTO_ALTO + (carriles - 1) * EVENTO_GAP,
+  );
+}
+
+function getAgendaRowStyle(sala: SalaAgenda) {
+  return {
+    minHeight: `${calcularAlturaFila(sala.carriles)}px`,
+  };
+}
+
+function getEventsAreaStyle(sala: SalaAgenda) {
+  return {
+    minHeight: `${calcularAlturaFila(sala.carriles)}px`,
+  };
+}
+
+function getEventStyle(evento: EventoAgendaRender) {
   const left = calcularPorcentaje(evento.inicio);
   const right = calcularPorcentaje(evento.fin);
   const width = Math.max(right - left, 7);
+  const top = EVENTO_TOP + evento.carril * (EVENTO_ALTO + EVENTO_GAP);
 
   return {
     left: `${left}%`,
     width: `${width}%`,
+    top: `${top}px`,
+    height: `${EVENTO_ALTO}px`,
+    minHeight: `${EVENTO_ALTO}px`,
+    zIndex: `${10 + evento.carril}`,
   };
 }
 
