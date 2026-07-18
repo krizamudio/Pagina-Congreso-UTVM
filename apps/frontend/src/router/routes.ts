@@ -48,6 +48,10 @@ const routes: RouteRecordRaw[] = [
         path: "/panelistas_u/:id",
         component: () => import("@/pages/TalleresU/panelista-detalle.vue"),
       },
+            {
+        path: "/login",
+        component: () => import("@/pages/login.vue"),
+      },
     ],
   },
 

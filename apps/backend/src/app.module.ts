@@ -17,6 +17,8 @@ import { seconds, ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { QrAccesoModule } from './qr-acceso/qr-acceso.module';
 import { DiaEventoModule } from './dia-evento/dia-evento.module';
+import { LoginModule } from './login/login.module';
+import { InscripcionTallerModule } from './inscripcion-taller/inscripcion-taller.module';
 
 @Module({
   imports: [
@@ -27,23 +29,23 @@ import { DiaEventoModule } from './dia-evento/dia-evento.module';
     ThrottlerModule.forRoot({
       throttlers: [
         {
-  name: 'short',
-  ttl: seconds(1),
-  limit: 30,
-  blockDuration: seconds(3),
-},
-{
-  name: 'medium',
-  ttl: seconds(10),
-  limit: 100,
-  blockDuration: seconds(3),
-},
-{
-  name: 'long',
-  ttl: seconds(60),
-  limit: 500,
-  blockDuration: seconds(10),
-},
+          name: 'short',
+          ttl: seconds(1),
+          limit: 30,
+          blockDuration: seconds(3),
+        },
+        {
+          name: 'medium',
+          ttl: seconds(10),
+          limit: 100,
+          blockDuration: seconds(3),
+        },
+        {
+          name: 'long',
+          ttl: seconds(60),
+          limit: 500,
+          blockDuration: seconds(10),
+        },
       ],
     }),
 
@@ -76,6 +78,8 @@ import { DiaEventoModule } from './dia-evento/dia-evento.module';
     UbicacionModule,
     DiaEventoModule,
     QrAccesoModule,
+    LoginModule,
+    InscripcionTallerModule,
   ],
   controllers: [],
   providers: [

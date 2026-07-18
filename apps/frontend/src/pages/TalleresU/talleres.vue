@@ -15,7 +15,8 @@
           <h1>Talleres</h1>
 
           <p>
-            Consulta los talleres disponibles, sus horarios, cupo, ubicación y requisitos.
+            Consulta los talleres disponibles, sus horarios, cupo, ubicación y
+            requisitos.
           </p>
 
           <div class="header-tags">
@@ -37,10 +38,7 @@
         />
       </div>
 
-      <div
-        v-if="!isRefreshing && error"
-        class="sin-talleres error"
-      >
+      <div v-if="!isRefreshing && error" class="sin-talleres error">
         <q-icon name="error_outline" size="50px" />
         <strong>No se pudieron cargar los talleres</strong>
         <p>{{ error }}</p>
@@ -55,10 +53,7 @@
         <p>Cuando el administrador registre talleres, aparecerán aquí.</p>
       </div>
 
-      <div
-        v-else
-        class="talleres-layout"
-      >
+      <div v-else class="talleres-layout">
         <div class="talleres-grid">
           <q-card
             v-for="taller in talleres"
@@ -146,7 +141,7 @@
                 {{
                   taller.cupo - taller.inscritos > 0
                     ? `${taller.cupo - taller.inscritos} lugares disponibles`
-                    : 'Cupo completo'
+                    : "Cupo completo"
                 }}
               </p>
             </div>
@@ -255,7 +250,9 @@
                   <q-icon name="event" />
                   <div>
                     <span>Fecha</span>
-                    <strong>{{ formatearFecha(tallerSeleccionado.fecha) }}</strong>
+                    <strong>{{
+                      formatearFecha(tallerSeleccionado.fecha)
+                    }}</strong>
                   </div>
                 </article>
 
@@ -333,7 +330,11 @@
                   label="Inscribirse"
                   icon="person_add"
                   class="btn-taller-inscribirse"
-                  :disable="obtenerEstado(tallerSeleccionado).tipo === 'gris'"
+                  :loading="inscribiendoTallerId === tallerSeleccionado.id"
+                  :disable="
+                    obtenerEstado(tallerSeleccionado).tipo === 'gris' ||
+                    inscribiendoTallerId !== null
+                  "
                   @click.stop="inscribirse(tallerSeleccionado)"
                 />
               </div>
@@ -346,9 +347,12 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
-import { useTalleresQuery } from '../../composables/useTalleresQuery';
-import { api } from '../../services/api';
+import { computed, onMounted, ref } from "vue";
+import { useQuasar } from "quasar";
+import { AxiosError } from "axios";
+
+import { useTalleresQuery } from "../../composables/useTalleresQuery";
+import { api } from "../../services/api";
 
 interface TallerBackend {
   id: string;
@@ -396,12 +400,12 @@ interface TallerVista {
   ponenteInstitucion: string;
   ponenteFotoUrl: string | null;
   ponenteIniciales: string;
-  estado_cupo?: string;
-  porcentaje_ocupacion?: number;
+  estado_cupo: string | undefined;
+  porcentaje_ocupacion: number | undefined;
 }
 
 interface EstadoTaller {
-  tipo: 'verde' | 'amarillo' | 'rojo' | 'gris';
+  tipo: "verde" | "amarillo" | "rojo" | "gris";
   texto: string;
 }
 
@@ -416,11 +420,29 @@ interface PonenteConFoto {
   } | null;
 }
 
+interface ParticipanteSesion {
+  id: string;
+  nombreCompleto: string;
+  correo: string;
+  institucion?: string | null;
+  carrera?: string;
+}
+
+interface ErrorBackend {
+  message?: string | string[];
+}
+
+type TipoParticipante = "EXTERNO" | "NSU";
+
+const $q = useQuasar();
+
 const { data, load, isRefreshing, error } = useTalleresQuery();
 
 const tallerSeleccionado = ref<TallerVista | null>(null);
-const inscritosTemporales = ref<Record<string, number>>({});
+
 const ponentesConFoto = ref<Record<string, PonenteConFoto>>({});
+
+const inscribiendoTallerId = ref<string | null>(null);
 
 const talleres = computed<TallerVista[]>(() => {
   const registros = Array.isArray(data.value) ? data.value : [];
@@ -429,65 +451,76 @@ const talleres = computed<TallerVista[]>(() => {
     .map((item): TallerVista => {
       const taller = item as unknown as TallerBackend;
 
-      const inscritosBackend = Number(taller.inscritos ?? 0);
-
-      const inscritos =
-        inscritosTemporales.value[taller.id] ?? inscritosBackend;
+      const inscritos = Number(taller.inscritos ?? 0);
 
       const requisitos =
-        typeof taller.requisitos === 'string'
+        typeof taller.requisitos === "string"
           ? taller.requisitos
-              .split('\n')
+              .split("\n")
               .map((requisito) => requisito.trim())
               .filter((requisito) => requisito.length > 0)
           : [];
 
-      const nombrePonente = taller.ponente?.nombre || 'Tallerista por asignar';
+      const nombrePonente = taller.ponente?.nombre || "Tallerista por asignar";
 
       return {
         id: String(taller.id),
-        nombre: taller.titulo?.trim() || 'Taller sin nombre',
-        fecha: String(taller.fecha || ''),
+
+        nombre: taller.titulo?.trim() || "Taller sin nombre",
+
+        fecha: String(taller.fecha || ""),
+
         horario: obtenerHorario(taller),
+
         cupo: Number(taller.cupo_maximo ?? 0),
+
         inscritos,
+
         descripcion:
-          taller.descripcion?.trim() || 'Sin descripción registrada.',
+          taller.descripcion?.trim() || "Sin descripción registrada.",
+
         temas:
-          requisitos.length > 0
-            ? requisitos
-            : ['Sin requisitos registrados'],
-        ubicacion: taller.ubicacion?.nombre || 'Ubicación pendiente',
+          requisitos.length > 0 ? requisitos : ["Sin requisitos registrados"],
+
+        ubicacion: taller.ubicacion?.nombre || "Ubicación pendiente",
+
         ponente: nombrePonente,
+
         ponenteInstitucion:
-          taller.ponente?.institucion || 'Institución no registrada',
+          taller.ponente?.institucion || "Institución no registrada",
+
         ponenteFotoUrl: obtenerFotoPonente(taller),
+
         ponenteIniciales: obtenerIniciales(nombrePonente),
+
         estado_cupo: taller.estado_cupo,
+
         porcentaje_ocupacion: taller.porcentaje_ocupacion,
       };
     })
     .sort((a, b) => {
-      return a.fecha.localeCompare(b.fecha) || a.horario.localeCompare(b.horario);
+      return (
+        a.fecha.localeCompare(b.fecha) || a.horario.localeCompare(b.horario)
+      );
     });
 });
 
 const formatearHora = (hora?: string): string => {
-  return String(hora || '00:00').substring(0, 5);
+  return String(hora || "00:00").substring(0, 5);
 };
 
 const obtenerHorario = (taller: TallerBackend): string => {
   if (taller.hora_inicio && taller.hora_fin) {
-    return `${formatearHora(taller.hora_inicio)} - ${formatearHora(
-      taller.hora_fin,
-    )}`;
+    return `${formatearHora(
+      taller.hora_inicio,
+    )} - ${formatearHora(taller.hora_fin)}`;
   }
 
   if (taller.hora_inicio) {
     return formatearHora(taller.hora_inicio);
   }
 
-  return 'Horario no registrado';
+  return "Horario no registrado";
 };
 
 const cerrarDetalle = (): void => {
@@ -499,9 +532,7 @@ const obtenerPorcentaje = (taller: TallerVista): number => {
     return 0;
   }
 
-  const porcentaje = Math.round(
-    (taller.inscritos / taller.cupo) * 100,
-  );
+  const porcentaje = Math.round((taller.inscritos / taller.cupo) * 100);
 
   return Math.min(Math.max(porcentaje, 0), 100);
 };
@@ -511,28 +542,28 @@ const obtenerEstado = (taller: TallerVista): EstadoTaller => {
 
   if (porcentaje >= 100) {
     return {
-      tipo: 'gris',
-      texto: 'Cupo completo',
+      tipo: "gris",
+      texto: "Cupo completo",
     };
   }
 
   if (porcentaje >= 80) {
     return {
-      tipo: 'rojo',
-      texto: 'Pocos lugares',
+      tipo: "rojo",
+      texto: "Pocos lugares",
     };
   }
 
   if (porcentaje >= 50) {
     return {
-      tipo: 'amarillo',
-      texto: 'Cupo medio',
+      tipo: "amarillo",
+      texto: "Cupo medio",
     };
   }
 
   return {
-    tipo: 'verde',
-    texto: 'Disponible',
+    tipo: "verde",
+    texto: "Disponible",
   };
 };
 
@@ -543,33 +574,133 @@ const seleccionarTaller = (taller: TallerVista): void => {
   };
 };
 
-const inscribirse = (taller: TallerVista): void => {
+function obtenerParticipanteSesion(): ParticipanteSesion | null {
+  const participanteGuardado = localStorage.getItem("participante");
+
+  if (!participanteGuardado) {
+    return null;
+  }
+
+  try {
+    const participante = JSON.parse(participanteGuardado) as ParticipanteSesion;
+
+    if (!participante?.id) {
+      return null;
+    }
+
+    return participante;
+  } catch (err) {
+    console.error("No fue posible leer la sesión del participante:", err);
+
+    return null;
+  }
+}
+
+function obtenerTipoParticipante(): TipoParticipante | null {
+  const tipo = localStorage.getItem("tipoParticipante");
+
+  if (tipo === "EXTERNO" || tipo === "NSU") {
+    return tipo;
+  }
+
+  return null;
+}
+
+function obtenerMensajeError(error: unknown): string {
+  let mensaje = "No fue posible realizar la inscripción.";
+
+  if (error instanceof AxiosError) {
+    const data = error.response?.data as ErrorBackend | undefined;
+
+    const mensajeBackend = data?.message;
+
+    if (Array.isArray(mensajeBackend)) {
+      mensaje = mensajeBackend.join(", ");
+    } else if (typeof mensajeBackend === "string") {
+      mensaje = mensajeBackend;
+    }
+  }
+
+  return mensaje;
+}
+
+const inscribirse = async (taller: TallerVista): Promise<void> => {
   if (taller.cupo <= 0 || taller.inscritos >= taller.cupo) {
+    $q.notify({
+      type: "warning",
+      message: "Este taller ya no tiene lugares disponibles.",
+      position: "top",
+    });
+
     return;
   }
 
-  const nuevosInscritos = taller.inscritos + 1;
+  const participante = obtenerParticipanteSesion();
 
-  inscritosTemporales.value[taller.id] = nuevosInscritos;
+  const tipoParticipante = obtenerTipoParticipante();
 
-  if (
-    tallerSeleccionado.value &&
-    tallerSeleccionado.value.id === taller.id
-  ) {
-    tallerSeleccionado.value = {
-      ...tallerSeleccionado.value,
-      inscritos: nuevosInscritos,
-    };
+  if (!participante || !tipoParticipante) {
+    $q.notify({
+      type: "warning",
+      message: "Debes iniciar sesión para inscribirte a un taller.",
+      position: "top",
+    });
+
+    return;
   }
 
-  console.log(`Inscripción temporal en taller: ${taller.nombre}`);
+  if (inscribiendoTallerId.value) {
+    return;
+  }
+
+  inscribiendoTallerId.value = taller.id;
+
+  try {
+    const response = await api.post("inscripcion-taller", {
+      tallerId: taller.id,
+      participanteId: participante.id,
+      tipoParticipante,
+    });
+
+    const mensaje =
+      response.data?.mensaje || "Inscripción realizada correctamente.";
+
+    $q.notify({
+      type: "positive",
+      message: mensaje,
+      position: "top",
+    });
+
+    await cargarTalleres();
+
+    const tallerActualizado = talleres.value.find(
+      (item) => item.id === taller.id,
+    );
+
+    if (tallerActualizado) {
+      tallerSeleccionado.value = {
+        ...tallerActualizado,
+        temas: [...tallerActualizado.temas],
+      };
+    } else {
+      cerrarDetalle();
+    }
+  } catch (error: unknown) {
+    console.error("Error al inscribirse al taller:", error);
+
+    $q.notify({
+      type: "negative",
+      message: obtenerMensajeError(error),
+      position: "top",
+    });
+  } finally {
+    inscribiendoTallerId.value = null;
+  }
 };
 
 function obtenerFotoPonente(taller: TallerBackend): string | null {
   const fotoDesdeTaller =
-    taller.ponente?.foto?.url ||
-    taller.ponente?.foto?.ruta_archivo ||
-    null;
+    taller.ponente?.foto?.url || taller.ponente?.foto?.ruta_archivo || null;
 
   if (fotoDesdeTaller) {
     return fotoDesdeTaller;
@@ -584,68 +715,68 @@ function obtenerFotoPonente(taller: TallerBackend): string | null {
   const ponenteCompleto = ponentesConFoto.value[ponenteId];
 
   return (
-    ponenteCompleto?.foto?.url ||
-    ponenteCompleto?.foto?.ruta_archivo ||
-    null
+    ponenteCompleto?.foto?.url || ponenteCompleto?.foto?.ruta_archivo || null
   );
 }
 
 function obtenerIniciales(nombre: string): string {
-  const partes = nombre.trim().split(' ').filter(Boolean);
+  const partes = nombre.trim().split(" ").filter(Boolean);
 
-  const primera = partes[0]?.charAt(0) || '';
-  const segunda = partes[1]?.charAt(0) || '';
+  const primera = partes[0]?.charAt(0) || "";
 
-  return `${primera}${segunda}`.toUpperCase() || 'TA';
+  const segunda = partes[1]?.charAt(0) || "";
+
+  return `${primera}${segunda}`.toUpperCase() || "TA";
 }
 
-function normalizarFecha(fecha: string | Date) {
-  return String(fecha || '').slice(0, 10);
+function normalizarFecha(fecha: string | Date): string {
+  return String(fecha || "").slice(0, 10);
 }
 
-function formatearDia(fecha: string | Date) {
-  const fechaNormalizada = normalizarFecha(fecha);
-  const [, , dayText = '1'] = fechaNormalizada.split('-');
-
-  return dayText.padStart(2, '0');
-}
-
-function formatearMes(fecha: string | Date) {
+function formatearDia(fecha: string | Date): string {
   const fechaNormalizada = normalizarFecha(fecha);
 
-  const [yearText = '2026', monthText = '1', dayText = '1'] =
-    fechaNormalizada.split('-');
+  const [, , dayText = "1"] = fechaNormalizada.split("-");
+
+  return dayText.padStart(2, "0");
+}
+
+function formatearMes(fecha: string | Date): string {
+  const fechaNormalizada = normalizarFecha(fecha);
+
+  const [yearText = "2026", monthText = "1", dayText = "1"] =
+    fechaNormalizada.split("-");
 
   const year = Number(yearText);
   const month = Number(monthText) - 1;
   const day = Number(dayText);
 
-  return new Intl.DateTimeFormat('es-MX', {
-    month: 'short',
+  return new Intl.DateTimeFormat("es-MX", {
+    month: "short",
   }).format(new Date(year, month, day));
 }
 
-function formatearFecha(fecha: string | Date) {
+function formatearFecha(fecha: string | Date): string {
   const fechaNormalizada = normalizarFecha(fecha);
 
-  const [yearText = '2026', monthText = '1', dayText = '1'] =
-    fechaNormalizada.split('-');
+  const [yearText = "2026", monthText = "1", dayText = "1"] =
+    fechaNormalizada.split("-");
 
   const year = Number(yearText);
   const month = Number(monthText) - 1;
   const day = Number(dayText);
 
-  return new Intl.DateTimeFormat('es-MX', {
-    weekday: 'long',
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
+  return new Intl.DateTimeFormat("es-MX", {
+    weekday: "long",
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
   }).format(new Date(year, month, day));
 }
 
 async function cargarPonentesConFoto(): Promise<void> {
   try {
-    const response = await api.get<PonenteConFoto[]>('ponente', {
+    const response = await api.get<PonenteConFoto[]>("ponente", {
       params: {
         _t: Date.now(),
       },
@@ -659,9 +790,9 @@ async function cargarPonentesConFoto(): Promise<void> {
 
     ponentesConFoto.value = mapa;
 
-    console.log('Ponentes con foto cargados:', ponentesConFoto.value);
+    console.log("Ponentes con foto cargados:", ponentesConFoto.value);
   } catch (err) {
-    console.error('Error cargando fotos de ponentes:', err);
+    console.error("Error cargando fotos de ponentes:", err);
   }
 }
 
@@ -671,14 +802,11 @@ const cargarTalleres = async (): Promise<void> => {
   }
 
   try {
-    await Promise.all([
-      load(),
-      cargarPonentesConFoto(),
-    ]);
+    await Promise.all([load(), cargarPonentesConFoto()]);
 
-    console.log('Talleres cargados:', data.value);
+    console.log("Talleres cargados:", data.value);
   } catch (err) {
-    console.error('Error al cargar los talleres:', err);
+    console.error("Error al cargar los talleres:", err);
   }
 };
 

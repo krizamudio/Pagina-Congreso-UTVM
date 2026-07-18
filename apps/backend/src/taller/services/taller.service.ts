@@ -11,6 +11,10 @@ import { DeepPartial, Repository } from 'typeorm';
 import { ValidadorCommon } from '../../common/validador.provider';
 import { Ponente } from '../../ponente/entities/ponente.entity';
 
+type TallerConInscritos = Taller & {
+  inscritos: number;
+};
+
 @Injectable()
 export class TallerService {
   constructor(
@@ -19,7 +23,9 @@ export class TallerService {
     private readonly validador: ValidadorCommon,
   ) {}
 
-  async createTaller(createTallerDto: CreateTallerDto): Promise<Taller> {
+  async createTaller(
+    createTallerDto: CreateTallerDto,
+  ): Promise<TallerConInscritos> {
     const {
       tallerista_id,
       congreso_id,
@@ -39,8 +45,6 @@ export class TallerService {
       hora_fin,
       hora_inicio,
 
-      // Solo convertimos tallerista_id a la relación real ponente_id.
-      // NO usamos congreso_id ni ubicacion_id porque el formulario genera UUIDs que no existen.
       ...(tallerista_id
         ? {
             ponente: {
@@ -58,20 +62,37 @@ export class TallerService {
     }
   }
 
-  async findAllTalleres(): Promise<Taller[]> {
-    return await this.tallerRepository.find({
-      relations: ['congreso', 'ubicacion', 'ponente', 'ponente.foto'],
+  async findAllTalleres(): Promise<TallerConInscritos[]> {
+    const talleres = await this.tallerRepository.find({
+      relations: [
+        'congreso',
+        'ubicacion',
+        'ponente',
+        'ponente.foto',
+        'inscripciones',
+      ],
       order: {
         fecha: 'ASC',
         hora_inicio: 'ASC',
       },
     });
+
+    return talleres.map((taller) => ({
+      ...taller,
+      inscritos: taller.inscripciones?.length ?? 0,
+    }));
   }
 
-  async findOneTaller(id: string): Promise<Taller> {
+  async findOneTaller(id: string): Promise<TallerConInscritos> {
     const taller = await this.tallerRepository.findOne({
       where: { id },
-      relations: ['congreso', 'ubicacion', 'ponente', 'ponente.foto'],
+      relations: [
+        'congreso',
+        'ubicacion',
+        'ponente',
+        'ponente.foto',
+        'inscripciones',
+      ],
     });
 
     if (!taller) {
@@ -80,13 +101,16 @@ export class TallerService {
       );
     }
 
-    return taller;
+    return {
+      ...taller,
+      inscritos: taller.inscripciones?.length ?? 0,
+    };
   }
 
   async updateTaller(
     id: string,
     updateTallerDto: UpdateTallerDto,
-  ): Promise<Taller> {
+  ): Promise<TallerConInscritos> {
     const {
       tallerista_id,
       congreso_id,
@@ -114,8 +138,6 @@ export class TallerService {
       ...(fecha ? { fecha } : {}),
       ...(hora_inicio ? { hora_inicio } : {}),
       ...(hora_fin ? { hora_fin } : {}),
-
-      // Solo actualizamos el ponente si viene tallerista_id.
       ...(tallerista_id
         ? {
             ponente: {
@@ -139,7 +161,7 @@ export class TallerService {
     }
   }
 
-  async removeTaller(id: string): Promise<Taller> {
+  async removeTaller(id: string): Promise<TallerConInscritos> {
     const taller = await this.findOneTaller(id);
 
     try {
@@ -150,7 +172,7 @@ export class TallerService {
     }
   }
 
-  async restoreTaller(id: string): Promise<Taller> {
+  async restoreTaller(id: string): Promise<TallerConInscritos> {
     try {
       await this.tallerRepository.restore(id);
       return await this.findOneTaller(id);

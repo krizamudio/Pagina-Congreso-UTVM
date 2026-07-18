@@ -1,4 +1,9 @@
-import { BadRequestException, ConflictException, Inject, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as nodemailer from 'nodemailer';
 import { createHmac, randomUUID, timingSafeEqual } from 'crypto';
@@ -319,10 +324,13 @@ export class RegistroNsuService {
     const mailPass = this.configService.get<string>('MAIL_PASS');
     const mailFrom = this.configService.get<string>('MAIL_FROM') || mailUser;
 
-    const frontendUrl =
-      this.configService.get<string>('FRONTEND_URL') || 'http://localhost:9000';
+    const frontendUrl = (
+      this.configService.get<string>('FRONTEND_URL') || 'http://localhost:9000'
+    ).replace(/\/$/, '');
 
-    const enlace = `${frontendUrl}/#/registro_nsu/verificar?token=${encodeURIComponent(verificationToken)}`;
+    const enlace = `${frontendUrl}/registro_nsu/verificar?token=${encodeURIComponent(
+      verificationToken,
+    )}`;
 
     if (!mailHost || !mailUser || !mailPass) {
       console.warn('Correo no configurado. Enlace de verificación:', enlace);
@@ -374,7 +382,11 @@ export class RegistroNsuService {
   async findAll() {
     return this.registroRepository
       .createQueryBuilder('registro')
-      .leftJoinAndSelect('registro.participantes', 'participante', 'participante.deleted_at IS NULL')
+      .leftJoinAndSelect(
+        'registro.participantes',
+        'participante',
+        'participante.deleted_at IS NULL',
+      )
       .leftJoinAndSelect('registro.comprobante', 'comprobante')
       .where('registro.deleted_at IS NULL')
       .orderBy('registro.created_at', 'DESC')
@@ -384,15 +396,23 @@ export class RegistroNsuService {
   async findOne(id: string) {
     return this.registroRepository
       .createQueryBuilder('registro')
-      .leftJoinAndSelect('registro.participantes', 'participante', 'participante.deleted_at IS NULL')
+      .leftJoinAndSelect(
+        'registro.participantes',
+        'participante',
+        'participante.deleted_at IS NULL',
+      )
       .leftJoinAndSelect('registro.comprobante', 'comprobante')
       .where('registro.id = :id', { id })
       .andWhere('registro.deleted_at IS NULL')
       .getOne();
   }
 
-  private async runRegistroAction<T>(registroId: string, action: () => Promise<T>) {
-    const previousAction = this.registroActionLocks.get(registroId) ?? Promise.resolve();
+  private async runRegistroAction<T>(
+    registroId: string,
+    action: () => Promise<T>,
+  ) {
+    const previousAction =
+      this.registroActionLocks.get(registroId) ?? Promise.resolve();
     let releaseCurrentAction!: () => void;
 
     const currentAction = new Promise<void>((resolve) => {
@@ -485,10 +505,7 @@ export class RegistroNsuService {
     return this.qrEnvio.enviar(ParticipanteTipo.NSU, participanteId, dto);
   }
 
-  async enviarQrAccesoAutomatico(
-    registroId: string,
-    participanteId: string,
-  ) {
+  async enviarQrAccesoAutomatico(registroId: string, participanteId: string) {
     const participante = await this.participanteRepository.findOne({
       where: {
         id: participanteId,
@@ -624,31 +641,32 @@ export class RegistroNsuService {
     return this.runRegistroAction(id, async () => {
       const registro = await this.findOne(id);
 
-    if (!registro) {
-      throw new BadRequestException('Registro NSU no encontrado');
-    }
+      if (!registro) {
+        throw new BadRequestException('Registro NSU no encontrado');
+      }
 
-    const participantes = await this.participanteRepository.find({
-      where: {
-        registro: { id },
-        deleted_at: IsNull(),
-      },
-    });
+      const participantes = await this.participanteRepository.find({
+        where: {
+          registro: { id },
+          deleted_at: IsNull(),
+        },
+      });
 
-    if (participantes.length > 0) {
-      for (const participante of participantes) {
-        await this.participanteRepository.update(participante.id, {
-          correo_original: participante.correo_original ?? participante.correo,
-          correo: this.generador.CorreoEliminado(),
+      if (participantes.length > 0) {
+        for (const participante of participantes) {
+          await this.participanteRepository.update(participante.id, {
+            correo_original:
+              participante.correo_original ?? participante.correo,
+            correo: this.generador.CorreoEliminado(),
+          });
+        }
+
+        await this.participanteRepository.softDelete({
+          id: In(participantes.map((participante) => participante.id)),
         });
       }
 
-      await this.participanteRepository.softDelete({
-        id: In(participantes.map((participante) => participante.id)),
-      });
-    }
-
-    await this.registroRepository.softDelete(id);
+      await this.registroRepository.softDelete(id);
 
       return registro;
     });
@@ -656,64 +674,68 @@ export class RegistroNsuService {
 
   async restore(id: string) {
     return this.runRegistroAction(id, async () => {
-    const registro = await this.registroRepository.findOne({
-      where: { id },
-      relations: {
-        participantes: true,
-        comprobante: true,
-      },
-      withDeleted: true,
-    });
-
-    if (!registro) {
-      throw new BadRequestException('Registro NSU no encontrado');
-    }
-
-    const participantes = await this.participanteRepository.find({
-      where: { registro: { id } },
-      withDeleted: true,
-    });
-
-    const participanteIds = participantes.map((participante) => participante.id);
-    const correosRestaurados = participantes
-      .map((participante) => participante.correo_original ?? participante.correo)
-      .filter(Boolean);
-
-    if (correosRestaurados.length > 0) {
-      const correosEnUso = await this.participanteRepository.find({
-        where: {
-          id: Not(In(participanteIds)),
-          correo: In(correosRestaurados),
-          deleted_at: IsNull(),
+      const registro = await this.registroRepository.findOne({
+        where: { id },
+        relations: {
+          participantes: true,
+          comprobante: true,
         },
-        select: {
-          correo: true,
-        },
+        withDeleted: true,
       });
 
-      if (correosEnUso.length > 0) {
-        const correosDuplicados = [
-          ...new Set(correosEnUso.map((participante) => participante.correo)),
-        ];
-
-        throw new ConflictException(
-          `No se puede restaurar el registro porque estos correos ya están en uso: ${correosDuplicados.join(', ')}`,
-        );
+      if (!registro) {
+        throw new BadRequestException('Registro NSU no encontrado');
       }
-    }
 
-    await this.registroRepository.restore(id);
+      const participantes = await this.participanteRepository.find({
+        where: { registro: { id } },
+        withDeleted: true,
+      });
 
-    if (participanteIds.length > 0) {
-      await this.participanteRepository.restore({ id: In(participanteIds) });
+      const participanteIds = participantes.map(
+        (participante) => participante.id,
+      );
+      const correosRestaurados = participantes
+        .map(
+          (participante) => participante.correo_original ?? participante.correo,
+        )
+        .filter(Boolean);
 
-      for (const participante of participantes) {
-        await this.participanteRepository.update(participante.id, {
-          correo: participante.correo_original ?? participante.correo,
-          correo_original: null,
+      if (correosRestaurados.length > 0) {
+        const correosEnUso = await this.participanteRepository.find({
+          where: {
+            id: Not(In(participanteIds)),
+            correo: In(correosRestaurados),
+            deleted_at: IsNull(),
+          },
+          select: {
+            correo: true,
+          },
         });
+
+        if (correosEnUso.length > 0) {
+          const correosDuplicados = [
+            ...new Set(correosEnUso.map((participante) => participante.correo)),
+          ];
+
+          throw new ConflictException(
+            `No se puede restaurar el registro porque estos correos ya están en uso: ${correosDuplicados.join(', ')}`,
+          );
+        }
       }
-    }
+
+      await this.registroRepository.restore(id);
+
+      if (participanteIds.length > 0) {
+        await this.participanteRepository.restore({ id: In(participanteIds) });
+
+        for (const participante of participantes) {
+          await this.participanteRepository.update(participante.id, {
+            correo: participante.correo_original ?? participante.correo,
+            correo_original: null,
+          });
+        }
+      }
 
       return this.findOne(id);
     });
