@@ -52,6 +52,10 @@ const routes: RouteRecordRaw[] = [
         path: "/login",
         component: () => import("@/pages/login.vue"),
       },
+      {
+  path: 'mi-qr',
+  component: () => import('@/pages/MiQr.vue'),
+},
     ],
   },
 

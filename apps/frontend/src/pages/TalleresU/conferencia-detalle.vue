@@ -143,7 +143,7 @@
         >
           <q-icon name="warning" />
           <p>
-            Esta conferencia no tiene un ponente asignado desde el panel de administración.
+            Esta conferencia no tiene un ponente asignado.
           </p>
         </section>
 

@@ -1,124 +1,222 @@
 :root {
-  --ext-color-bg: #031f1d;
-  --ext-color-bg-2: #062b27;
-
-  --ext-color-blue: #3f86ff;
-  --ext-color-blue-soft: #1b5edb;
-  --ext-color-blue-dark: #052b4a;
-
-  --ext-color-green: #00e0a4;
+  --ext-color-bg: #071e1b;
+  --ext-color-bg-dark: #031411;
+  --ext-color-primary: #00e676;
+  --ext-color-success: #66f5b5;
+  --ext-color-secondary: #00b86b;
   --ext-color-white: #ffffff;
-  --ext-color-text-soft: #d6e3df;
+  --ext-color-surface: #1f2a28;
+  --ext-color-text-soft: #8ca09a;
+  --ext-color-border: #e6ecea;
 
-  --ext-color-surface: rgba(3, 31, 29, 0.72);
-  --ext-color-border: rgba(63, 134, 255, 0.45);
+  --ext-color-warning: #ffd54f;
+  --ext-color-danger: #ff5252;
+  --ext-color-muted: #b7bec8;
 
   --ext-font-main: 'Inter', sans-serif;
 }
 
-/* Página */
+/* =========================================================
+   PÁGINA
+   ========================================================= */
 
 .registro-externo-page {
+  position: relative;
   min-height: 100vh;
-  padding: 28px;
+  padding: 34px 28px;
   font-family: var(--ext-font-main);
   color: var(--ext-color-white);
+  overflow: hidden;
 
   background:
-    radial-gradient(circle at top right, rgba(0, 224, 164, 0.16), transparent 36%),
-    radial-gradient(circle at bottom left, rgba(63, 134, 255, 0.12), transparent 34%),
-    linear-gradient(135deg, #021817, #062b27);
+    radial-gradient(circle at 75% 16%, rgba(0, 230, 118, 0.10), transparent 34%),
+    radial-gradient(circle at 12% 76%, rgba(0, 184, 107, 0.07), transparent 30%),
+    linear-gradient(135deg, var(--ext-color-bg) 0%, var(--ext-color-bg-dark) 100%);
 }
 
-/* Header */
+.registro-externo-page::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.14;
+  background-image:
+    linear-gradient(rgba(102, 245, 181, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(102, 245, 181, 0.06) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(circle at center, black 0%, transparent 78%);
+  pointer-events: none;
+}
+
+/* =========================================================
+   HEADER
+   ========================================================= */
 
 .registro-externo-header {
+  position: relative;
+  z-index: 2;
   max-width: 1320px;
-  margin: 0 auto 24px;
+  margin: 0 auto 28px;
   display: flex;
   align-items: center;
-  gap: 22px;
+  gap: 24px;
 }
 
 .registro-externo-logo {
   object-fit: contain;
-  filter: drop-shadow(0 0 16px rgba(0, 224, 164, 0.18));
+  filter:
+    drop-shadow(0 0 16px rgba(0, 230, 118, 0.16))
+    drop-shadow(0 14px 22px rgba(0, 0, 0, 0.22));
 }
 
 .registro-externo-header h1 {
   margin: 0;
-  font-size: 3rem !important;
-  font-weight: 700;
-  line-height: 1.1;
-  letter-spacing: -1px;
   color: var(--ext-color-white);
+  font-size: clamp(2.2rem, 5vw, 3.4rem) !important;
+  font-weight: 900;
+  line-height: 0.98;
+  letter-spacing: -0.055em;
 }
 
 .registro-externo-header p {
-  margin: 12px 0 0;
+  max-width: 760px;
+  margin: 14px 0 0;
+  color: rgba(255, 255, 255, 0.64);
   font-size: 1rem;
-  color: rgba(255, 255, 255, .82);
+  line-height: 1.65;
+  font-weight: 650;
 }
 
-/* Card principal */
+/* =========================================================
+   CARD PRINCIPAL
+   ========================================================= */
 
 .registro-externo-card {
+  position: relative;
+  z-index: 2;
   max-width: 1320px;
   margin: 0 auto;
-  padding: 22px;
-  border-radius: 14px;
-  background: rgba(2, 28, 26, 0.78);
-  border: 1px solid rgba(63, 134, 255, 0.28);
-  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.35);
-  backdrop-filter: blur(10px);
+  padding: 26px;
+  border-radius: 28px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.015)),
+    rgba(31, 42, 40, 0.62);
+  border: 1px solid rgba(102, 245, 181, 0.10);
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.26),
+    inset 0 1px 0 rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(14px);
+  overflow: hidden;
 }
 
-/* Título de sección */
+.registro-externo-card::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background:
+    linear-gradient(135deg, rgba(102, 245, 181, 0.10), transparent 35%),
+    linear-gradient(315deg, rgba(0, 230, 118, 0.06), transparent 40%);
+  pointer-events: none;
+
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+}
+
+/* =========================================================
+   TÍTULO DE SECCIÓN
+   ========================================================= */
 
 .registro-externo-card .section-title {
+  position: relative;
+  z-index: 2;
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 22px;
-  font-size: 19px;
-  font-weight: 700;
+  gap: 12px;
+  margin-bottom: 24px;
   color: var(--ext-color-white);
+  font-size: 20px;
+  font-weight: 900;
+  letter-spacing: -0.025em;
 }
 
 .registro-externo-card .section-title .q-icon {
-  color: var(--ext-color-blue);
-  font-size: 28px;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  color: var(--ext-color-bg);
+  background: linear-gradient(135deg, var(--ext-color-success), var(--ext-color-primary));
+  font-size: 26px;
+  box-shadow: 0 14px 28px rgba(0, 230, 118, 0.16);
 }
 
-/* Grid */
+/* =========================================================
+   GRID
+   ========================================================= */
 
 .registro-externo-card .externo-form-grid {
+  position: relative;
+  z-index: 2;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
+  gap: 18px;
 }
 
-/* Inputs */
+/* =========================================================
+   INPUTS MÁS ELEGANTES
+   ========================================================= */
 
 .registro-externo-card .externo-light-input {
-  background: linear-gradient(180deg, #062d4b, #041e35);
-  border-radius: 8px;
+  background:
+    linear-gradient(145deg, rgba(14, 27, 24, 0.72), rgba(7, 30, 27, 0.78));
+  border-radius: 16px;
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease;
 }
 
 .registro-externo-card .externo-light-input .q-field__control {
   height: 68px;
   min-height: 68px;
-  border-radius: 8px;
+  border-radius: 16px;
   color: var(--ext-color-white);
+  background: transparent;
   box-shadow: none !important;
 }
 
 .registro-externo-card .externo-light-input .q-field__control::before {
-  border: 1px solid rgba(63, 134, 255, 0.45) !important;
+  border: 1px solid rgba(102, 245, 181, 0.12) !important;
+  transition:
+    border-color 0.22s ease,
+    box-shadow 0.22s ease;
 }
 
 .registro-externo-card .externo-light-input .q-field__control::after {
-  border: 2px solid var(--ext-color-blue) !important;
+  border: 1px solid rgba(102, 245, 181, 0.28) !important;
+  opacity: 0;
+  transition: opacity 0.22s ease;
+}
+
+.registro-externo-card .externo-light-input:hover .q-field__control::before {
+  border-color: rgba(102, 245, 181, 0.18) !important;
+}
+
+.registro-externo-card .externo-light-input.q-field--focused .q-field__control::before {
+  border-color: rgba(102, 245, 181, 0.24) !important;
+  box-shadow: 0 0 0 2px rgba(102, 245, 181, 0.06);
+}
+
+.registro-externo-card .externo-light-input.q-field--focused .q-field__control::after {
+  opacity: 1;
 }
 
 .registro-externo-card .externo-light-input .q-field__label,
@@ -128,54 +226,71 @@
 }
 
 .registro-externo-card .externo-light-input .q-field__label {
+  color: rgba(255, 255, 255, 0.88) !important;
+  font-weight: 900;
+}
+
+.registro-externo-card .externo-light-input .q-field__native,
+.registro-externo-card .externo-light-input .q-field__input {
+  color: #ffffff !important;
   font-weight: 700;
 }
 
 .registro-externo-card .externo-light-input .q-field__native::placeholder,
 .registro-externo-card .externo-light-input .q-field__input::placeholder {
-  color: rgba(214, 227, 223, 0.56);
+  color: rgba(230, 236, 234, 0.68) !important;
+  font-weight: 600;
+}
+.registro-externo-card .externo-light-input.q-field--focused .q-field__label {
+  color: var(--ext-color-success) !important;
 }
 
-.registro-externo-card .externo-light-input.q-field--focused {
-  box-shadow: 0 0 0 3px rgba(63, 134, 255, 0.25);
-}
-
-.registro-externo-card .externo-light-input.q-field--focused .q-field__control::before {
-  border-color: transparent !important;
+.registro-externo-card .externo-light-input.q-field--focused .q-field__native,
+.registro-externo-card .externo-light-input.q-field--focused .q-field__input {
+  color: #ffffff !important;
 }
 
 .registro-externo-card .externo-light-input .q-field__bottom {
   display: none !important;
 }
 
-/* Correo verificado */
+/* =========================================================
+   CORREO VERIFICADO
+   ========================================================= */
 
 .registro-externo-card .correo-verificado-box {
   grid-column: 1 / -1;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 9px;
   width: fit-content;
-  padding: 11px 14px;
-  border-radius: 8px;
-  background: rgba(0, 224, 164, 0.10);
-  border: 1px solid rgba(0, 224, 164, 0.45);
-  color: var(--ext-color-green);
-  font-weight: 800;
+  padding: 12px 16px;
+  border-radius: 14px;
+  background: rgba(0, 230, 118, 0.08);
+  border: 1px solid rgba(102, 245, 181, 0.22);
+  color: var(--ext-color-success);
+  font-weight: 900;
+  box-shadow: 0 0 24px rgba(0, 230, 118, 0.06);
 }
 
 .registro-externo-card .correo-verificado-box .q-icon {
+  color: var(--ext-color-primary);
   font-size: 22px;
 }
 
-/* Cajas */
+/* =========================================================
+   CAJAS
+   ========================================================= */
 
 .registro-externo-card .externo-dark-box {
-  min-height: 118px;
-  padding: 16px;
-  border-radius: 8px;
-  background: linear-gradient(180deg, #062d4b, #041e35);
-  border: 1px solid rgba(63, 134, 255, 0.45);
+  min-height: 124px;
+  padding: 18px;
+  border-radius: 20px;
+  background:
+    radial-gradient(circle at 85% 15%, rgba(102, 245, 181, 0.04), transparent 38%),
+    linear-gradient(145deg, rgba(20, 34, 31, 0.68), rgba(7, 30, 27, 0.76));
+  border: 1px solid rgba(102, 245, 181, 0.10);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.025);
 }
 
 .registro-externo-card .externo-total-box {
@@ -186,76 +301,104 @@
 
 .registro-externo-card .box-label {
   margin-bottom: 12px;
-  font-size: 14px;
-  font-weight: 700;
   color: var(--ext-color-white);
+  font-size: 14px;
+  font-weight: 900;
 }
 
 .registro-externo-card .box-help {
-  color: var(--ext-color-text-soft);
+  color: rgba(255, 255, 255, 0.58);
   font-size: 13px;
+  line-height: 1.55;
 }
 
 .registro-externo-card .amount {
-  color: var(--ext-color-blue);
-  font-size: 34px;
-  font-weight: 800;
-  line-height: 1;
   margin-bottom: 10px;
+  color: var(--ext-color-success);
+  font-size: clamp(2rem, 4vw, 2.45rem);
+  font-weight: 900;
+  line-height: 1;
+  text-shadow: 0 0 14px rgba(0, 230, 118, 0.14);
 }
 
-/* Días */
+/* =========================================================
+   DÍAS
+   ========================================================= */
 
 .registro-externo-card .externo-days-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
+  gap: 11px;
 }
 
 .registro-externo-card .externo-days-grid .q-checkbox {
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid rgba(63, 134, 255, 0.45);
-  background: rgba(5, 43, 74, 0.75);
+  min-height: 46px;
+  padding: 10px 12px;
+  border-radius: 15px;
+  border: 1px solid rgba(102, 245, 181, 0.10);
+  background: rgba(255, 255, 255, 0.025);
+  transition:
+    background 0.22s ease,
+    border-color 0.22s ease,
+    transform 0.22s ease,
+    box-shadow 0.22s ease;
+}
+
+.registro-externo-card .externo-days-grid .q-checkbox:hover {
+  background: rgba(102, 245, 181, 0.05);
+  border-color: rgba(102, 245, 181, 0.18);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
+  transform: translateY(-1px);
 }
 
 .registro-externo-card .externo-days-grid .q-checkbox__label {
   color: var(--ext-color-white);
-  font-weight: 600;
+  font-weight: 800;
 }
 
 .registro-externo-card .externo-days-grid .q-checkbox__inner--truthy {
-  color: var(--ext-color-blue) !important;
+  color: var(--ext-color-primary) !important;
 }
 
-/* Upload */
+/* =========================================================
+   UPLOAD
+   ========================================================= */
 
 .registro-externo-card .externo-upload-box {
   grid-column: 1 / -1;
-  padding: 16px;
-  border-radius: 8px;
-  background: rgba(2, 28, 26, 0.75);
-  border: 1px solid rgba(63, 134, 255, 0.28);
+  padding: 18px;
+  border-radius: 22px;
+  background:
+    linear-gradient(135deg, rgba(102, 245, 181, 0.04), rgba(255, 255, 255, 0.015)),
+    rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(102, 245, 181, 0.10);
 }
 
 .registro-externo-card .externo-file-input {
-  min-height: 100px;
-  padding: 18px 22px;
-  border-radius: 8px;
-  border: 1px dashed var(--ext-color-blue);
-  background: rgba(5, 43, 74, 0.55);
+  min-height: 108px;
+  padding: 20px 22px;
+  border-radius: 20px;
+  border: 1.5px dashed rgba(102, 245, 181, 0.26);
+  background: rgba(7, 30, 27, 0.44);
   cursor: pointer;
-  transition: .25s;
+  transition:
+    background 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.25s ease;
 }
 
 .registro-externo-card .externo-file-input:hover,
 .registro-externo-card .externo-file-input.is-dragging {
-  background: rgba(63, 134, 255, 0.10);
-  border-color: rgba(0, 224, 164, 0.75);
+  background: rgba(0, 230, 118, 0.055);
+  border-color: rgba(102, 245, 181, 0.50);
+  box-shadow: 0 0 22px rgba(0, 230, 118, 0.07);
+  transform: translateY(-1px);
 }
 
 .registro-externo-card .externo-file-input.has-file {
-  border-color: rgba(0, 224, 164, 0.75);
+  background: rgba(0, 230, 118, 0.065);
+  border-color: rgba(102, 245, 181, 0.60);
 }
 
 .registro-externo-card .externo-upload-layout {
@@ -272,60 +415,78 @@
 }
 
 .registro-externo-card .externo-upload-left .q-icon {
-  color: var(--ext-color-blue);
+  color: var(--ext-color-success);
+  filter: drop-shadow(0 0 10px rgba(0, 230, 118, 0.20));
 }
 
 .registro-externo-card .externo-upload-text {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 5px;
 }
 
 .registro-externo-card .externo-upload-text strong {
   color: var(--ext-color-white);
   font-size: 15px;
+  font-weight: 900;
 }
 
 .registro-externo-card .externo-upload-text span {
-  color: var(--ext-color-text-soft);
+  color: rgba(255, 255, 255, 0.58);
   font-size: 13px;
 }
 
-/* Botones */
+/* =========================================================
+   BOTONES
+   ========================================================= */
 
 .registro-externo-card .externo-btn-outline {
-  border-radius: 6px;
-  color: var(--ext-color-blue) !important;
-  font-weight: 800;
-  border: 1px solid var(--ext-color-blue) !important;
-  background: rgba(5, 43, 74, 0.55) !important;
-  box-shadow: 0 0 14px rgba(63, 134, 255, 0.18);
+  min-height: 42px;
+  border-radius: 14px;
+  color: var(--ext-color-success) !important;
+  font-weight: 900;
+  border: 1px solid rgba(102, 245, 181, 0.24) !important;
+  background: rgba(102, 245, 181, 0.045) !important;
+  box-shadow: 0 0 14px rgba(0, 230, 118, 0.05);
+  transition:
+    background 0.22s ease,
+    border-color 0.22s ease,
+    transform 0.22s ease;
 }
 
 .registro-externo-card .externo-btn-outline .q-icon {
-  color: var(--ext-color-blue);
+  color: var(--ext-color-success);
 }
 
 .registro-externo-card .externo-btn-outline:hover {
-  background: rgba(63, 134, 255, 0.16) !important;
+  background: rgba(102, 245, 181, 0.08) !important;
+  border-color: rgba(102, 245, 181, 0.40) !important;
+  transform: translateY(-1px);
 }
 
 .registro-externo-card .externo-actions-row {
   grid-column: 1 / -1;
   display: flex;
   justify-content: center;
-  margin-top: 10px;
+  margin-top: 12px;
 }
 
 .registro-externo-card .btn-registro {
-  background: #3f86ff !important;
+  min-height: 52px;
+  padding: 0 30px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--ext-color-success) 0%, var(--ext-color-primary) 100%) !important;
   color: var(--ext-color-bg) !important;
-  border: 1px solid #3f86ff !important;
-  border-radius: 6px;
-  font-weight: 800;
-  height: 48px;
-  padding: 0 26px;
-  transition: .25s;
+  border: 1px solid rgba(102, 245, 181, 0.58) !important;
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  box-shadow:
+    0 16px 34px rgba(0, 230, 118, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.28);
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease,
+    filter 0.22s ease;
 }
 
 .registro-externo-card .btn-registro .q-icon {
@@ -333,9 +494,11 @@
 }
 
 .registro-externo-card .btn-registro:hover {
-  background: #5a99ff !important;
-  border-color: #5a99ff !important;
   transform: translateY(-2px);
+  box-shadow:
+    0 22px 44px rgba(0, 230, 118, 0.20),
+    inset 0 1px 0 rgba(255, 255, 255, 0.34);
+  filter: saturate(1.05);
 }
 
 .registro-externo-card .externo-main-error {
@@ -343,35 +506,45 @@
   text-align: center;
 }
 
-/* Errores */
+/* =========================================================
+   ERRORES
+   ========================================================= */
 
 .registro-externo-card .upload-error,
 .resumen-externo-card .upload-error {
   margin-top: 8px;
-  color: #ff4d4d !important;
-  font-size: .86rem;
-  font-weight: 700;
+  color: var(--ext-color-danger) !important;
+  font-size: 0.86rem;
+  font-weight: 800;
 }
 
-/* Diálogos */
+/* =========================================================
+   DIÁLOGOS
+   ========================================================= */
 
 .resumen-externo-card {
-  background: rgba(2, 28, 26, 0.96) !important;
-  border: 1px solid rgba(63, 134, 255, 0.35);
-  border-radius: 14px !important;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.025)),
+    rgba(31, 42, 40, 0.94) !important;
+  border: 1px solid rgba(102, 245, 181, 0.16);
+  border-radius: 24px !important;
   color: var(--ext-color-white) !important;
   overflow: hidden;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+  box-shadow: 0 26px 70px rgba(0, 0, 0, 0.52);
+  backdrop-filter: blur(16px);
 }
 
 .resumen-externo-card .dialog-header {
-  background: linear-gradient(90deg, #062d4b, #041e35) !important;
+  background:
+    linear-gradient(135deg, rgba(102, 245, 181, 0.075), rgba(255, 255, 255, 0.025)),
+    rgba(7, 30, 27, 0.88) !important;
   color: var(--ext-color-white) !important;
-  border-bottom: 1px solid rgba(63, 134, 255, 0.35);
+  border-bottom: 1px solid rgba(102, 245, 181, 0.12);
 }
 
 .resumen-externo-card .dialog-header-warning {
-  background: linear-gradient(90deg, #7a3b00, #442100) !important;
+  background:
+    linear-gradient(90deg, rgba(255, 213, 79, 0.18), rgba(60, 42, 5, 0.88)) !important;
 }
 
 .resumen-externo-card .q-card__section {
@@ -380,19 +553,19 @@
 
 .resumen-externo-card .text-grey-7,
 .resumen-externo-card .text-caption {
-  color: rgba(214, 227, 223, 0.78) !important;
+  color: rgba(255, 255, 255, 0.60) !important;
 }
 
 .resumen-externo-card .q-icon {
-  color: var(--ext-color-blue) !important;
+  color: var(--ext-color-success) !important;
 }
 
 .resumen-externo-card .dialog-main-icon {
-  color: var(--ext-color-green) !important;
+  color: var(--ext-color-primary) !important;
 }
 
 .resumen-externo-card .dialog-warning-icon {
-  color: #ffb020 !important;
+  color: var(--ext-color-warning) !important;
 }
 
 .resumen-externo-card .q-list {
@@ -404,53 +577,57 @@
 }
 
 .resumen-externo-card .q-separator {
-  background: rgba(63, 134, 255, 0.24) !important;
+  background: rgba(102, 245, 181, 0.12) !important;
 }
 
 .resumen-externo-card .externo-chip {
   margin-right: 8px;
   margin-bottom: 8px;
-  background: rgba(63, 134, 255, 0.20) !important;
+  background: rgba(102, 245, 181, 0.09) !important;
   color: var(--ext-color-white) !important;
-  border: 1px solid rgba(63, 134, 255, 0.45);
+  border: 1px solid rgba(102, 245, 181, 0.18);
 }
 
 .resumen-externo-card .dialog-total {
-  color: var(--ext-color-blue);
+  color: var(--ext-color-success);
   font-size: 2rem;
   font-weight: 900;
+  text-shadow: 0 0 14px rgba(0, 230, 118, 0.14);
 }
 
 .resumen-externo-card .dialog-email {
   display: inline-block;
   padding: 10px 14px;
-  border-radius: 8px;
-  background: rgba(5, 43, 74, 0.75);
-  border: 1px solid rgba(63, 134, 255, 0.45);
+  border-radius: 14px;
+  background: rgba(102, 245, 181, 0.06);
+  border: 1px solid rgba(102, 245, 181, 0.16);
   color: var(--ext-color-white);
-  font-weight: 800;
+  font-weight: 900;
 }
 
 .resumen-externo-card .q-card__actions {
   padding: 16px 22px 20px;
-  background: rgba(2, 20, 23, 0.76);
-  border-top: 1px solid rgba(63, 134, 255, 0.22);
+  background: rgba(3, 20, 17, 0.72);
+  border-top: 1px solid rgba(102, 245, 181, 0.10);
 }
 
 .resumen-externo-card .dialog-btn-flat {
-  color: var(--ext-color-text-soft) !important;
-  font-weight: 700;
+  color: rgba(255, 255, 255, 0.66) !important;
+  font-weight: 800;
 }
 
 .resumen-externo-card .dialog-btn-primary {
-  background: #3f86ff !important;
+  min-height: 42px;
+  padding: 0 20px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--ext-color-success) 0%, var(--ext-color-primary) 100%) !important;
   color: var(--ext-color-bg) !important;
-  border-radius: 6px;
-  font-weight: 800;
-  padding: 0 18px;
+  font-weight: 900;
 }
 
-/* Responsive */
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
 
 @media (max-width: 1000px) {
   .registro-externo-card .externo-form-grid {
@@ -458,22 +635,33 @@
   }
 
   .registro-externo-header h1 {
-    font-size: 2.3rem !important;
+    font-size: 2.35rem !important;
   }
 }
 
 @media (max-width: 700px) {
   .registro-externo-page {
-    padding: 18px;
+    padding: 22px 14px;
   }
 
   .registro-externo-header {
     flex-direction: column;
     text-align: center;
+    gap: 16px;
   }
 
   .registro-externo-header h1 {
     font-size: 2rem !important;
+    line-height: 1.05;
+  }
+
+  .registro-externo-header p {
+    font-size: 0.95rem;
+  }
+
+  .registro-externo-card {
+    padding: 20px 16px;
+    border-radius: 24px;
   }
 
   .registro-externo-card .externo-form-grid {
@@ -497,5 +685,47 @@
   .registro-externo-card .externo-btn-outline,
   .registro-externo-card .btn-registro {
     width: 100%;
+  }
+
+  .registro-externo-card .section-title {
+    align-items: flex-start;
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 430px) {
+  .registro-externo-header h1 {
+    font-size: 1.75rem !important;
+  }
+
+  .registro-externo-card {
+    padding: 18px 14px;
+  }
+
+  .registro-externo-card .externo-dark-box,
+  .registro-externo-card .externo-upload-box,
+  .registro-externo-card .externo-file-input {
+    border-radius: 18px;
+  }
+
+  .registro-externo-card .amount {
+    font-size: 2rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .registro-externo-card .externo-days-grid .q-checkbox,
+  .registro-externo-card .externo-file-input,
+  .registro-externo-card .externo-btn-outline,
+  .registro-externo-card .btn-registro,
+  .registro-externo-card .externo-light-input {
+    transition: none !important;
+  }
+
+  .registro-externo-card .externo-days-grid .q-checkbox:hover,
+  .registro-externo-card .externo-file-input:hover,
+  .registro-externo-card .btn-registro:hover,
+  .registro-externo-card .externo-btn-outline:hover {
+    transform: none;
   }
 }

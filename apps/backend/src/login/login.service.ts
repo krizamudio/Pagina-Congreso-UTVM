@@ -4,6 +4,8 @@ import { Repository } from 'typeorm';
 
 import { Externo } from '../externos/entities/externo.entity';
 import { ParticipanteNsu } from '../registro-nsu/entities/participante-nsu.entity';
+import { Ems } from '../ems/entities/ems.entity';
+import { Utvm } from '../utvm/entities/utvm.entity';
 
 @Injectable()
 export class LoginService {
@@ -13,6 +15,12 @@ export class LoginService {
 
     @InjectRepository(ParticipanteNsu)
     private readonly participanteNsuRepository: Repository<ParticipanteNsu>,
+
+    @InjectRepository(Ems)
+    private readonly emsRepository: Repository<Ems>,
+
+    @InjectRepository(Utvm)
+    private readonly utvmRepository: Repository<Utvm>,
   ) {}
 
   async loginPorCorreo(correo: string) {
@@ -59,6 +67,7 @@ export class LoginService {
 
     const participanteNsu = await this.participanteNsuRepository
       .createQueryBuilder('participante')
+      .leftJoinAndSelect('participante.registro', 'registro')
       .where('LOWER(participante.correo) = :correo', {
         correo: correoNormalizado,
       })
@@ -81,10 +90,69 @@ export class LoginService {
         tipo: 'NSU',
         participante: {
           id: participanteNsu.id,
+          registroId: participanteNsu.registro?.id ?? null,
           nombreCompleto: participanteNsu.nombre_completo,
           correo: participanteNsu.correo,
           institucion: participanteNsu.institucion,
           carrera: participanteNsu.carrera,
+        },
+      };
+    }
+
+    const participanteEms = await this.emsRepository
+      .createQueryBuilder('ems')
+      .where('LOWER(ems.correo) = :correo', {
+        correo: correoNormalizado,
+      })
+      .andWhere('ems.deleted_at IS NULL')
+      .getOne();
+
+    if (participanteEms) {
+      return {
+        mensaje: 'Acceso autorizado.',
+        tipo: 'EMS',
+        participante: {
+          id: String(participanteEms.id),
+          nombreCompleto: [
+            participanteEms.nombres,
+            participanteEms.apellidoPaterno,
+            participanteEms.apellidoMaterno,
+          ]
+            .filter(Boolean)
+            .join(' '),
+          correo: participanteEms.correo,
+          institucion: participanteEms.institucion,
+          carrera: participanteEms.carrera,
+          telefono: participanteEms.telefono,
+        },
+      };
+    }
+
+    const participanteUtvm = await this.utvmRepository
+      .createQueryBuilder('utvm')
+      .where('LOWER(utvm.correo) = :correo', {
+        correo: correoNormalizado,
+      })
+      .andWhere('utvm.deleted_at IS NULL')
+      .getOne();
+
+    if (participanteUtvm) {
+      return {
+        mensaje: 'Acceso autorizado.',
+        tipo: 'UTVM',
+        participante: {
+          id: String(participanteUtvm.id),
+          nombreCompleto: [
+            participanteUtvm.nombres,
+            participanteUtvm.apellidoPaterno,
+            participanteUtvm.apellidoMaterno,
+          ]
+            .filter(Boolean)
+            .join(' '),
+          correo: participanteUtvm.correo,
+          cuatrimestre: participanteUtvm.cuatrimestre,
+          grupo: participanteUtvm.grupo,
+          telefono: participanteUtvm.telefono,
         },
       };
     }
