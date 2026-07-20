@@ -1,0 +1,5 @@
+export enum ReconocimientoTipo {
+  GENERAL = 'GENERAL',
+  TALLERISTA = 'TALLERISTA',
+  CONFERENCISTA = 'CONFERENCISTA',
+}

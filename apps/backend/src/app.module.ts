@@ -20,6 +20,7 @@ import { DiaEventoModule } from './dia-evento/dia-evento.module';
 import { ForoEmpresarialModule } from './foro-empresarial/foro-empresarial.module';
 import { GestionContenidoModule } from './gestion-contenido/gestion-contenido.module';
 import { ComprobanteModule } from './comprobante/comprobante.module';
+import { ReconocimientoModule } from './reconocimiento/reconocimiento.module';
 
 @Module({
   imports: [
@@ -85,6 +86,7 @@ import { ComprobanteModule } from './comprobante/comprobante.module';
     ForoEmpresarialModule,
     GestionContenidoModule,
     ComprobanteModule,
+    ReconocimientoModule,
   ],
   controllers: [],
   providers: [
