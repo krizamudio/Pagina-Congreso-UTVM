@@ -11,9 +11,7 @@
           @click="toggleLeftDrawer"
         />
 
-        <q-toolbar-title class="text-h6">
-          Congreso UTVM
-        </q-toolbar-title>
+        <q-toolbar-title class="text-h6"> Congreso UTVM </q-toolbar-title>
 
         <q-btn
           flat
@@ -52,9 +50,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import EssentialLink, { type EssentialLinkProps } from '@/components/EssentialLink.vue';
-import { useThemeMode } from '@/composables/useThemeMode';
+import { ref } from "vue";
+import EssentialLink, {
+  type EssentialLinkProps
+} from "@/components/EssentialLink.vue";
+import { useThemeMode } from "@/composables/useThemeMode";
 
 const { isLight, toggleTheme } = useThemeMode();
 
@@ -66,16 +66,16 @@ const linksList: EssentialLinkProps[] = [
     link: "/admin/dashboard"
   },
   {
-    label: 'Participantes',
-    caption: 'Administración y validación',
-    icon: 'badge',
-    link: '/participantes',
+    label: "Participantes",
+    caption: "Administración y validación",
+    icon: "badge",
+    link: "/participantes"
   },
   {
-    label: 'Conferencias',
-    caption: 'Gestión de conferencias',
-    icon: 'code',
-    link: '/conferencias',
+    label: "Conferencias",
+    caption: "Gestión de conferencias",
+    icon: "code",
+    link: "/conferencias"
   },
   {
     label: "Congresos",
@@ -96,10 +96,16 @@ const linksList: EssentialLinkProps[] = [
     link: "/talleres"
   },
   {
-    label: "Ponentes",
-    caption: "Gestión de ponentes",
+    label: "Ponentes y panelistas",
+    caption: "Gestión de ponentes y panelistas",
     icon: "record_voice_over",
     link: "/ponentes"
+  },
+  {
+    label: "Reconocimientos",
+    caption: "Emisión para ponentes y panelistas",
+    icon: "workspace_premium",
+    link: "/reconocimientos"
   },
   {
     label: "Foros empresariales",

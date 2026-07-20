@@ -2,15 +2,15 @@
   <q-page class="hero-page q-pa-md">
     <div class="row justify-between items-center q-mb-lg">
       <div>
-        <div class="text-h4 text-weight-bold">Ponentes</div>
+        <div class="text-h4 text-weight-bold">Ponentes y panelistas</div>
         <div class="text-subtitle2 text-grey-7"
-          >Lista de ponentes del congreso.</div
+          >Lista de ponentes y panelistas del congreso.</div
         >
       </div>
 
       <div class="row items-center q-gutter-sm">
         <q-btn
-          label="Nuevo ponente"
+          label="Nuevo ponente o panelista"
           icon="add"
           unelevated
           color="primary"
@@ -41,7 +41,7 @@ const router = useRouter();
 const $q = useQuasar();
 const { confirmDelete } = useDeleteConfirmation();
 const { useGetPonentes, useDeletePonente } = usePonente();
-const { data, isLoading, error, refetch } = useGetPonentes();
+const { data, isLoading, error, refetch } = useGetPonentes(50, 0, null);
 const { mutate: deletePonente } = useDeletePonente();
 
 const load = async () => {
@@ -74,18 +74,18 @@ const notify = (type: "positive" | "negative", message: string) => {
 
 const handleDelete = async (id: string) => {
   const confirmed = await confirmDelete({
-    title: "Eliminar ponente",
-    message: "¿Seguro que deseas eliminar este ponente?"
+    title: "Eliminar participante",
+    message: "¿Seguro que deseas eliminar este ponente o panelista?"
   });
   if (!confirmed) return;
 
   try {
     await deletePonente(id);
-    notify("positive", "Ponente eliminado correctamente.");
+    notify("positive", "Participante eliminado correctamente.");
     await refetch();
   } catch (err) {
     console.error(err);
-    notify("negative", "No se pudo eliminar el ponente.");
+    notify("negative", "No se pudo eliminar el participante.");
   }
 };
 

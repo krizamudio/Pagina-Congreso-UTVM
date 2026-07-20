@@ -1,4 +1,9 @@
-import { Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
@@ -33,6 +38,58 @@ export class ReconocimientoEmisionService {
   async prepareFinishedActivities(): Promise<void> {
     await this.prepareTalleres();
     await this.prepareConferencias();
+  }
+
+  async prepareTallerista(tallerId: string): Promise<void> {
+    const taller = await this.talleres.findOne({
+      where: { id: tallerId },
+      relations: { congreso: true, ponente: true },
+    });
+    if (!taller) throw new NotFoundException('Taller no encontrado');
+    if (!taller.congreso) {
+      throw new BadRequestException('El taller no tiene un congreso asignado');
+    }
+    if (!taller.ponente) {
+      throw new BadRequestException(
+        'El taller no tiene un ponente o panelista asignado',
+      );
+    }
+    await this.insertIgnore({
+      clave_emision: `taller:${taller.id}:ponente:${taller.ponente.id}`,
+      congreso: taller.congreso,
+      taller,
+      ponente: taller.ponente,
+      tipo: ReconocimientoTipo.TALLERISTA,
+      nombre_destinatario: taller.ponente.nombre,
+    });
+  }
+
+  async prepareConferencista(conferenciaId: string): Promise<void> {
+    const conferencia = await this.conferencias.findOne({
+      where: { id: conferenciaId },
+      relations: { congreso: true, ponente: true },
+    });
+    if (!conferencia) {
+      throw new NotFoundException('Conferencia no encontrada');
+    }
+    if (!conferencia.congreso) {
+      throw new BadRequestException(
+        'La conferencia no tiene un congreso asignado',
+      );
+    }
+    if (!conferencia.ponente) {
+      throw new BadRequestException(
+        'La conferencia no tiene un ponente o panelista asignado',
+      );
+    }
+    await this.insertIgnore({
+      clave_emision: `conferencia:${conferencia.id}:ponente:${conferencia.ponente.id}`,
+      congreso: conferencia.congreso,
+      conferencia,
+      ponente: conferencia.ponente,
+      tipo: ReconocimientoTipo.CONFERENCISTA,
+      nombre_destinatario: conferencia.ponente.nombre,
+    });
   }
 
   private async prepareTalleres(): Promise<void> {

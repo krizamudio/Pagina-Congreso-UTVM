@@ -1,6 +1,6 @@
-import { ref } from 'vue';
-import { api } from '../services/api';
-import type { Taller, TallerPayload } from '../types';
+import { ref } from "vue";
+import { api } from "../services/api";
+import type { Taller, TallerPayload } from "../types";
 
 interface TallerApiResponse {
   id: string;
@@ -30,15 +30,38 @@ const normalizeTaller = (record: TallerApiResponse): Taller => ({
   hora_inicio: record.hora_inicio,
   hora_fin: record.hora_fin,
   requisitos: record.requisitos,
-  fecha_creacion: record.created_at ?? '',
+  fecha_creacion: record.created_at ?? "",
   ...(record.updated_at ? { fecha_actualizacion: record.updated_at } : {}),
-  congreso_id: record.congreso_id ?? record.congreso?.id ?? '',
-  tallerista_id: record.tallerista_id ?? record.ponente?.id ?? '',
-  ubicacion_id: record.ubicacion_id ?? record.ubicacion?.id ?? '',
+  congreso_id: record.congreso_id ?? record.congreso?.id ?? "",
+  tallerista_id: record.tallerista_id ?? record.ponente?.id ?? "",
+  ubicacion_id: record.ubicacion_id ?? record.ubicacion?.id ?? "",
   ...(record.congreso ? { congreso: record.congreso } : {}),
   ...(record.ponente ? { ponente: record.ponente } : {}),
-  ...(record.ubicacion ? { ubicacion: record.ubicacion } : {}),
+  ...(record.ubicacion ? { ubicacion: record.ubicacion } : {})
 });
+
+const sanitizePayload = (
+  payload: Partial<TallerPayload>
+): Partial<TallerPayload> => {
+  const allowedKeys = [
+    "congreso_id",
+    "titulo",
+    "descripcion",
+    "tallerista_id",
+    "cupo_maximo",
+    "fecha",
+    "hora_inicio",
+    "hora_fin",
+    "ubicacion_id",
+    "requisitos"
+  ] as const;
+
+  return Object.fromEntries(
+    allowedKeys
+      .filter(key => payload[key] !== undefined)
+      .map(key => [key, payload[key]])
+  ) as Partial<TallerPayload>;
+};
 
 export function useTalleresQuery() {
   const data = ref<Taller[]>([]);
@@ -50,10 +73,10 @@ export function useTalleresQuery() {
     error.value = null;
 
     try {
-      const response = await api.get<TallerApiResponse[]>('taller');
+      const response = await api.get<TallerApiResponse[]>("taller");
       data.value = response.data.map(normalizeTaller);
     } catch (err) {
-      error.value = 'Error cargando talleres';
+      error.value = "Error cargando talleres";
       console.error(err);
     } finally {
       isRefreshing.value = false;
@@ -66,12 +89,18 @@ export function useTalleresQuery() {
   };
 
   const create = async (payload: TallerPayload) => {
-    const response = await api.post<TallerApiResponse>('taller', payload);
+    const response = await api.post<TallerApiResponse>(
+      "taller",
+      sanitizePayload(payload)
+    );
     return normalizeTaller(response.data);
   };
 
   const update = async (id: string, payload: Partial<TallerPayload>) => {
-    const response = await api.patch<TallerApiResponse>(`taller/${id}`, payload);
+    const response = await api.patch<TallerApiResponse>(
+      `taller/${id}`,
+      sanitizePayload(payload)
+    );
     return normalizeTaller(response.data);
   };
 
@@ -87,6 +116,6 @@ export function useTalleresQuery() {
     getById,
     create,
     update,
-    remove,
+    remove
   };
 }

@@ -3,8 +3,10 @@
     <div class="row items-center q-gutter-sm q-mb-lg">
       <q-btn flat round icon="arrow_back" aria-label="Volver" @click="goBack" />
       <div>
-        <div class="text-h4 text-weight-bold">Nuevo Ponente</div>
-        <div class="text-subtitle2 text-grey-7">Registra un ponente.</div>
+        <div class="text-h4 text-weight-bold">Nuevo ponente o panelista</div>
+        <div class="text-subtitle2 text-grey-7"
+          >Registra un ponente o panelista.</div
+        >
       </div>
     </div>
 
@@ -109,10 +111,10 @@ const handleSubmit = async ({ ponente, foto }: NewPonenteSubmitPayload) => {
     }
 
     await createPonente(payload);
-    notify("positive", "Ponente creado exitosamente.");
+    notify("positive", `${ponente.tipo} creado correctamente.`);
     void router.push("/ponentes");
   } catch (err) {
-    console.error("Error al crear el ponente:", err);
+    console.error("Error al crear el participante:", err);
 
     let detail = "";
     if (axios.isAxiosError(err)) {
@@ -132,8 +134,8 @@ const handleSubmit = async ({ ponente, foto }: NewPonenteSubmitPayload) => {
     notify(
       "negative",
       detail
-        ? `No se pudo crear el ponente. ${detail}`
-        : "No se pudo crear el ponente."
+        ? `No se pudo crear el participante. ${detail}`
+        : "No se pudo crear el participante."
     );
   } finally {
     isSubmitting.value = false;

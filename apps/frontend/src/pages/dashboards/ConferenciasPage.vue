@@ -26,6 +26,7 @@
       :error="error"
       @edit="handleEdit"
       @delete="handleDelete"
+      @recognitions="handleRecognitions"
     />
   </q-page>
 </template>
@@ -44,7 +45,7 @@ const $q = useQuasar();
 const { confirmDelete } = useDeleteConfirmation();
 const { data, isRefreshing, error, load, remove } = useConferenciasQuery();
 const { useGetPonentes } = usePonente();
-const { data: ponentes, refetch: loadPonentes } = useGetPonentes();
+const { data: ponentes, refetch: loadPonentes } = useGetPonentes(50, 0, null);
 
 const ponenteNames = computed(() => {
   return ponentes.value.reduce<Record<string, string>>(
@@ -62,6 +63,13 @@ const goToNewConference = () => {
 
 const handleEdit = (id: string) => {
   void router.push(`/conferencias/${id}/editar`);
+};
+
+const handleRecognitions = (id: string) => {
+  void router.push({
+    path: "/reconocimientos",
+    query: { conferenciaId: id }
+  });
 };
 
 const notify = (type: "positive" | "negative", message: string) => {

@@ -163,6 +163,7 @@
                   round
                   icon="cancel"
                   color="negative"
+                  title="Rechazar participante"
                   :disable="isSaving || isLoading"
                   @click="setParticipantStatus(props.row.id, 'RECHAZADO')"
                 />
@@ -188,6 +189,7 @@
                   round
                   icon="delete"
                   color="negative"
+                  title="Eliminar participante"
                   :disable="isSaving || isLoading"
                   @click="deleteParticipant(props.row.id)"
                 />
@@ -370,11 +372,20 @@ async function setParticipantStatus(
   status: RegistroNsu["estado_pago"]
 ) {
   await runAction(async () => {
-    registro.value = await updateNsuParticipantStatus(
+    const currentParticipants = registro.value?.participantes ?? [];
+    const updatedRegistro = await updateNsuParticipantStatus(
       registroId.value,
       participanteId,
       status
     );
+    registro.value = {
+      ...updatedRegistro,
+      participantes: currentParticipants.map(participante =>
+        participante.id === participanteId
+          ? { ...participante, estado_pago: status }
+          : participante
+      )
+    };
   }, "Estatus del participante actualizado.");
 }
 

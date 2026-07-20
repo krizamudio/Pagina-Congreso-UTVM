@@ -8,7 +8,6 @@ import { Repository } from 'typeorm';
 
 import { Congreso } from '../../congreso/entities/congreso.entity';
 import { Ponente } from '../../ponente/entities/ponente.entity';
-import { PonenteTipo } from '../../ponente/enums/ponente-tipo.enum';
 import { Ubicacion } from '../../ubicacion/entities/ubicacion.entity';
 import { AgendaRelationIds, AgendaRelations } from './agenda.types';
 
@@ -27,18 +26,12 @@ export class AgendaRelationsService {
     const [congreso, ubicacion, ponente] = await Promise.all([
       this.congresos.findOneBy({ id: ids.congresoId }),
       this.ubicaciones.findOneBy({ id: ids.ubicacionId }),
-      this.ponentes.findOneBy({
-        id: ids.ponenteId,
-        tipo: PonenteTipo.PONENTE,
-      }),
+      this.ponentes.findOneBy({ id: ids.ponenteId }),
     ]);
     if (!congreso) throw new NotFoundException('El congreso no existe');
     if (!ubicacion) throw new NotFoundException('La ubicación no existe');
-    if (!ponente) {
-      throw new NotFoundException(
-        'El ponente no existe o el registro es un panelista',
-      );
-    }
+    if (!ponente)
+      throw new NotFoundException('El ponente o panelista no existe');
     return { congreso, ubicacion, ponente };
   }
 

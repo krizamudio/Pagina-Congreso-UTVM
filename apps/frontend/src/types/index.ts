@@ -1,4 +1,35 @@
-export type PonenteTipo = 'Ponente' | 'Panelista';
+export type PonenteTipo = "Ponente" | "Panelista";
+
+export type ReconocimientoEstado = "PENDIENTE" | "EMITIDO" | "FALLIDO";
+export type ReconocimientoTipo = "GENERAL" | "TALLERISTA" | "CONFERENCISTA";
+
+export interface ReconocimientoReferencia {
+  id: string;
+  nombre?: string;
+  titulo?: string;
+  tipo?: PonenteTipo;
+}
+
+export interface Reconocimiento {
+  id: string;
+  nombre_destinatario: string;
+  tipo: ReconocimientoTipo;
+  estado: ReconocimientoEstado;
+  intentos: number;
+  primera_fecha_emision?: string | null;
+  created_at: string;
+  taller?: ReconocimientoReferencia | null;
+  conferencia?: ReconocimientoReferencia | null;
+  ponente?: ReconocimientoReferencia | null;
+  congreso?: ReconocimientoReferencia | null;
+}
+
+export interface ReconocimientosPage {
+  data: Reconocimiento[];
+  total: number;
+  page: number;
+  limit: number;
+}
 
 export interface Ponente {
   id: string;
@@ -131,8 +162,8 @@ export interface ForoEmpresarialFormSubmit {
   eliminarLogo: boolean;
 }
 
-export type ParticipanteTipo = 'ems' | 'utvm' | 'nsu' | 'externo';
-export type ParticipanteEstatus = 'pendiente' | 'validado' | 'rechazado';
+export type ParticipanteTipo = "ems" | "utvm" | "nsu" | "externo";
+export type ParticipanteEstatus = "pendiente" | "validado" | "rechazado";
 
 export interface ArchivoComprobante {
   id: string;
@@ -156,7 +187,7 @@ export interface ParticipanteEms {
 
 export type ParticipanteEmsPayload = Omit<
   ParticipanteEms,
-  'id' | 'created_at' | 'updated_at'
+  "id" | "created_at" | "updated_at"
 >;
 
 export interface ParticipanteUtvm {
@@ -174,7 +205,7 @@ export interface ParticipanteUtvm {
 
 export type ParticipanteUtvmPayload = Omit<
   ParticipanteUtvm,
-  'id' | 'created_at' | 'updated_at'
+  "id" | "created_at" | "updated_at"
 >;
 
 export interface ParticipanteNsuDetalle {
@@ -188,14 +219,14 @@ export interface ParticipanteNsuDetalle {
   telefono: string;
   dias: string;
   monto_individual: number;
-  estado_pago?: 'PENDIENTE' | 'VALIDADO' | 'RECHAZADO';
+  estado_pago?: "PENDIENTE" | "VALIDADO" | "RECHAZADO";
 }
 
 export interface RegistroNsu {
   id: string;
   total_general: number;
   total_participantes: number;
-  estado_pago: 'PENDIENTE' | 'VALIDADO' | 'RECHAZADO';
+  estado_pago: "PENDIENTE" | "VALIDADO" | "RECHAZADO";
   participantes: ParticipanteNsuDetalle[];
   comprobante: ArchivoComprobante | null;
   created_at: string;
@@ -214,12 +245,12 @@ export interface ParticipanteExterno {
   total: number;
   comprobante: ArchivoComprobante | null;
   correoVerificado: boolean;
-  status: 'pendiente_verificacion' | 'pendiente' | 'validado' | 'rechazado';
+  status: "pendiente_verificacion" | "pendiente" | "validado" | "rechazado";
   createdAt: string;
   updatedAt: string;
 }
 
 export type ParticipanteExternoPayload = Omit<
   ParticipanteExterno,
-  'id' | 'comprobante' | 'createdAt' | 'updatedAt'
+  "id" | "comprobante" | "createdAt" | "updatedAt"
 >;

@@ -188,6 +188,25 @@ Respuesta esperada: `200 OK`.
 
 ---
 
+## PATCH /registro-nsu/:id/participantes/:participanteId
+
+Actualiza el estado de pago de una sola persona sin eliminarla del registro.
+
+```json
+{
+  "estado_pago": "RECHAZADO"
+}
+```
+
+Los valores admitidos son `PENDIENTE`, `VALIDADO` y `RECHAZADO`.
+
+## DELETE /registro-nsu/:id/participantes/:participanteId
+
+Elimina de forma lógica únicamente al participante indicado. Este endpoint no
+debe utilizarse para rechazar pagos.
+
+---
+
 ## PATCH /registro-nsu/:id/restore
 
 Restaura un registro NSU previamente eliminado.

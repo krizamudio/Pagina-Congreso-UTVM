@@ -1,6 +1,6 @@
-import { ref } from 'vue';
-import { api } from '../services/api';
-import type { Conferencia, ConferenciaPayload } from '../types';
+import { ref } from "vue";
+import { api } from "../services/api";
+import type { Conferencia, ConferenciaPayload } from "../types";
 
 interface ConferenciaApiResponse {
   id: string;
@@ -24,13 +24,34 @@ const normalizeConferencia = (record: ConferenciaApiResponse): Conferencia => ({
   fecha: record.fecha,
   hora_inicio: record.hora_inicio,
   hora_fin: record.hora_fin,
-  congreso_id: record.congreso_id ?? record.congreso?.id ?? '',
-  ponente_id: record.ponente_id ?? record.ponente?.id ?? '',
-  ubicacion_id: record.ubicacion_id ?? record.ubicacion?.id ?? '',
+  congreso_id: record.congreso_id ?? record.congreso?.id ?? "",
+  ponente_id: record.ponente_id ?? record.ponente?.id ?? "",
+  ubicacion_id: record.ubicacion_id ?? record.ubicacion?.id ?? "",
   ...(record.congreso ? { congreso: record.congreso } : {}),
   ...(record.ponente ? { ponente: record.ponente } : {}),
-  ...(record.ubicacion ? { ubicacion: record.ubicacion } : {}),
+  ...(record.ubicacion ? { ubicacion: record.ubicacion } : {})
 });
+
+const sanitizePayload = (
+  payload: Partial<ConferenciaPayload>
+): Partial<ConferenciaPayload> => {
+  const allowedKeys = [
+    "congreso_id",
+    "titulo",
+    "ponente_id",
+    "resumen",
+    "fecha",
+    "hora_inicio",
+    "hora_fin",
+    "ubicacion_id"
+  ] as const;
+
+  return Object.fromEntries(
+    allowedKeys
+      .filter(key => payload[key] !== undefined)
+      .map(key => [key, payload[key]])
+  ) as Partial<ConferenciaPayload>;
+};
 
 export function useConferenciasQuery() {
   const data = ref<Conferencia[]>([]);
@@ -42,10 +63,10 @@ export function useConferenciasQuery() {
     error.value = null;
 
     try {
-      const response = await api.get<ConferenciaApiResponse[]>('conferencias');
+      const response = await api.get<ConferenciaApiResponse[]>("conferencias");
       data.value = response.data.map(normalizeConferencia);
     } catch (err) {
-      error.value = 'Error cargando conferencias';
+      error.value = "Error cargando conferencias";
       console.error(err);
     } finally {
       isRefreshing.value = false;
@@ -53,17 +74,25 @@ export function useConferenciasQuery() {
   };
 
   const getById = async (id: string) => {
-    const response = await api.get<ConferenciaApiResponse>(`conferencias/${id}`);
+    const response = await api.get<ConferenciaApiResponse>(
+      `conferencias/${id}`
+    );
     return normalizeConferencia(response.data);
   };
 
   const create = async (payload: ConferenciaPayload) => {
-    const response = await api.post<ConferenciaApiResponse>('conferencias', payload);
+    const response = await api.post<ConferenciaApiResponse>(
+      "conferencias",
+      sanitizePayload(payload)
+    );
     return normalizeConferencia(response.data);
   };
 
   const update = async (id: string, payload: Partial<ConferenciaPayload>) => {
-    const response = await api.patch<ConferenciaApiResponse>(`conferencias/${id}`, payload);
+    const response = await api.patch<ConferenciaApiResponse>(
+      `conferencias/${id}`,
+      sanitizePayload(payload)
+    );
     return normalizeConferencia(response.data);
   };
 
@@ -79,6 +108,6 @@ export function useConferenciasQuery() {
     getById,
     create,
     update,
-    remove,
+    remove
   };
 }

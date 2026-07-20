@@ -37,7 +37,7 @@
           option-value="value"
           emit-value
           map-options
-          label="Ponente"
+          label="Ponente o panelista"
           :rules="[requiredRule]"
           :loading="ponentesLoading"
           :disable="ponentesLoading"
@@ -161,7 +161,7 @@ const {
   isLoading: ponentesLoading,
   error: ponentesError,
   refetch: loadPonentes
-} = useGetPonentes();
+} = useGetPonentes(50, 0, null);
 const {
   data: congresos,
   isRefreshing: congresosLoading,
@@ -212,7 +212,7 @@ watch(
 
 const ponenteOptions = computed(() => {
   return ponentes.value.map((ponente: Ponente) => ({
-    label: ponente.nombre,
+    label: `${ponente.nombre} (${ponente.tipo})`,
     value: ponente.id
   }));
 });

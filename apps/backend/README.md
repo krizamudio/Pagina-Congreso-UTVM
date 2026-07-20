@@ -83,6 +83,13 @@ reconocimientos.
   `tipo`, `estado`, `page` y `limit`.
 - `GET /reconocimientos/:id` devuelve metadatos sin el error interno.
 - `GET /reconocimientos/:id/pdf` renderiza y descarga nuevamente el PDF.
+- `POST /reconocimientos/taller/:tallerId/preparar` prepara manualmente el
+  reconocimiento `TALLERISTA` de la persona asignada.
+- `POST /reconocimientos/conferencia/:conferenciaId/preparar` prepara
+  manualmente el reconocimiento `CONFERENCISTA` de la persona asignada.
+
+La preparación manual reutiliza las mismas claves idempotentes del job y no
+duplica registros aunque se invoque varias veces o el job se ejecute después.
 
 Los PDF no se almacenan. Cada intento actualiza estado, contador y, cuando
 tiene éxito, la primera fecha de emisión y el SHA-256 del documento. Los errores

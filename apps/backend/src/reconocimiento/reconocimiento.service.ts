@@ -11,6 +11,7 @@ import { FindReconocimientoDto } from './dto/find-reconocimiento.dto';
 import { Reconocimiento } from './entities/reconocimiento.entity';
 import { ReconocimientoEstado } from './enums/reconocimiento-estado.enum';
 import { ReconocimientoRendererService } from './services/reconocimiento-renderer.service';
+import { ReconocimientoEmisionService } from './services/reconocimiento-emision.service';
 
 @Injectable()
 export class ReconocimientoService {
@@ -26,7 +27,16 @@ export class ReconocimientoService {
     @InjectRepository(Reconocimiento)
     private readonly repository: Repository<Reconocimiento>,
     private readonly renderer: ReconocimientoRendererService,
+    private readonly emision: ReconocimientoEmisionService,
   ) {}
+
+  prepareForTaller(tallerId: string): Promise<void> {
+    return this.emision.prepareTallerista(tallerId);
+  }
+
+  prepareForConferencia(conferenciaId: string): Promise<void> {
+    return this.emision.prepareConferencista(conferenciaId);
+  }
 
   async findAll(query: FindReconocimientoDto) {
     const builder = this.repository

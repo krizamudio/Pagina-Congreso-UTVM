@@ -130,6 +130,11 @@ const routes: RouteRecordRaw[] = [
         alias: "/ponentes/:id/editar",
         component: () => import("@/pages/dashboards/EditarPonentePage.vue")
       },
+      {
+        path: "reconocimientos",
+        alias: "/reconocimientos",
+        component: () => import("@/pages/dashboards/ReconocimientosPage.vue")
+      },
 
       {
         path: "foros-empresariales",

@@ -37,7 +37,7 @@
           option-value="value"
           emit-value
           map-options
-          label="Panelista"
+          label="Ponente o panelista"
           :rules="[requiredRule]"
           :loading="talleristasLoading"
           :disable="talleristasLoading"
@@ -183,7 +183,7 @@ const {
   isLoading: talleristasLoading,
   error: talleristasError,
   refetch: loadTalleristas
-} = useGetPonentes();
+} = useGetPonentes(50, 0, null);
 const {
   data: congresos,
   isRefreshing: congresosLoading,
@@ -215,7 +215,7 @@ const { formData: form } = useFormPersistence<TallerPayload>(
 
 const talleristaOptions = computed(() => {
   return talleristas.value.map((ponente: Ponente) => ({
-    label: ponente.nombre,
+    label: `${ponente.nombre} (${ponente.tipo})`,
     value: ponente.id
   }));
 });

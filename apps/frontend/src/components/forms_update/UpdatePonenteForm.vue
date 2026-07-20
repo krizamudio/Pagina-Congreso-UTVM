@@ -22,6 +22,19 @@
         />
       </div>
 
+      <div class="col-12 col-md-6">
+        <q-select
+          v-model="form.tipo"
+          :options="tipoOptions"
+          label="Tipo"
+          :rules="[requiredRule]"
+          dense
+          emit-value
+          map-options
+          :dark="!isLight"
+        />
+      </div>
+
       <div class="col-12">
         <q-input
           v-model="form.semblanza"
@@ -55,7 +68,7 @@
       <div class="col-12">
         <q-file
           v-model="selectedImage"
-          label="Actualizar foto del ponente"
+          label="Actualizar foto del ponente o panelista"
           hint="La nueva foto se convierte a WebP antes de reemplazar la actual"
           accept="image/*"
           clearable
@@ -77,7 +90,7 @@
             }}</div>
             <img
               :src="displayedPreviewUrl"
-              alt="Vista previa de foto de ponente"
+              alt="Vista previa de foto del ponente o panelista"
               class="image-preview"
             />
             <div v-if="selectedImage" class="text-caption q-mt-sm text-grey-5">
@@ -102,7 +115,7 @@
       <q-btn
         unelevated
         color="primary"
-        :label="props.loading ? 'Actualizando...' : 'Actualizar ponente'"
+        :label="props.loading ? 'Actualizando...' : 'Actualizar participante'"
         type="submit"
         :loading="props.loading"
         :disable="props.loading"
@@ -117,7 +130,7 @@
 import { computed, onBeforeUnmount, ref, watch } from "vue";
 import { useFormPersistence } from "../../composables/useFormPersistence";
 import { useThemeMode } from "../../composables/useThemeMode";
-import type { PonentePayload } from "../../types";
+import type { PonentePayload, PonenteTipo } from "../../types";
 
 const { isLight } = useThemeMode();
 
@@ -140,6 +153,10 @@ const error = ref<string | null>(null);
 const imageError = ref<string | null>(null);
 const selectedImage = ref<File | null>(null);
 const imagePreviewUrl = ref<string | null>(null);
+const tipoOptions: { label: string; value: PonenteTipo }[] = [
+  { label: "Ponente", value: "Ponente" },
+  { label: "Panelista", value: "Panelista" }
+];
 const displayedPreviewUrl = computed(
   () => imagePreviewUrl.value || props.currentPhotoUrl || null
 );

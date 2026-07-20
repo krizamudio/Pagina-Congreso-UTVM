@@ -140,8 +140,8 @@ const columns: QTableColumn<AgendaPaginaOficialItem>[] = [
   },
   {
     name: "ponente",
-    label: "Ponente",
-    field: row => row.ponente?.nombre ?? "Sin ponente",
+    label: "Ponente o panelista",
+    field: row => row.ponente?.nombre ?? "Sin ponente o panelista",
     align: "left"
   }
 ];

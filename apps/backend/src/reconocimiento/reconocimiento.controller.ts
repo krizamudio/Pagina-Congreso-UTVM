@@ -3,6 +3,7 @@ import {
   Get,
   Param,
   ParseUUIDPipe,
+  Post,
   Query,
   Res,
 } from '@nestjs/common';
@@ -14,6 +15,20 @@ import { ReconocimientoService } from './reconocimiento.service';
 @Controller('reconocimientos')
 export class ReconocimientoController {
   constructor(private readonly reconocimientos: ReconocimientoService) {}
+
+  @Post('taller/:tallerId/preparar')
+  prepareForTaller(
+    @Param('tallerId', ParseUUIDPipe) tallerId: string,
+  ): Promise<void> {
+    return this.reconocimientos.prepareForTaller(tallerId);
+  }
+
+  @Post('conferencia/:conferenciaId/preparar')
+  prepareForConferencia(
+    @Param('conferenciaId', ParseUUIDPipe) conferenciaId: string,
+  ): Promise<void> {
+    return this.reconocimientos.prepareForConferencia(conferenciaId);
+  }
 
   @Get()
   findAll(@Query() query: FindReconocimientoDto) {

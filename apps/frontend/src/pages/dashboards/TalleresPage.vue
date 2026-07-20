@@ -26,6 +26,7 @@
       :error="error"
       @edit="handleEdit"
       @delete="handleDelete"
+      @recognitions="handleRecognitions"
     />
   </q-page>
 </template>
@@ -44,7 +45,7 @@ const $q = useQuasar();
 const { confirmDelete } = useDeleteConfirmation();
 const { data, isRefreshing, error, load, remove } = useTalleresQuery();
 const { useGetPonentes } = usePonente();
-const { data: ponentes, refetch: loadPonentes } = useGetPonentes();
+const { data: ponentes, refetch: loadPonentes } = useGetPonentes(50, 0, null);
 
 const talleristaNames = computed(() => {
   return ponentes.value.reduce<Record<string, string>>(
@@ -62,6 +63,10 @@ const goToNew = () => {
 
 const handleEdit = (id: string) => {
   void router.push(`/talleres/${id}/editar`);
+};
+
+const handleRecognitions = (id: string) => {
+  void router.push({ path: "/reconocimientos", query: { tallerId: id } });
 };
 
 const notify = (type: "positive" | "negative", message: string) => {

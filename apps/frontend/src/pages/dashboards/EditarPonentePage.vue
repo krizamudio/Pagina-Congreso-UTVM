@@ -3,9 +3,9 @@
     <div class="row items-center q-gutter-sm q-mb-lg">
       <q-btn flat round icon="arrow_back" aria-label="Volver" @click="goBack" />
       <div>
-        <div class="text-h4 text-weight-bold">Editar Ponente</div>
+        <div class="text-h4 text-weight-bold">Editar ponente o panelista</div>
         <div class="text-subtitle2 text-grey-7"
-          >Actualiza los datos del ponente.</div
+          >Actualiza los datos del ponente o panelista.</div
         >
       </div>
     </div>
@@ -13,7 +13,7 @@
     <q-card class="dashboard-card q-pa-md">
       <q-card-section>
         <div v-if="isLoading" class="q-mb-md text-grey-5"
-          >Cargando ponente...</div
+          >Cargando participante...</div
         >
         <div v-else-if="error" class="q-mb-md text-negative">{{ error }}</div>
         <UpdatePonenteForm
@@ -71,7 +71,7 @@ const initialPonenteData = computed<Partial<PonentePayload>>(() => {
     usuario_id: raw.usuario_id ?? raw.usuarioId ?? "",
     archivo_foto_id: raw.archivo_foto_id ?? raw.foto?.id ?? "",
     institucion: raw.institucion ?? "",
-    tipo: "Ponente",
+    tipo: raw.tipo ?? "Ponente",
     semblanza: raw.semblanza ?? "",
     tema: raw.tema ?? "",
     visible_publico: raw.visible_publico ?? raw.visiblePublico ?? true
@@ -122,7 +122,7 @@ const handleSubmit = async ({
     const payload: Partial<PonentePayload> = {
       nombre: ponente.nombre,
       institucion: ponente.institucion,
-      tipo: "Ponente",
+      tipo: ponente.tipo,
       semblanza: ponente.semblanza,
       tema: ponente.tema,
       visible_publico: ponente.visible_publico ?? true
@@ -161,7 +161,7 @@ const handleSubmit = async ({
     }
 
     await updatePonente(recordId.value, payload);
-    notify("positive", "Ponente actualizado correctamente.");
+    notify("positive", `${ponente.tipo} actualizado correctamente.`);
     void router.push("/ponentes");
   } catch (err) {
     console.error(err);
@@ -184,8 +184,8 @@ const handleSubmit = async ({
     notify(
       "negative",
       detail
-        ? `No se pudo actualizar el ponente. ${detail}`
-        : "No se pudo actualizar el ponente."
+        ? `No se pudo actualizar el participante. ${detail}`
+        : "No se pudo actualizar el participante."
     );
   } finally {
     isSubmitting.value = false;
