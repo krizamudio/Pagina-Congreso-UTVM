@@ -59,29 +59,28 @@ export class Taller {
   deleted_at?: Date;
 
   //Relaciones
-   @ManyToOne(() => Ponente, (p) => p.talleres,{
+  @ManyToOne(() => Ponente, (p) => p.talleres, {
     nullable: true,
-    onDelete: 'SET NULL'
-   })
-   @JoinColumn({name: 'ponente_id'})
-   ponente?: Ponente;
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({ name: 'ponente_id' })
+  ponente?: Ponente;
 
-   @ManyToOne(() => Congreso, (cong) => cong.talleres, {
+  @ManyToOne(() => Congreso, (cong) => cong.talleres, {
     nullable: true,
-    onDelete: 'SET NULL'
-   })
-   @JoinColumn({
-    name: 'congreso_id'
-   })
-   congreso?: Congreso;
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({
+    name: 'congreso_id',
+  })
+  congreso?: Congreso;
 
-   @ManyToOne(() => Ubicacion, (u) => u.talleres, {
+  @ManyToOne(() => Ubicacion, (u) => u.talleres, {
     nullable: true,
-    onDelete: 'SET NULL'
-   })
-   @JoinColumn({
-    name: 'ubicacion_id'
-   })
-   ubicacion?: Ubicacion;
-
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({
+    name: 'ubicacion_id',
+  })
+  ubicacion?: Ubicacion;
 }

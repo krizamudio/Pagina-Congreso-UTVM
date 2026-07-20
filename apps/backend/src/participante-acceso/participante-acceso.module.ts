@@ -10,16 +10,18 @@ import { ExternoParticipanteAdapter } from './adapters/externo-participante.adap
 import { NsuParticipanteAdapter } from './adapters/nsu-participante.adapter';
 import { UtvmParticipanteAdapter } from './adapters/utvm-participante.adapter';
 import { ParticipanteResolverService } from './participante-resolver.service';
+import { ParticipanteAccesoService } from './participante-acceso.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Utvm, Ems, Externo, ParticipanteNsu])],
   providers: [
     ParticipanteResolverService,
+    ParticipanteAccesoService,
     UtvmParticipanteAdapter,
     EmsParticipanteAdapter,
     ExternoParticipanteAdapter,
     NsuParticipanteAdapter,
   ],
-  exports: [ParticipanteResolverService],
+  exports: [ParticipanteResolverService, ParticipanteAccesoService],
 })
 export class ParticipanteAccesoModule {}

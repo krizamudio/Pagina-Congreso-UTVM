@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { DataSource, EntityManager } from 'typeorm';
+import { DataSource } from 'typeorm';
 
 import { CodigoQr } from '../../codigo-qr/entities/codigo-qr.entity';
 import { ResourceLockService } from '../../common/resource-lock.service';
 import { DiaEventoService } from '../../dia-evento/dia-evento.service';
-import { ParticipanteAcceso } from '../../participante-acceso/entities/participante-acceso.entity';
 import { ParticipanteResolverService } from '../../participante-acceso/participante-resolver.service';
+import { ParticipanteAccesoService } from '../../participante-acceso/participante-acceso.service';
 import { QrGeneratorService } from '../../qr-generator/qr-generator.service';
 import {
   EmitirQrAccesoData,
@@ -20,6 +20,7 @@ export class QrAccesoIssuanceService {
     private readonly dataSource: DataSource,
     private readonly generator: QrGeneratorService,
     private readonly resolver: ParticipanteResolverService,
+    private readonly participantesAcceso: ParticipanteAccesoService,
     private readonly dias: DiaEventoService,
     private readonly locks: ResourceLockService,
   ) {}
@@ -38,7 +39,11 @@ export class QrAccesoIssuanceService {
       const generated = await this.generator.generateAccessQr();
 
       const codigoQrId = await this.dataSource.transaction(async (manager) => {
-        const acceso = await this.findOrCreateParticipante(manager, data);
+        const acceso = await this.participantesAcceso.findOrCreate(manager, {
+          tipo: data.tipo,
+          referenciaId: data.referenciaId,
+          congresoId: data.congresoId,
+        });
         await manager
           .createQueryBuilder()
           .insert()
@@ -102,33 +107,5 @@ export class QrAccesoIssuanceService {
         qrPng: generated.png,
       };
     });
-  }
-
-  private async findOrCreateParticipante(
-    manager: EntityManager,
-    data: EmitirQrAccesoData,
-  ): Promise<ParticipanteAcceso> {
-    const repository = manager.getRepository(ParticipanteAcceso);
-    const existente = await repository
-      .createQueryBuilder('participante')
-      .innerJoinAndSelect('participante.congreso', 'congreso')
-      .where('participante.tipo = :tipo', { tipo: data.tipo })
-      .andWhere('participante.referencia_id = :referenciaId', {
-        referenciaId: data.referenciaId,
-      })
-      .andWhere('congreso.id = :congresoId', {
-        congresoId: data.congresoId,
-      })
-      .setLock('pessimistic_write', undefined, ['participante'])
-      .getOne();
-    if (existente) return existente;
-
-    return repository.save(
-      repository.create({
-        tipo: data.tipo,
-        referencia_id: data.referenciaId,
-        congreso: { id: data.congresoId },
-      }),
-    );
   }
 }
