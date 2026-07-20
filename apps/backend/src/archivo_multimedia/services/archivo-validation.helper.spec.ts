@@ -1,8 +1,7 @@
-/* eslint-disable @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
 /// <reference types="jest" />
+/* eslint-disable @typescript-eslint/no-unsafe-argument, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access */
 
 import { BadRequestException } from '@nestjs/common';
-
 import { ArchivoMultimedia } from '../entities/archivo_multimedia.entity';
 import {
   ARCHIVO_MAX_SIZE,
@@ -10,7 +9,7 @@ import {
   perteneceADestino,
 } from './archivo-validation.helper';
 
-function comprobante(
+function archivoSubido(
   nombre: string,
   mimetype: string,
   buffer: Buffer,
@@ -25,7 +24,7 @@ function comprobante(
   } as Express.Multer.File;
 }
 
-function archivo(path: string): ArchivoMultimedia {
+function archivoAlmacenado(path: string): ArchivoMultimedia {
   return {
     id: '7a04c281-043b-445f-9997-f6a10411da9d',
     subido_por_usuario_id: '2f8063f8-357c-4bd1-b4b7-ece11f63141a',
@@ -49,7 +48,7 @@ describe('validacion de comprobantes', () => {
   ])('acepta %s valido', async (nombre, mimetype, buffer) => {
     await expect(
       crearPipeArchivo('comprobantes').transform(
-        comprobante(nombre, mimetype, buffer),
+        archivoSubido(nombre, mimetype, buffer),
       ),
     ).resolves.toBeDefined();
   });
@@ -61,13 +60,13 @@ describe('validacion de comprobantes', () => {
   ])('rechaza archivo inconsistente %s', async (nombre, mimetype, buffer) => {
     await expect(
       crearPipeArchivo('comprobantes').transform(
-        comprobante(nombre, mimetype, buffer),
+        archivoSubido(nombre, mimetype, buffer),
       ),
     ).rejects.toBeInstanceOf(BadRequestException);
   });
 
   it('rechaza archivos mayores a 5 MB', async () => {
-    const grande = comprobante(
+    const grande = archivoSubido(
       'pago.pdf',
       'application/pdf',
       Buffer.alloc(ARCHIVO_MAX_SIZE + 1),
@@ -82,16 +81,19 @@ describe('validacion de comprobantes', () => {
 
 describe('perteneceADestino', () => {
   it('separa una foto general de las imágenes de contenido', () => {
-    expect(perteneceADestino(archivo('imagenes/foto.webp'), 'imagenes')).toBe(
-      true,
-    );
     expect(
-      perteneceADestino(archivo('imagenes/noticias/portada.webp'), 'imagenes'),
+      perteneceADestino(archivoAlmacenado('imagenes/foto.webp'), 'imagenes'),
+    ).toBe(true);
+    expect(
+      perteneceADestino(
+        archivoAlmacenado('imagenes/noticias/portada.webp'),
+        'imagenes',
+      ),
     ).toBe(false);
   });
 
   it('solo acepta el prefijo solicitado', () => {
-    const banner = archivo('imagenes/banners/principal.webp');
+    const banner = archivoAlmacenado('imagenes/banners/principal.webp');
     expect(perteneceADestino(banner, 'imagenes', 'banners')).toBe(true);
     expect(perteneceADestino(banner, 'imagenes', 'noticias')).toBe(false);
   });

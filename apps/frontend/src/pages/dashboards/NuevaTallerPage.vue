@@ -1,13 +1,13 @@
 <template>
   <q-page class="q-pa-md">
-    <div class="row justify-between items-center q-mb-lg">
+    <div class="row items-center q-gutter-sm q-mb-lg">
+      <q-btn flat round icon="arrow_back" aria-label="Volver" @click="goBack" />
       <div>
         <div class="text-h4 text-weight-bold">Nuevo Taller</div>
         <div class="text-subtitle2 text-grey-7">
           Registra un taller con título, horarios y requisitos.
         </div>
       </div>
-      <q-btn label="Volver" flat text-color="white" @click="goBack" />
     </div>
 
     <q-card class="dashboard-card q-pa-md">
@@ -19,29 +19,30 @@
 </template>
 
 <script setup lang="ts">
-import { useRouter } from 'vue-router';
-import { ref } from 'vue';
-import { useQuasar } from 'quasar';
-import NewTallerForm from '../../components/forms/NewTallerForm.vue';
-import { useTalleresQuery } from '../../composables/useTalleresQuery';
-import type { TallerPayload } from '../../types';
+import { useRouter } from "vue-router";
+import { ref } from "vue";
+import { useQuasar } from "quasar";
+import { isAxiosError } from "axios";
+import NewTallerForm from "../../components/forms/NewTallerForm.vue";
+import { useTalleresQuery } from "../../composables/useTalleresQuery";
+import type { TallerPayload } from "../../types";
 
 const router = useRouter();
 const $q = useQuasar();
 const { create } = useTalleresQuery();
 const isPending = ref(false);
 
-const notify = (type: 'positive' | 'negative', message: string) => {
-  if (typeof $q.notify === 'function') {
+const notify = (type: "positive" | "negative", message: string) => {
+  if (typeof $q.notify === "function") {
     $q.notify({
       type,
       message,
-      position: 'top',
+      position: "top",
       timeout: 3200,
       multiLine: true,
       progress: true,
-      textColor: type === 'negative' ? 'white' : 'black',
-      classes: `app-notify app-notify-${type}`,
+      textColor: type === "negative" ? "white" : "black",
+      classes: `app-notify app-notify-${type}`
     });
     return;
   }
@@ -50,7 +51,7 @@ const notify = (type: 'positive' | 'negative', message: string) => {
 };
 
 const goBack = () => {
-  void router.push('/talleres');
+  void router.push("/talleres");
 };
 
 const handleSubmit = async (payload: TallerPayload) => {
@@ -58,11 +59,15 @@ const handleSubmit = async (payload: TallerPayload) => {
 
   try {
     await create(payload);
-    notify('positive', 'Taller creado exitosamente.');
-    void router.push('/talleres');
+    notify("positive", "Taller creado exitosamente.");
+    void router.push("/talleres");
   } catch (err) {
     console.error(err);
-    notify('negative', 'No se pudo crear el taller.');
+    const message = isAxiosError(err)
+      ? ((err.response?.data as { message?: string | string[] } | undefined)
+          ?.message ?? "No se pudo crear el taller.")
+      : "No se pudo crear el taller.";
+    notify("negative", Array.isArray(message) ? message.join(" ") : message);
   } finally {
     isPending.value = false;
   }

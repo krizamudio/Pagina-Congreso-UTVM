@@ -12,4 +12,5 @@ export type {
   ArchivoCategoria,
   ArchivoCategoriaPublica,
   ArchivoDestino,
+  ArchivoSubido,
 } from './archivo-validation.helper';

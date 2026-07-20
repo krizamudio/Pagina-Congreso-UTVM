@@ -8,19 +8,24 @@
           :rules="[requiredRule]"
           dense
           autofocus
-          dark
+          :dark="!isLight"
         />
       </div>
 
       <div class="col-12 col-md-6">
-        <q-input
+        <q-select
           v-model="form.congreso_id"
+          :options="congresoOptions"
+          option-label="label"
+          option-value="value"
+          emit-value
+          map-options
           label="Congreso"
           :rules="[requiredRule]"
-          hint="Escribe el nombre del congreso o pega su UUID"
-          persistent-hint
+          :loading="congresosLoading"
+          :disable="congresosLoading"
           dense
-          dark
+          :dark="!isLight"
         />
       </div>
 
@@ -32,26 +37,33 @@
           option-value="value"
           emit-value
           map-options
-          label="Ponente"
+          label="Ponente o panelista"
           :rules="[requiredRule]"
           :loading="ponentesLoading"
           :disable="ponentesLoading"
-          :display-value="selectedPonenteLabel"
           dense
-          dark
-        >
-          <template #selected>
-            <span>{{ selectedPonenteLabel }}</span>
-          </template>
-        </q-select>
+          :dark="!isLight"
+        />
       </div>
 
-      <div v-if="ponentesError" class="col-12 text-negative">
-        {{ ponentesError }}
+      <div v-if="catalogsError" class="col-12">
+        <q-banner rounded class="bg-red-10 text-white">
+          {{ catalogsError }}
+          <template #action>
+            <q-btn flat label="Reintentar" @click="loadCatalogs" />
+          </template>
+        </q-banner>
       </div>
 
       <div class="col-12">
-        <q-input v-model="form.resumen" label="Resumen" type="textarea" autogrow dense dark />
+        <q-input
+          v-model="form.resumen"
+          label="Resumen"
+          type="textarea"
+          autogrow
+          dense
+          :dark="!isLight"
+        />
       </div>
 
       <div class="col-12 col-md-4">
@@ -61,7 +73,7 @@
           label="Fecha"
           :rules="[requiredRule]"
           dense
-          dark
+          :dark="!isLight"
         />
       </div>
 
@@ -73,7 +85,7 @@
           placeholder="HH:MM"
           :rules="[requiredRule]"
           dense
-          dark
+          :dark="!isLight"
         />
       </div>
 
@@ -85,19 +97,24 @@
           placeholder="HH:MM"
           :rules="[requiredRule]"
           dense
-          dark
+          :dark="!isLight"
         />
       </div>
 
       <div class="col-12">
-        <q-input
+        <q-select
           v-model="form.ubicacion_id"
+          :options="ubicacionOptions"
+          option-label="label"
+          option-value="value"
+          emit-value
+          map-options
           label="Ubicación"
           :rules="[requiredRule]"
-          hint="Escribe el nombre de la ubicación o pega su UUID"
-          persistent-hint
+          :loading="ubicacionesLoading"
+          :disable="ubicacionesLoading"
           dense
-          dark
+          :dark="!isLight"
         />
       </div>
     </div>
@@ -111,151 +128,102 @@
         :loading="props.loading"
       />
     </div>
-
   </q-form>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue';
-import { useQuasar } from 'quasar';
-import { usePonente } from '../../composables/usePonente';
-import { useFormPersistence } from '../../composables/useFormPersistence';
-import { api } from '../../services/api';
-import type { ConferenciaPayload, Ponente } from '../../types';
+import { computed, onMounted } from "vue";
+import { useCongresosQuery } from "../../composables/useCongresosQuery";
+import { usePonente } from "../../composables/usePonente";
+import { useFormPersistence } from "../../composables/useFormPersistence";
+import { useThemeMode } from "../../composables/useThemeMode";
+import { useUbicacionesQuery } from "../../composables/useUbicacionesQuery";
+import type { ConferenciaPayload, Ponente } from "../../types";
+
+const { isLight } = useThemeMode();
 
 interface Props {
   loading?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  loading: false,
+  loading: false
 });
 
 const emit = defineEmits<{
-  (e: 'submit', payload: ConferenciaPayload): void;
+  (e: "submit", payload: ConferenciaPayload): void;
 }>();
 
-const $q = useQuasar();
 const { useGetPonentes } = usePonente();
-const { data: ponentes, isLoading: ponentesLoading, error: ponentesError, refetch: loadPonentes } = useGetPonentes();
-const congresosCatalog = ref<Array<{ id: string; nombre: string }>>([]);
-const ubicacionesCatalog = ref<Array<{ id: string; nombre: string }>>([]);
+const {
+  data: ponentes,
+  isLoading: ponentesLoading,
+  error: ponentesError,
+  refetch: loadPonentes
+} = useGetPonentes(50, 0, null);
+const {
+  data: congresos,
+  isRefreshing: congresosLoading,
+  error: congresosError,
+  load: loadCongresos
+} = useCongresosQuery();
+const {
+  data: ubicaciones,
+  isRefreshing: ubicacionesLoading,
+  error: ubicacionesError,
+  load: loadUbicaciones
+} = useUbicacionesQuery();
 
-const { formData: form } = useFormPersistence<ConferenciaPayload>('new-conferencia-form', {
-  congreso_id: '',
-  titulo: '',
-  ponente_id: '',
-  resumen: '',
-  fecha: '',
-  hora_inicio: '',
-  hora_fin: '',
-  ubicacion_id: '',
-});
+const { formData: form } = useFormPersistence<ConferenciaPayload>(
+  "new-conferencia-form",
+  {
+    congreso_id: "",
+    titulo: "",
+    ponente_id: "",
+    resumen: "",
+    fecha: "",
+    hora_inicio: "",
+    hora_fin: "",
+    ubicacion_id: ""
+  }
+);
 
 const ponenteOptions = computed(() => {
   return ponentes.value.map((ponente: Ponente) => ({
-    label: ponente.nombre,
-    value: ponente.id,
+    label: `${ponente.nombre} (${ponente.tipo})`,
+    value: ponente.id
   }));
 });
 
-const selectedPonenteLabel = computed(() => {
-  return ponenteOptions.value.find((option) => option.value === form.value.ponente_id)?.label ?? form.value.ponente_id;
-});
+const congresoOptions = computed(() =>
+  congresos.value.map(congreso => ({
+    label: congreso.nombre,
+    value: congreso.id
+  }))
+);
 
-const isUuid = (value: string) => {
-  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
-};
+const ubicacionOptions = computed(() =>
+  ubicaciones.value.map(ubicacion => ({
+    label: ubicacion.nombre,
+    value: ubicacion.id
+  }))
+);
 
-const normalize = (value: string) => value.trim().toLowerCase();
-
-const resolveByNameOrId = (
-  rawValue: string,
-  catalog: Array<{ id: string; nombre: string }>,
-) => {
-  const value = rawValue.trim();
-  if (!value) return value;
-  if (isUuid(value)) return value;
-
-  const match = catalog.find((item) => normalize(item.nombre) === normalize(value));
-  return match?.id ?? value;
-};
+const catalogsError = computed(
+  () => ponentesError.value || congresosError.value || ubicacionesError.value
+);
 
 const loadCatalogs = async () => {
-  try {
-    const [congresosResponse, ubicacionesResponse] = await Promise.all([
-      api.get('congreso'),
-      api.get('ubicacion'),
-    ]);
-
-    const congresos = Array.isArray(congresosResponse.data) ? congresosResponse.data : [];
-    const ubicaciones = Array.isArray(ubicacionesResponse.data) ? ubicacionesResponse.data : [];
-
-    congresosCatalog.value = congresos
-      .filter((item: any) => item?.id && item?.nombre)
-      .map((item: any) => ({ id: String(item.id), nombre: String(item.nombre) }));
-
-    ubicacionesCatalog.value = ubicaciones
-      .filter((item: any) => item?.id && item?.nombre)
-      .map((item: any) => ({ id: String(item.id), nombre: String(item.nombre) }));
-  } catch (catalogError) {
-    console.warn('No se pudo cargar catálogo de congreso/ubicación', catalogError);
-  }
+  await Promise.all([loadPonentes(), loadCongresos(), loadUbicaciones()]);
 };
 
-const requiredRule = (value: string) => !!value || 'Este campo es obligatorio';
-
-const notifyValidationError = (message: string) => {
-  if (typeof $q.notify === 'function') {
-    $q.notify({
-      type: 'negative',
-      message,
-      position: 'top',
-      timeout: 3200,
-      multiLine: true,
-      progress: true,
-      textColor: 'white',
-      classes: 'app-notify app-notify-negative',
-    });
-  }
-};
+const requiredRule = (value: string) => !!value || "Este campo es obligatorio";
 
 const submit = () => {
-  const congresoId = resolveByNameOrId(form.value.congreso_id, congresosCatalog.value);
-  const ubicacionId = resolveByNameOrId(form.value.ubicacion_id, ubicacionesCatalog.value);
-
-  if (!isUuid(congresoId)) {
-    notifyValidationError('No se encontró el congreso. Escribe un nombre existente o un UUID válido.');
-    return;
-  }
-
-  if (!isUuid(ubicacionId)) {
-    notifyValidationError('No se encontró la ubicación. Escribe un nombre existente o un UUID válido.');
-    return;
-  }
-
-  form.value.congreso_id = congresoId;
-  form.value.ubicacion_id = ubicacionId;
-
-  emit('submit', { ...form.value });
+  emit("submit", { ...form.value });
 };
 
 onMounted(() => {
-  void loadPonentes();
   void loadCatalogs();
 });
 </script>
-
-<style scoped>
-.new-conferencia-form {
-  color: #ffffff;
-}
-
-.new-conferencia-form .q-input__control {
-  color: #ffffff;
-}
-
-.new-conferencia-form .q-field__label {
-  color: rgba(255, 255, 255, 0.75);
-}
-</style>

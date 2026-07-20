@@ -11,9 +11,7 @@
           @click="toggleLeftDrawer"
         />
 
-        <q-toolbar-title class="text-h6">
-          Congreso UTVM
-        </q-toolbar-title>
+        <q-toolbar-title class="text-h6"> Congreso UTVM </q-toolbar-title>
 
         <q-btn
           flat
@@ -52,48 +50,32 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import EssentialLink, { type EssentialLinkProps } from '@/components/EssentialLink.vue';
-import { useThemeMode } from '@/composables/useThemeMode';
+import { ref } from "vue";
+import EssentialLink, {
+  type EssentialLinkProps
+} from "@/components/EssentialLink.vue";
+import { useThemeMode } from "@/composables/useThemeMode";
 
 const { isLight, toggleTheme } = useThemeMode();
 
 const linksList: EssentialLinkProps[] = [
   {
-    label: "Registro de Participantes",
-    caption: "Externos",
-    icon: "how_to_reg",
-    link: "/registro-externo"
+    label: "Dashboard de administrador",
+    caption: "Resumen general",
+    icon: "dashboard",
+    link: "/admin/dashboard"
   },
   {
-    label: "Registro NSU",
-    caption: "Formulario de registro",
-    icon: "school",
-    link: "/registro_nsu"
+    label: "Participantes",
+    caption: "Administración y validación",
+    icon: "badge",
+    link: "/participantes"
   },
   {
-    label: "Registro EMS",
-    caption: "Participantes EMS",
-    icon: "groups",
-    link: "/registro_ems"
-  },
-  {
-    label: "Registro UTVM",
-    caption: "Participantes UTVM",
-    icon: "account_balance",
-    link: "/registro_utvm"
-  },
-  {
-    label: 'Participantes',
-    caption: 'Administración y validación',
-    icon: 'badge',
-    link: '/participantes',
-  },
-  {
-    label: 'Conferencias',
-    caption: 'Gestión de conferencias',
-    icon: 'code',
-    link: '/conferencias',
+    label: "Conferencias",
+    caption: "Gestión de conferencias",
+    icon: "code",
+    link: "/conferencias"
   },
   {
     label: "Congresos",
@@ -114,16 +96,28 @@ const linksList: EssentialLinkProps[] = [
     link: "/talleres"
   },
   {
-    label: "Ponentes",
-    caption: "Gestión de ponentes",
+    label: "Ponentes y panelistas",
+    caption: "Gestión de ponentes y panelistas",
     icon: "record_voice_over",
     link: "/ponentes"
   },
   {
-    label: "Paneles",
-    caption: "Gestión de panelistas",
-    icon: "rss_feed",
-    link: "/paneles"
+    label: "Reconocimientos",
+    caption: "Emisión para ponentes y panelistas",
+    icon: "workspace_premium",
+    link: "/reconocimientos"
+  },
+  {
+    label: "Foros empresariales",
+    caption: "Gestión de foros empresariales",
+    icon: "business_center",
+    link: "/foros-empresariales"
+  },
+  {
+    label: "Página oficial",
+    caption: "Noticias, agenda y contenido",
+    icon: "web",
+    link: "/pagina-oficial"
   }
 ];
 

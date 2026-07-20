@@ -1,17 +1,26 @@
 <template>
   <q-page class="hero-page q-pa-md">
-    <div class="row justify-between items-center q-mb-lg"
-      ><div
-        ><div class="text-h4 text-weight-bold">{{
-          editing ? "Editar ubicación" : "Nueva ubicación"
-        }}</div
-        ><div class="text-subtitle2 text-grey-7">{{
-          editing
-            ? "Actualiza el nombre o la capacidad."
-            : "Registra un espacio disponible para actividades."
-        }}</div></div
-      ><q-btn flat label="Volver" to="/ubicaciones"
-    /></div>
+    <div class="row items-center q-gutter-sm q-mb-lg">
+      <q-btn
+        flat
+        round
+        icon="arrow_back"
+        aria-label="Volver"
+        to="/ubicaciones"
+      />
+      <div>
+        <div class="text-h4 text-weight-bold">
+          {{ editing ? "Editar ubicación" : "Nueva ubicación" }}
+        </div>
+        <div class="text-subtitle2 text-grey-7">
+          {{
+            editing
+              ? "Actualiza el nombre o la capacidad."
+              : "Registra un espacio disponible para actividades."
+          }}
+        </div>
+      </div>
+    </div>
     <q-card class="dashboard-card q-pa-md"
       ><q-card-section>
         <div v-if="isLoading" class="text-grey-5">Cargando ubicación...</div>

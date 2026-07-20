@@ -9,8 +9,13 @@
       </div>
 
       <div class="row items-center q-gutter-sm">
-        <q-btn label="Recargar" icon="refresh" color="primary" @click="load" />
-        <q-btn label="Nuevo taller" icon="add" unelevated color="primary" @click="goToNew" />
+        <q-btn
+          label="Nuevo taller"
+          icon="add"
+          unelevated
+          color="primary"
+          @click="goToNew"
+        />
       </div>
     </div>
 
@@ -21,50 +26,60 @@
       :error="error"
       @edit="handleEdit"
       @delete="handleDelete"
+      @recognitions="handleRecognitions"
     />
   </q-page>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import { useQuasar } from 'quasar';
-import TallerList from '../../components/list/TallerList.vue';
-import { useTalleresQuery } from '../../composables/useTalleresQuery';
-import { usePonente } from '../../composables/usePonente';
+import { computed, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import { useQuasar } from "quasar";
+import TallerList from "../../components/list/TallerList.vue";
+import { useDeleteConfirmation } from "../../composables/useDeleteConfirmation";
+import { useTalleresQuery } from "../../composables/useTalleresQuery";
+import { usePonente } from "../../composables/usePonente";
 
 const router = useRouter();
 const $q = useQuasar();
+const { confirmDelete } = useDeleteConfirmation();
 const { data, isRefreshing, error, load, remove } = useTalleresQuery();
 const { useGetPonentes } = usePonente();
-const { data: ponentes, refetch: loadPonentes } = useGetPonentes();
+const { data: ponentes, refetch: loadPonentes } = useGetPonentes(50, 0, null);
 
 const talleristaNames = computed(() => {
-  return ponentes.value.reduce<Record<string, string>>((accumulator, ponente) => {
-    accumulator[ponente.id] = ponente.nombre;
-    return accumulator;
-  }, {});
+  return ponentes.value.reduce<Record<string, string>>(
+    (accumulator, ponente) => {
+      accumulator[ponente.id] = ponente.nombre;
+      return accumulator;
+    },
+    {}
+  );
 });
 
 const goToNew = () => {
-  void router.push('/talleres/nuevo');
+  void router.push("/talleres/nuevo");
 };
 
 const handleEdit = (id: string) => {
   void router.push(`/talleres/${id}/editar`);
 };
 
-const notify = (type: 'positive' | 'negative', message: string) => {
-  if (typeof $q.notify === 'function') {
+const handleRecognitions = (id: string) => {
+  void router.push({ path: "/reconocimientos", query: { tallerId: id } });
+};
+
+const notify = (type: "positive" | "negative", message: string) => {
+  if (typeof $q.notify === "function") {
     $q.notify({
       type,
       message,
-      position: 'top',
+      position: "top",
       timeout: 3200,
       multiLine: true,
       progress: true,
-      textColor: type === 'negative' ? 'white' : 'black',
-      classes: `app-notify app-notify-${type}`,
+      textColor: type === "negative" ? "white" : "black",
+      classes: `app-notify app-notify-${type}`
     });
     return;
   }
@@ -73,16 +88,19 @@ const notify = (type: 'positive' | 'negative', message: string) => {
 };
 
 const handleDelete = async (id: string) => {
-  const confirmed = window.confirm('¿Seguro que deseas eliminar este taller?');
+  const confirmed = await confirmDelete({
+    title: "Eliminar taller",
+    message: "¿Seguro que deseas eliminar este taller?"
+  });
   if (!confirmed) return;
 
   try {
     await remove(id);
-    notify('positive', 'Taller eliminado correctamente.');
+    notify("positive", "Taller eliminado correctamente.");
     await load();
   } catch (err) {
     console.error(err);
-    notify('negative', 'No se pudo eliminar el taller.');
+    notify("negative", "No se pudo eliminar el taller.");
   }
 };
 

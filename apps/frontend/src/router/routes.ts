@@ -130,21 +130,66 @@ const routes: RouteRecordRaw[] = [
         alias: "/ponentes/:id/editar",
         component: () => import("@/pages/dashboards/EditarPonentePage.vue")
       },
+      {
+        path: "reconocimientos",
+        alias: "/reconocimientos",
+        component: () => import("@/pages/dashboards/ReconocimientosPage.vue")
+      },
 
       {
-        path: "paneles",
-        alias: "/paneles",
-        component: () => import("@/pages/dashboards/PanelesPage.vue")
+        path: "foros-empresariales",
+        alias: "/foros-empresariales",
+        component: () => import("@/pages/dashboards/ForosEmpresarialesPage.vue")
       },
       {
-        path: "paneles/nuevo",
-        alias: "/paneles/nuevo",
-        component: () => import("@/pages/dashboards/NuevaPanelPage.vue")
+        path: "foros-empresariales/nuevo",
+        alias: "/foros-empresariales/nuevo",
+        component: () =>
+          import("@/pages/dashboards/NuevoForoEmpresarialPage.vue")
       },
       {
-        path: "paneles/:id/editar",
-        alias: "/paneles/:id/editar",
-        component: () => import("@/pages/dashboards/EditarPanelPage.vue")
+        path: "foros-empresariales/:id/editar",
+        alias: "/foros-empresariales/:id/editar",
+        component: () =>
+          import("@/pages/dashboards/EditarForoEmpresarialPage.vue")
+      },
+
+      {
+        path: "pagina-oficial",
+        alias: "/pagina-oficial",
+        component: () => import("@/pages/dashboards/PaginaOficialPage.vue")
+      },
+      {
+        path: "pagina-oficial/noticias/nueva",
+        alias: "/pagina-oficial/noticias/nueva",
+        component: () => import("@/pages/dashboards/NoticiaEditorPage.vue")
+      },
+      {
+        path: "pagina-oficial/noticias/:id/editar",
+        alias: "/pagina-oficial/noticias/:id/editar",
+        component: () => import("@/pages/dashboards/NoticiaEditorPage.vue")
+      },
+      {
+        path: "pagina-oficial/secciones/nueva",
+        alias: "/pagina-oficial/secciones/nueva",
+        component: () =>
+          import("@/pages/dashboards/SeccionContenidoEditorPage.vue")
+      },
+      {
+        path: "pagina-oficial/secciones/:id/editar",
+        alias: "/pagina-oficial/secciones/:id/editar",
+        component: () =>
+          import("@/pages/dashboards/SeccionContenidoEditorPage.vue")
+      },
+      {
+        path: "pagina-oficial/banners/nuevo",
+        alias: "/pagina-oficial/banners/nuevo",
+        component: () => import("@/pages/dashboards/BannerEditorPage.vue")
+      },
+      {
+        path: "pagina-oficial/banners/:id/editar",
+        alias: "/pagina-oficial/banners/:id/editar",
+        component: () => import("@/pages/dashboards/BannerEditorPage.vue")
       },
 
       {
