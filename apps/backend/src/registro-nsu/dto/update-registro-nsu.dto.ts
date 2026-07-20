@@ -1,10 +1,7 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { IsIn, IsOptional, IsString } from 'class-validator';
-import { CreateRegistroNsuDto } from './create-registro-nsu.dto';
+import { IsIn, IsString } from 'class-validator';
 
-export class UpdateRegistroNsuDto extends PartialType(CreateRegistroNsuDto) {
-  @IsOptional()
+export class UpdateRegistroNsuDto {
   @IsString()
   @IsIn(['PENDIENTE', 'VALIDADO', 'RECHAZADO'])
-  estado_pago?: string;
+  estado_pago!: string;
 }

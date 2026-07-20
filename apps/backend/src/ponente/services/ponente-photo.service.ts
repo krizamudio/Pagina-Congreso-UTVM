@@ -1,16 +1,20 @@
 import {
+  ConflictException,
   Injectable,
   InternalServerErrorException,
   Logger,
   NotFoundException,
 } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 import { ArchivoMultimedia } from '../../archivo_multimedia/entities/archivo_multimedia.entity';
-import { perteneceACategoria } from '../../archivo_multimedia/services/archivo-validation.helper';
+import { perteneceADestino } from '../../archivo_multimedia/services/archivo-validation.helper';
 import {
   ArchivoMultimediaService,
   ArchivoStorageService,
 } from '../../archivo_multimedia/services';
+import { ForoEmpresarial } from '../../foro-empresarial/entities/foro-empresarial.entity';
 
 @Injectable()
 export class PonentePhotoService {
@@ -19,6 +23,8 @@ export class PonentePhotoService {
   constructor(
     private readonly archivos: ArchivoMultimediaService,
     private readonly storage: ArchivoStorageService,
+    @InjectRepository(ForoEmpresarial)
+    private readonly foros: Repository<ForoEmpresarial>,
   ) {}
 
   async resolve(
@@ -37,8 +43,17 @@ export class PonentePhotoService {
       throw error;
     }
 
-    if (!perteneceACategoria(foto, 'imagenes')) {
+    if (!perteneceADestino(foto, 'imagenes')) {
       throw new NotFoundException('La foto indicada no existe');
+    }
+
+    const usadaComoLogo = await this.foros.exists({
+      where: { logo: { id } },
+    });
+    if (usadaComoLogo) {
+      throw new ConflictException(
+        'El archivo indicado ya está asignado a otro registro',
+      );
     }
 
     return foto;

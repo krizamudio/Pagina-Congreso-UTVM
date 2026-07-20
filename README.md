@@ -288,6 +288,18 @@ La guía de configuración, emisión, escaneo, confirmación, casos negativos y
 pruebas de concurrencia está disponible en
 [docs/api/qr-acceso.md](docs/api/qr-acceso.md).
 
+### Documentación del módulo Foro Empresarial
+
+El contrato del CRUD, las relaciones y el ciclo de vida de los logos está
+disponible en
+[docs/api/foro-empresarial.md](docs/api/foro-empresarial.md).
+
+### Documentación de Gestión de contenido (RF-24)
+
+Los contratos administrativos, la página pública, la agenda unificada y la
+organización de imágenes en Supabase están documentados en
+[docs/api/gestion-contenido.md](docs/api/gestion-contenido.md).
+
 ## Flujo de trabajo con GitFlow
 
 Este proyecto puede trabajarse usando GitFlow.

@@ -10,8 +10,11 @@ import { ArchivoMultimedia } from '../entities/archivo_multimedia.entity';
 import { ArchivoMultimediaMapper } from '../mappers';
 import { ResourceLockService } from '../../common/resource-lock.service';
 import { ArchivoMultimediaService } from './archivo_multimedia.service';
-import { perteneceACategoria } from './archivo-validation.helper';
-import type { ArchivoCategoria } from './archivo-validation.helper';
+import { perteneceADestino } from './archivo-validation.helper';
+import type {
+  ArchivoCategoriaPublica,
+  ArchivoDestino,
+} from './archivo-validation.helper';
 import { ArchivoRetryService } from './archivo-retry.service';
 import { SupabaseStorageService } from './supabase-storage.service';
 
@@ -31,9 +34,10 @@ export class ArchivoStorageService {
 
   async uploadFile(
     archivo: Express.Multer.File,
-    categoria: ArchivoCategoria,
+    categoria: ArchivoCategoriaPublica,
+    destino?: ArchivoDestino,
   ): Promise<ArchivoResponseDto> {
-    const datos = await this.storage.upload(archivo, categoria);
+    const datos = await this.storage.upload(archivo, categoria, destino);
 
     try {
       // TODO: Sustituir este UUID por el usuario autenticado.
@@ -52,25 +56,31 @@ export class ArchivoStorageService {
 
   async getFile(
     id: string,
-    categoria: ArchivoCategoria,
+    categoria: ArchivoCategoriaPublica,
+    destino?: ArchivoDestino,
   ): Promise<ArchivoResponseDto> {
-    const registro = await this.getRegistro(id, categoria);
+    const registro = await this.getRegistro(id, categoria, destino);
     return this.mapper.toResponse(registro);
   }
 
   updateFile(
     id: string,
     archivo: Express.Multer.File,
-    categoria: ArchivoCategoria,
+    categoria: ArchivoCategoriaPublica,
+    destino?: ArchivoDestino,
   ): Promise<ArchivoResponseDto> {
     return this.locks.withLock(`archivo:${id}`, () =>
-      this.updateLocked(id, archivo, categoria),
+      this.updateLocked(id, archivo, categoria, destino),
     );
   }
 
-  deleteFile(id: string, categoria: ArchivoCategoria): Promise<string> {
+  deleteFile(
+    id: string,
+    categoria: ArchivoCategoriaPublica,
+    destino?: ArchivoDestino,
+  ): Promise<string> {
     return this.locks.withLock(`archivo:${id}`, async () => {
-      const registro = await this.getRegistro(id, categoria);
+      const registro = await this.getRegistro(id, categoria, destino);
       await this.archivos.delete(registro);
 
       const eliminado = await this.retry.execute(
@@ -91,10 +101,11 @@ export class ArchivoStorageService {
   private async updateLocked(
     id: string,
     archivo: Express.Multer.File,
-    categoria: ArchivoCategoria,
+    categoria: ArchivoCategoriaPublica,
+    destino?: ArchivoDestino,
   ): Promise<ArchivoResponseDto> {
-    const original = await this.getRegistro(id, categoria);
-    const datosNuevos = await this.storage.upload(archivo, categoria);
+    const original = await this.getRegistro(id, categoria, destino);
+    const datosNuevos = await this.storage.upload(archivo, categoria, destino);
 
     let actualizado: ArchivoMultimedia;
     try {
@@ -151,10 +162,11 @@ export class ArchivoStorageService {
 
   private async getRegistro(
     id: string,
-    categoria: ArchivoCategoria,
+    categoria: ArchivoCategoriaPublica,
+    destino?: ArchivoDestino,
   ): Promise<ArchivoMultimedia> {
     const registro = await this.archivos.findOne(id);
-    if (!perteneceACategoria(registro, categoria)) {
+    if (!perteneceADestino(registro, categoria, destino)) {
       throw new NotFoundException('Archivo no encontrado');
     }
     return registro;

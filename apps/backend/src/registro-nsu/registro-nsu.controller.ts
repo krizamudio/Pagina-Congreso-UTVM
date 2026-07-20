@@ -6,13 +6,10 @@ import {
   Get,
   Param,
   ParseUUIDPipe,
-  ParseFilePipe,
   Patch,
   Post,
   UploadedFile,
   UseInterceptors,
-  MaxFileSizeValidator,
-  FileTypeValidator,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 
@@ -23,6 +20,11 @@ import { UpdateRegistroNsuDto } from './dto/update-registro-nsu.dto';
 import { UpdateParticipanteNsuStatusDto } from './dto/update-participante-nsu-status.dto';
 import type { CreateParticipanteNsuDto } from './dto/create-registro-nsu.dto';
 import { EnviarQrAccesoDto } from '../participante-qr/dto/enviar-qr-acceso.dto';
+import {
+  ARCHIVO_UPLOAD_OPTIONS,
+  ArchivoConcurrencyInterceptor,
+  crearPipeArchivo,
+} from '../archivo_multimedia/services';
 
 @Controller('registro-nsu')
 export class RegistroNsuController {
@@ -34,22 +36,13 @@ export class RegistroNsuController {
   }
 
   @Post()
-  @UseInterceptors(FileInterceptor('comprobante'))
+  @UseInterceptors(
+    ArchivoConcurrencyInterceptor,
+    FileInterceptor('comprobante', ARCHIVO_UPLOAD_OPTIONS),
+  )
   create(
     @Body('participantes') participantes: string | CreateParticipanteNsuDto[],
-    @UploadedFile(
-      new ParseFilePipe({
-        fileIsRequired: true,
-        validators: [
-          new MaxFileSizeValidator({
-            maxSize: 10 * 1024 * 1024,
-          }),
-          new FileTypeValidator({
-            fileType: /(pdf|jpg|jpeg|png)$/i,
-          }),
-        ],
-      }),
-    )
+    @UploadedFile(crearPipeArchivo('comprobantes'))
     comprobante: UploadedFileType,
   ) {
     let participantesParseados: CreateParticipanteNsuDto[];
@@ -77,13 +70,13 @@ export class RegistroNsuController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.registroNsuService.findOne(id);
   }
 
   @Patch(':id')
   update(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() updateRegistroNsuDto: UpdateRegistroNsuDto,
   ) {
     return this.registroNsuService.update(id, updateRegistroNsuDto);
@@ -91,8 +84,8 @@ export class RegistroNsuController {
 
   @Patch(':id/participantes/:participanteId')
   updateParticipanteStatus(
-    @Param('id') id: string,
-    @Param('participanteId') participanteId: string,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Param('participanteId', ParseUUIDPipe) participanteId: string,
     @Body() updateParticipanteNsuStatusDto: UpdateParticipanteNsuStatusDto,
   ) {
     return this.registroNsuService.updateParticipanteStatus(
@@ -121,19 +114,19 @@ export class RegistroNsuController {
 
   @Delete(':id/participantes/:participanteId')
   removeParticipante(
-    @Param('id') id: string,
-    @Param('participanteId') participanteId: string,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Param('participanteId', ParseUUIDPipe) participanteId: string,
   ) {
     return this.registroNsuService.removeParticipante(id, participanteId);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.registroNsuService.remove(id);
   }
 
   @Patch(':id/restore')
-  restore(@Param('id') id: string) {
+  restore(@Param('id', ParseUUIDPipe) id: string) {
     return this.registroNsuService.restore(id);
   }
 }

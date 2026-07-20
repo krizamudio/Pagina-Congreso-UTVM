@@ -8,6 +8,14 @@
       {
         "include": "correo/templates/**/*",
         "watchAssets": true
+      },
+      {
+        "include": "resources/backgrounds/**/*",
+        "watchAssets": true
+      },
+      {
+        "include": "resources/fonts/**/*",
+        "watchAssets": true
       }
     ]
   }

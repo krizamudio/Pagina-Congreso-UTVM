@@ -7,7 +7,10 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 
 import { GeneradorCommon } from '../../common/generador.common';
 import { obtenerExtensionArchivo } from './archivo-validation.helper';
-import type { ArchivoCategoria } from './archivo-validation.helper';
+import type {
+  ArchivoCategoriaPublica,
+  ArchivoDestino,
+} from './archivo-validation.helper';
 import { createSupabaseClient } from './supabase-client.factory';
 
 export interface ArchivoStorageData {
@@ -29,10 +32,12 @@ export class SupabaseStorageService {
 
   async upload(
     archivo: Express.Multer.File,
-    categoria: ArchivoCategoria,
+    categoria: ArchivoCategoriaPublica,
+    destino?: ArchivoDestino,
   ): Promise<ArchivoStorageData> {
     const extension = obtenerExtensionArchivo(archivo, categoria);
-    const path = `${categoria}/${this.generador.CadenasAleatorias()}.${extension}`;
+    const prefix = destino ? `${categoria}/${destino}` : categoria;
+    const path = `${prefix}/${this.generador.CadenasAleatorias()}.${extension}`;
 
     try {
       const { error } = await this.supabase.storage

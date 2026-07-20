@@ -1,10 +1,10 @@
 <template>
-  <q-form class="text-white" @submit.prevent="submit">
+  <q-form @submit.prevent="submit">
     <div class="row q-col-gutter-md">
       <q-input
         v-model.trim="form.nombre"
         class="col-12 col-md-8"
-        dark
+        :dark="!isLight"
         dense
         autofocus
         counter
@@ -15,7 +15,7 @@
       <q-input
         v-model.number="form.capacidad"
         class="col-12 col-md-4"
-        dark
+        :dark="!isLight"
         dense
         type="number"
         min="1"
@@ -37,7 +37,10 @@
 
 <script setup lang="ts">
 import { reactive, watch } from "vue";
+import { useThemeMode } from "../../composables/useThemeMode";
 import type { Ubicacion, UbicacionPayload } from "../../types";
+
+const { isLight } = useThemeMode();
 
 const props = withDefaults(
   defineProps<{

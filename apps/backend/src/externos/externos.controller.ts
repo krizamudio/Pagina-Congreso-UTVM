@@ -15,16 +15,18 @@ import {
 
 import type { Response } from 'express';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { memoryStorage } from 'multer';
 
 import { ExternosService } from './externos.service';
 import { CreateExternoDto } from './dto/create-externo.dto';
 import { UpdateExternoDto } from './dto/update-externo.dto';
 import { EnviarQrAccesoDto } from '../participante-qr/dto/enviar-qr-acceso.dto';
+import {
+  ARCHIVO_UPLOAD_OPTIONS,
+  ArchivoConcurrencyInterceptor,
+  crearPipeArchivo,
+} from '../archivo_multimedia/services';
 
-function normalizarDias(
-  dias: string | string[] | undefined,
-): string[] {
+function normalizarDias(dias: string | string[] | undefined): string[] {
   if (!dias) {
     return [];
   }
@@ -34,10 +36,12 @@ function normalizarDias(
   }
 
   try {
-    const diasParseados = JSON.parse(dias);
+    const diasParseados: unknown = JSON.parse(dias);
 
     if (Array.isArray(diasParseados)) {
-      return diasParseados;
+      return diasParseados.filter(
+        (dia: unknown): dia is string => typeof dia === 'string',
+      );
     }
   } catch {
     return [dias];
@@ -46,19 +50,24 @@ function normalizarDias(
   return [dias];
 }
 
+interface ExternoMultipartBody {
+  nombre: string;
+  apellidoPaterno: string;
+  apellidoMaterno?: string;
+  correo: string;
+  telefono: string;
+  institucion?: string;
+  dias?: string | string[];
+  total: string | number;
+}
+
 @Controller('externos')
 export class ExternosController {
-  constructor(
-    private readonly externosService: ExternosService,
-  ) {}
+  constructor(private readonly externosService: ExternosService) {}
 
   @Get('verificar-correo/:token')
-  async verificarCorreo(
-    @Param('token') token: string,
-    @Res() res: Response,
-  ) {
-    const frontendUrl =
-      process.env.FRONTEND_URL || 'http://localhost:9000';
+  async verificarCorreo(@Param('token') token: string, @Res() res: Response) {
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:9000';
 
     try {
       await this.externosService.verificarCorreo(token);
@@ -80,42 +89,16 @@ export class ExternosController {
 
   @Post()
   @UseInterceptors(
-    FileInterceptor('comprobante', {
-      storage: memoryStorage(),
-
-      fileFilter: (req, file, callback) => {
-        const tiposPermitidos = [
-          'application/pdf',
-          'image/jpeg',
-          'image/jpg',
-          'image/png',
-        ];
-
-        if (!tiposPermitidos.includes(file.mimetype)) {
-          return callback(
-            new BadRequestException(
-              'Formato no válido. Solo PDF, JPG o PNG.',
-            ),
-            false,
-          );
-        }
-
-        callback(null, true);
-      },
-
-      limits: {
-        fileSize: 5 * 1024 * 1024,
-      },
-    }),
+    ArchivoConcurrencyInterceptor,
+    FileInterceptor('comprobante', ARCHIVO_UPLOAD_OPTIONS),
   )
   async create(
-    @UploadedFile() file: Express.Multer.File,
-    @Body() body: any,
+    @UploadedFile(crearPipeArchivo('comprobantes'))
+    file: Express.Multer.File,
+    @Body() body: ExternoMultipartBody,
   ) {
     if (!file) {
-      throw new BadRequestException(
-        'Debes adjuntar un comprobante.',
-      );
+      throw new BadRequestException('Debes adjuntar un comprobante.');
     }
 
     const createExternoDto: CreateExternoDto = {
@@ -129,10 +112,7 @@ export class ExternosController {
       total: Number(body.total),
     };
 
-    return this.externosService.create(
-      createExternoDto,
-      file,
-    );
+    return this.externosService.create(createExternoDto, file);
   }
 
   @Get()
@@ -154,31 +134,25 @@ export class ExternosController {
   }
 
   @Get(':id')
-  findOne(
-    @Param('id') id: string,
-  ) {
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.externosService.findOne(id);
   }
 
   @Patch(':id')
   update(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() updateExternoDto: UpdateExternoDto,
   ) {
     return this.externosService.update(id, updateExternoDto);
   }
 
   @Delete(':id')
-  remove(
-    @Param('id') id: string,
-  ) {
+  remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.externosService.remove(id);
   }
 
   @Patch(':id/restore')
-  restore(
-    @Param('id') id: string,
-  ) {
+  restore(@Param('id', ParseUUIDPipe) id: string) {
     return this.externosService.restore(id);
   }
 }

@@ -1,11 +1,11 @@
 <template>
   <q-page class="q-pa-md">
-    <div class="row justify-between items-center q-mb-lg">
+    <div class="row items-center q-gutter-sm q-mb-lg">
+      <q-btn flat round icon="arrow_back" aria-label="Volver" @click="goBack" />
       <div>
         <div class="text-h4 text-weight-bold">Editar Panelista</div>
         <div class="text-subtitle2 text-grey-7">Actualiza los datos del panelista.</div>
       </div>
-      <q-btn label="Volver" flat text-color="white" @click="goBack" />
     </div>
 
     <q-card class="dashboard-card q-pa-md">
@@ -41,7 +41,10 @@ const recordId = computed(() => route.params.id ?? '');
 const { data, isLoading, error, fetch } = useGetPonenteById(recordId.value);
 const { mutate: updatePanelista, isPending } = useUpdatePonente();
 const panelistaPhotoUploadEndpoint = (import.meta.env.VITE_UPLOAD_PANELISTA_PHOTO_ENDPOINT as string | undefined)?.trim() || (import.meta.env.VITE_UPLOAD_PONENTE_PHOTO_ENDPOINT as string | undefined)?.trim() || '';
-const initialPanelistaData = computed<Partial<PanelPayload>>(() => data.value ?? {});
+const initialPanelistaData = computed<Partial<PanelPayload>>(() => ({
+  ...data.value,
+  tipo: 'Panelista',
+}));
 
 const notify = (type: 'positive' | 'negative' | 'warning', message: string) => {
   if (typeof $q.notify === 'function') {
@@ -67,7 +70,10 @@ const goBack = () => {
 
 const handleSubmit = async ({ panelista, foto }: { panelista: PanelPayload; foto: File | null }) => {
   try {
-    const payload: Partial<PanelPayload> = { ...panelista };
+    const payload: Partial<PanelPayload> = {
+      ...panelista,
+      tipo: 'Panelista',
+    };
 
     if (foto && panelistaPhotoUploadEndpoint) {
       const uploadFormData = new FormData();

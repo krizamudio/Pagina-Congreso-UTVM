@@ -8,35 +8,72 @@
           :rules="[requiredRule]"
           dense
           autofocus
-          dark
+          :dark="!isLight"
         />
       </div>
 
       <div class="col-12 col-md-6">
-        <q-input v-model="form.institucion" label="Institución" :rules="[requiredRule]" dense dark />
+        <q-input
+          v-model="form.institucion"
+          label="Institución"
+          :rules="[requiredRule]"
+          dense
+          :dark="!isLight"
+        />
+      </div>
+
+      <div class="col-12 col-md-6">
+        <q-select
+          v-model="form.tipo"
+          :options="tipoOptions"
+          label="Tipo"
+          :rules="[requiredRule]"
+          dense
+          emit-value
+          map-options
+          :dark="!isLight"
+        />
       </div>
 
       <div class="col-12">
-        <q-input v-model="form.semblanza" label="Semblanza" :rules="[requiredRule]" type="textarea" autogrow dense dark />
+        <q-input
+          v-model="form.semblanza"
+          label="Semblanza"
+          :rules="[requiredRule]"
+          type="textarea"
+          autogrow
+          dense
+          :dark="!isLight"
+        />
       </div>
 
       <div class="col-12 col-md-6">
-        <q-input v-model="form.tema" label="Tema" :rules="[requiredRule]" dense dark />
+        <q-input
+          v-model="form.tema"
+          label="Tema"
+          :rules="[requiredRule]"
+          dense
+          :dark="!isLight"
+        />
       </div>
 
       <div class="col-12 col-md-6">
-        <q-toggle v-model="form.visible_publico" label="Visible públicamente" dark />
+        <q-toggle
+          v-model="form.visible_publico"
+          label="Visible públicamente"
+          :dark="!isLight"
+        />
       </div>
 
       <div class="col-12">
         <q-file
           v-model="selectedImage"
-          label="Foto del ponente"
-          hint="Se sube tal como fue seleccionada"
+          label="Foto del ponente o panelista"
+          hint="Se convierte automáticamente a WebP antes de subirla"
           accept="image/*"
           clearable
           dense
-          dark
+          :dark="!isLight"
           @update:model-value="handleImageChange"
 
         >
@@ -47,10 +84,14 @@
       </div>
 
       <div v-if="imagePreviewUrl" class="col-12 col-md-6">
-        <q-card flat bordered class="image-preview-card bg-grey-10">
+        <q-card flat bordered class="image-preview-card">
           <q-card-section>
             <div class="text-caption q-mb-sm">Vista previa</div>
-            <img :src="imagePreviewUrl" alt="Vista previa de foto de ponente" class="image-preview" />
+            <img
+              :src="imagePreviewUrl"
+              alt="Vista previa de foto del ponente o panelista"
+              class="image-preview"
+            />
             <div v-if="selectedImage" class="text-caption q-mt-sm text-grey-5">
               Archivo: {{ selectedImage.name }}
             </div>
@@ -65,7 +106,7 @@
       <q-btn
         unelevated
         color="primary"
-        :label="props.loading ? 'Guardando...' : 'Guardar ponente'"
+        :label="props.loading ? 'Guardando...' : 'Guardar participante'"
         type="submit"
         :loading="props.loading"
         :disable="props.loading"
@@ -77,14 +118,17 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, ref } from 'vue';
-import { useFormPersistence } from '../../composables/useFormPersistence';
-import type { PonentePayload } from '../../types';
+import { onBeforeUnmount, ref } from "vue";
+import { useFormPersistence } from "../../composables/useFormPersistence";
+import { useThemeMode } from "../../composables/useThemeMode";
+import type { PonentePayload, PonenteTipo } from "../../types";
+
+const { isLight } = useThemeMode();
 
 function generateUUID() {
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+  return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
     const r = (Math.random() * 16) | 0;
-    const v = c === 'x' ? r : (r & 0x3) | 0x8;
+    const v = c === "x" ? r : (r & 0x3) | 0x8;
     return v.toString(16);
   });
 }
@@ -94,11 +138,11 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  loading: false,
+  loading: false
 });
 
 const emit = defineEmits<{
-  (e: 'submit', payload: NewPonenteSubmitPayload): void;
+  (e: "submit", payload: NewPonenteSubmitPayload): void;
 }>();
 
 interface NewPonenteSubmitPayload {
@@ -110,18 +154,29 @@ const error = ref<string | null>(null);
 const imageError = ref<string | null>(null);
 const selectedImage = ref<File | null>(null);
 const imagePreviewUrl = ref<string | null>(null);
+const tipoOptions: { label: string; value: PonenteTipo }[] = [
+  { label: "Ponente", value: "Ponente" },
+  { label: "Panelista", value: "Panelista" }
+];
 
-const { formData: form } = useFormPersistence<PonentePayload>('new-ponente-form', {
-  nombre: '',
-  usuario_id: generateUUID(),
-  archivo_foto_id: '',
-  institucion: '',
-  semblanza: '',
-  tema: '',
-  visible_publico: true,
-});
+const { formData: form } = useFormPersistence<PonentePayload>(
+  "new-ponente-form",
+  {
+    nombre: "",
+    usuario_id: generateUUID(),
+    archivo_foto_id: "",
+    institucion: "",
+    tipo: "Ponente",
+    semblanza: "",
+    tema: "",
+    visible_publico: true
+  }
+);
 
-const requiredRule = (value?: string | null) => (value?.trim().length ?? 0) > 0 || 'Este campo es obligatorio';
+const requiredRule = (value?: string | null) =>
+  (value?.trim().length ?? 0) > 0 || "Este campo es obligatorio";
+const requiredFileRule = (value?: File | null) =>
+  value instanceof File || "Este campo es obligatorio";
 
 const revokePreviewUrl = () => {
   if (imagePreviewUrl.value) {
@@ -152,9 +207,9 @@ const submit = () => {
   }
 
   error.value = null;
-  emit('submit', {
+  emit("submit", {
     ponente: { ...form.value },
-    foto: selectedImage.value,
+    foto: selectedImage.value
   });
 };
 
@@ -164,12 +219,10 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-.new-ponente-form {
-  color: #ffffff;
-}
-
 .image-preview-card {
-  border-color: #394150;
+  color: var(--text-main);
+  background: var(--surface-strong);
+  border-color: var(--surface-border);
 }
 
 .image-preview {

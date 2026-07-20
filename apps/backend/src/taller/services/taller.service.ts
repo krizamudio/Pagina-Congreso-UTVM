@@ -1,11 +1,4 @@
-import {
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
-import { CreateTallerDto } from '../dto/create-taller.dto';
-import { UpdateTallerDto } from '../dto/update-taller.dto';
-import { Taller } from '../entities/taller.entity';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DeepPartial, Repository } from 'typeorm';
 import { ValidadorCommon } from '../../common/validador.provider';
@@ -17,10 +10,20 @@ type TallerConInscritos = Taller & {
 
 @Injectable()
 export class TallerService {
+  private readonly relations = {
+    congreso: true,
+    ubicacion: true,
+    ponente: true,
+  } as const;
+
   constructor(
     @InjectRepository(Taller)
-    private readonly tallerRepository: Repository<Taller>,
-    private readonly validador: ValidadorCommon,
+    private readonly repository: Repository<Taller>,
+    private readonly validator: ValidadorCommon,
+    private readonly agendaRelations: AgendaRelationsService,
+    private readonly conflicts: AgendaConflictService,
+    private readonly locks: ResourceLockService,
+    private readonly dbErrors: DatabaseErrorHandlerService,
   ) {}
 
   async createTaller(
@@ -131,6 +134,7 @@ export class TallerService {
       hora_fin,
       hora_inicio,
     );
+  }
 
     const taller = await this.tallerRepository.preload({
       id,
@@ -152,7 +156,9 @@ export class TallerService {
         `No se encontro ningun taller con el id ${id}`,
       );
     }
+  }
 
+  async restoreTaller(id: string): Promise<Taller> {
     try {
       const tallerActualizado = await this.tallerRepository.save(taller);
       return await this.findOneTaller(tallerActualizado.id);
@@ -165,10 +171,9 @@ export class TallerService {
     const taller = await this.findOneTaller(id);
 
     try {
-      await this.tallerRepository.softDelete(id);
-      return taller;
-    } catch (err) {
-      throw new InternalServerErrorException(err);
+      return await this.repository.save(taller);
+    } catch (error) {
+      this.dbErrors.handle(error);
     }
   }
 
@@ -179,5 +184,9 @@ export class TallerService {
     } catch (err) {
       throw new InternalServerErrorException(err);
     }
+  }
+
+  private dateValue(value: Date | string): string {
+    return value instanceof Date ? value.toISOString().slice(0, 10) : value;
   }
 }

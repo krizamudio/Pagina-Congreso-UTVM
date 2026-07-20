@@ -1,9 +1,9 @@
 import {
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   PrimaryGeneratedColumn,
-  DeleteDateColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
@@ -15,11 +15,8 @@ export class ArchivoComprobante {
   @Column({ type: 'varchar', length: 255 })
   nombre_original!: string;
 
-  @Column({ type: 'varchar', length: 255 })
-  nombre_guardado!: string;
-
-  @Column({ type: 'varchar', length: 500 })
-  ruta!: string;
+  @Column({ type: 'varchar', length: 500, select: false })
+  path!: string;
 
   @Column({ type: 'varchar', length: 100 })
   mime_type!: string;
@@ -27,12 +24,17 @@ export class ArchivoComprobante {
   @Column({ type: 'int' })
   size!: number;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ select: false })
   created_at!: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ select: false })
   updated_at!: Date;
 
-  @DeleteDateColumn({ type: 'timestamp', name: 'deleted_at', nullable: true })
+  @DeleteDateColumn({
+    type: 'timestamp',
+    name: 'deleted_at',
+    nullable: true,
+    select: false,
+  })
   deleted_at?: Date;
 }

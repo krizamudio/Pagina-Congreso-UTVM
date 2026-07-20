@@ -105,8 +105,16 @@ Abre el archivo `apps/backend/.env` y completa las variables de Supabase:
 SUPABASE_URL=https://TU-PROYECTO.supabase.co
 SUPABASE_SECRET_KEY=tu_service_role_key_aqui
 SUPABASE_BUCKET=congreso-imagenes
+SUPABASE_VOUCHERS_BUCKET=comprobantes-pago
 SUPABASE_TIMEOUT_MS=15000
 ```
+
+## Bucket privado de comprobantes
+
+Crea manualmente un bucket llamado `comprobantes-pago` y mantenlo privado. No
+es necesario crear carpetas: el backend genera los prefijos `nsu/` y
+`externos/`. Los vouchers se consultan mediante URLs firmadas que expiran en
+cinco minutos y su ruta interna no se devuelve en los listados.
 
 Si no tienes el archivo `.env`, copia el ejemplo:
 
@@ -128,14 +136,22 @@ El backend valida las variables de entorno al iniciar. Si algo está mal, mostra
 
 Si el backend inicia sin errores, la conexión con Supabase está configurada correctamente.
 
+### Carpetas virtuales de RF-24
+
+Supabase Storage crea las carpetas implícitamente a partir del nombre del
+objeto. RF-24 no requiere configurarlas en el dashboard: el backend utiliza
+`imagenes/noticias/` para portadas y `imagenes/banners/` para banners dentro
+del bucket configurado.
+
 ## Variables de entorno requeridas
 
-| Variable              | Descripción                                | Ejemplo                         |
-| --------------------- | ------------------------------------------ | ------------------------------- |
-| `SUPABASE_URL`        | URL del proyecto Supabase                  | `https://abc123.supabase.co`    |
-| `SUPABASE_SECRET_KEY` | API key (service_role o anon)              | `eyJhbGci...` o `sb_secret_...` |
-| `SUPABASE_BUCKET`     | Nombre del bucket de Storage               | `congreso-imagenes`             |
-| `SUPABASE_TIMEOUT_MS` | Timeout de las solicitudes en milisegundos | `15000`                         |
+| Variable                   | Descripción                                  | Ejemplo                         |
+| -------------------------- | -------------------------------------------- | ------------------------------- |
+| `SUPABASE_URL`             | URL del proyecto Supabase                    | `https://abc123.supabase.co`    |
+| `SUPABASE_SECRET_KEY`      | API key (service_role o anon)                | `eyJhbGci...` o `sb_secret_...` |
+| `SUPABASE_BUCKET`          | Bucket público de imágenes y documentos      | `congreso-imagenes`             |
+| `SUPABASE_VOUCHERS_BUCKET` | Bucket privado de comprobantes de pago       | `comprobantes-pago`             |
+| `SUPABASE_TIMEOUT_MS`      | Timeout de las solicitudes en milisegundos   | `15000`                         |
 
 > **Nota**: `SUPABASE_BUCKET` tiene valor por defecto `congreso-imagenes`, por lo que es opcional si no cambiaste el nombre del bucket.
 

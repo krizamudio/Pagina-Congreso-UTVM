@@ -6,11 +6,13 @@ import {
   Patch,
   Param,
   Delete,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { ConferenciasService } from './conferencia.service';
 import { CreateConferenciaDto } from './dto/create-conferencia.dto';
 import { UpdateConferenciaDto } from './dto/update-conferencia.dto';
 
+// TODO: Restringir las mutaciones al administrador autenticado.
 @Controller('conferencias')
 export class ConferenciasController {
   constructor(private readonly conferenciasService: ConferenciasService) {}
@@ -26,20 +28,20 @@ export class ConferenciasController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.conferenciasService.findOneConferencia(id);
   }
 
   @Patch(':id')
   update(
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
     @Body() updateConferenciaDto: UpdateConferenciaDto,
   ) {
     return this.conferenciasService.update(id, updateConferenciaDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
+  remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.conferenciasService.remove(id);
   }
 }

@@ -9,11 +9,6 @@
       >
       <div class="row q-gutter-sm"
         ><q-btn
-          outline
-          color="primary"
-          icon="refresh"
-          label="Recargar"
-          @click="load" /><q-btn
           unelevated
           color="primary"
           icon="add"
@@ -122,7 +117,7 @@ const confirmRemove = (id: string) =>
     .dialog({
       title: "Eliminar congreso",
       message: "¿Seguro que deseas eliminar este congreso?",
-      cancel: true,
+      cancel: { label: "Cancelar", flat: true },
       persistent: true
     })
     .onOk(async () => {

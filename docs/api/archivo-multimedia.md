@@ -2,7 +2,7 @@
 
 Base URL: `http://localhost:3000/api`
 
-Las cargas usan `multipart/form-data`, tienen un limite de 5 MB y se almacenan
+Las cargas usan `multipart/form-data`, tienen un limite de 10 MB y se almacenan
 en un bucket publico. Por ello, las consultas y actualizaciones devuelven una
 URL publica.
 

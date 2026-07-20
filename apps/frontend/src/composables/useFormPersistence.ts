@@ -2,6 +2,7 @@ import { ref, watch, onMounted } from 'vue';
 import { useFormStore } from '../stores/form-store';
 
 interface UseFormPersistenceOptions {
+  enabled?: boolean;
   hydrateOnMounted?: boolean;
   mergeStrategy?: 'saved-over-base' | 'base-over-saved';
 }
@@ -13,6 +14,8 @@ export function useFormPersistence<T extends Record<string, unknown>>(
 ) {
   const formStore = useFormStore();
   const formData = ref<T>({ ...initialData });
+  const persistenceEnabled = options.enabled !== false;
+  let skipNextSave = false;
 
   const mergeFormData = (baseData: T, savedData?: Record<string, unknown>) => {
     if (!savedData) {
@@ -40,14 +43,16 @@ export function useFormPersistence<T extends Record<string, unknown>>(
   const hydrateForm = (nextInitialData?: Partial<T>) => {
     const baseData = {
       ...initialData,
-      ...(nextInitialData ?? {}),
+      ...nextInitialData,
     } as T;
 
-    const savedData = formStore.getForm(formName);
+    const savedData = persistenceEnabled
+      ? formStore.getForm(formName)
+      : undefined;
     formData.value = mergeFormData(baseData, savedData);
   };
 
-  if (options.hydrateOnMounted !== false) {
+  if (persistenceEnabled && options.hydrateOnMounted !== false) {
     onMounted(() => {
       hydrateForm();
     });
@@ -56,20 +61,27 @@ export function useFormPersistence<T extends Record<string, unknown>>(
   watch(
     formData,
     (newData) => {
+      if (!persistenceEnabled) return;
+      if (skipNextSave) {
+        skipNextSave = false;
+        return;
+      }
       formStore.saveForm(formName, newData);
     },
     { deep: true },
   );
 
   const clearForm = () => {
+    skipNextSave = true;
     formData.value = { ...initialData };
-    formStore.clearForm(formName);
+    if (persistenceEnabled) formStore.clearForm(formName);
   };
 
   const resetForm = (newInitialData?: T) => {
     const initial = newInitialData || initialData;
+    skipNextSave = true;
     formData.value = { ...initial };
-    formStore.clearForm(formName);
+    if (persistenceEnabled) formStore.clearForm(formName);
   };
 
   return {

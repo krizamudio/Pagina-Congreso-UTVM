@@ -13,6 +13,7 @@ export function mapPonenteToResponse(data: Ponente): ResponsePonenteDto {
         }
       : undefined,
     institucion: data.institucion,
+    tipo: data.tipo,
     semblanza: data.semblanza,
     tema: data.tema,
     visiblePublico: data.visible_publico,
