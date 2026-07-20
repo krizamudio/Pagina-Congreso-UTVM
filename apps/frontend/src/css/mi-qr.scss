@@ -1,0 +1,521 @@
+/* =========================================================
+   MI QR - Congreso UTVM
+   Paleta:
+   Fondo: #071E1B
+   Primario / CTA: #00E676
+   Apoyo / Éxito: #66F5B5
+   Secundario: #00B86B
+   Blanco: #FFFFFF
+   Superficie: #1F2A28
+   Texto secundario: #8CA09A
+   Bordes: #E6ECEA
+   ========================================================= */
+
+$color-bg: #071e1b;
+$color-bg-dark: #031411;
+$color-bg-soft: #0b241f;
+$color-primary: #00e676;
+$color-success: #66f5b5;
+$color-secondary: #00b86b;
+$color-white: #ffffff;
+$color-surface: #1f2a28;
+$color-text-soft: #8ca09a;
+$color-border: #e6ecea;
+$color-danger: #ff5252;
+
+/* ===============================
+   Página
+   =============================== */
+
+.mi-qr-page {
+  position: relative;
+  min-height: calc(100vh - 64px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  isolation: isolate;
+  overflow: hidden;
+  padding: 56px 18px;
+  color: $color-white;
+
+  background:
+    radial-gradient(circle at 16% 18%, rgba($color-primary, 0.09), transparent 30%),
+    radial-gradient(circle at 86% 12%, rgba($color-success, 0.07), transparent 28%),
+    radial-gradient(circle at 50% 100%, rgba($color-secondary, 0.08), transparent 34%),
+    linear-gradient(135deg, $color-bg 0%, $color-bg-soft 48%, $color-bg-dark 100%);
+}
+
+.mi-qr-page::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  opacity: 0.13;
+  background-image:
+    linear-gradient(rgba($color-success, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba($color-success, 0.055) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: radial-gradient(circle at center, black 0%, transparent 76%);
+  pointer-events: none;
+}
+
+.mi-qr-page::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  width: 520px;
+  height: 520px;
+  right: -230px;
+  top: -190px;
+  border-radius: 50%;
+  background: rgba($color-primary, 0.075);
+  filter: blur(28px);
+  pointer-events: none;
+}
+
+/* ===============================
+   Card principal
+   =============================== */
+
+.mi-qr-card {
+  position: relative;
+  z-index: 2;
+  width: min(100%, 820px);
+  padding: 34px;
+  overflow: hidden;
+  border-radius: 32px;
+
+  background:
+    linear-gradient(180deg, rgba($color-white, 0.045), rgba($color-white, 0.018)),
+    rgba($color-surface, 0.68);
+
+  border: 1px solid rgba($color-success, 0.13);
+  box-shadow:
+    0 26px 70px rgba(0, 0, 0, 0.32),
+    inset 0 1px 0 rgba($color-white, 0.04);
+  backdrop-filter: blur(18px);
+}
+
+.mi-qr-card::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  padding: 1px;
+  border-radius: inherit;
+  background:
+    linear-gradient(135deg, rgba($color-success, 0.14), transparent 34%),
+    linear-gradient(315deg, rgba($color-primary, 0.08), transparent 38%);
+  pointer-events: none;
+
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+}
+
+/* ===============================
+   Hero
+   =============================== */
+
+.mi-qr-hero {
+  position: relative;
+  z-index: 3;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 22px;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.mi-qr-icon-box {
+  position: relative;
+  width: 82px;
+  height: 82px;
+  display: grid;
+  place-items: center;
+  border-radius: 26px;
+  color: $color-bg;
+
+  background: linear-gradient(135deg, $color-success 0%, $color-primary 100%);
+  box-shadow:
+    0 18px 38px rgba($color-primary, 0.18),
+    0 0 26px rgba($color-success, 0.14);
+}
+
+.mi-qr-icon-box::after {
+  content: '';
+  position: absolute;
+  inset: -7px;
+  border-radius: 32px;
+  border: 1px solid rgba($color-success, 0.16);
+  opacity: 0.72;
+}
+
+.mi-qr-icon-box .q-icon {
+  font-size: 46px;
+}
+
+.mi-qr-kicker {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 12px;
+  margin-bottom: 12px;
+  border-radius: 999px;
+
+  color: $color-success;
+  background: rgba($color-success, 0.075);
+  border: 1px solid rgba($color-success, 0.13);
+
+  font-size: 0.74rem;
+  font-weight: 950;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.mi-qr-hero h1 {
+  margin: 0;
+  color: $color-white;
+  font-size: clamp(2.15rem, 5vw, 3.55rem);
+  line-height: 0.95;
+  font-weight: 950;
+  letter-spacing: -0.055em;
+}
+
+.mi-qr-hero p {
+  max-width: 610px;
+  margin: 13px 0 0;
+  color: rgba($color-white, 0.72);
+  line-height: 1.72;
+  font-weight: 650;
+}
+
+/* ===============================
+   Estados
+   =============================== */
+
+.mi-qr-content,
+.mi-qr-state {
+  position: relative;
+  z-index: 3;
+}
+
+.mi-qr-state {
+  min-height: 310px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: 28px 18px;
+  border-radius: 26px;
+
+  background: rgba($color-white, 0.035);
+  border: 1px solid rgba($color-white, 0.065);
+}
+
+.mi-qr-state .q-icon {
+  color: $color-success;
+  font-size: 56px;
+  filter: drop-shadow(0 0 16px rgba($color-primary, 0.22));
+}
+
+.mi-qr-state h2 {
+  margin: 12px 0 0;
+  color: $color-white;
+  font-size: 1.7rem;
+  font-weight: 950;
+  letter-spacing: -0.02em;
+}
+
+.mi-qr-state p {
+  max-width: 470px;
+  margin: 10px auto 22px;
+  color: rgba($color-white, 0.68);
+  line-height: 1.68;
+}
+
+/* ===============================
+   Datos del participante
+   =============================== */
+
+.participant-card {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 18px;
+  align-items: center;
+  padding: 22px;
+  border-radius: 26px;
+
+  background:
+    linear-gradient(135deg, rgba($color-success, 0.06), rgba($color-white, 0.022)),
+    rgba($color-white, 0.035);
+
+  border: 1px solid rgba($color-white, 0.075);
+  box-shadow: inset 0 1px 0 rgba($color-white, 0.035);
+}
+
+.participant-avatar {
+  width: 66px;
+  height: 66px;
+  display: grid;
+  place-items: center;
+  border-radius: 22px;
+
+  color: $color-bg;
+  background: linear-gradient(135deg, #9cf2c4 0%, $color-primary 100%);
+  font-size: 1.28rem;
+  font-weight: 950;
+  box-shadow: 0 14px 30px rgba($color-primary, 0.14);
+}
+
+.participant-info {
+  min-width: 0;
+}
+
+.participant-info h2 {
+  margin: 0;
+  color: $color-white;
+  font-size: clamp(1.2rem, 3vw, 1.45rem);
+  line-height: 1.1;
+  font-weight: 950;
+  letter-spacing: -0.025em;
+  overflow-wrap: anywhere;
+}
+
+.participant-info p {
+  margin: 6px 0 13px;
+  color: rgba($color-white, 0.68);
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.participant-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.participant-tags span {
+  min-height: 31px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 12px;
+  border-radius: 999px;
+
+  color: $color-success;
+  background: rgba($color-success, 0.08);
+  border: 1px solid rgba($color-success, 0.14);
+
+  font-size: 0.78rem;
+  font-weight: 900;
+}
+
+/* ===============================
+   Mensaje QR
+   =============================== */
+
+.qr-message-card {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 16px;
+  margin: 18px 0;
+  padding: 22px;
+  border-radius: 26px;
+
+  background:
+    linear-gradient(135deg, rgba($color-primary, 0.08), rgba($color-success, 0.03)),
+    rgba($color-primary, 0.035);
+
+  border: 1px solid rgba($color-success, 0.15);
+}
+
+.qr-message-card .q-icon {
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  border-radius: 16px;
+
+  color: $color-bg;
+  background: rgba($color-success, 0.92);
+  font-size: 28px;
+  box-shadow: 0 12px 24px rgba($color-primary, 0.12);
+}
+
+.qr-message-card h3 {
+  margin: 0;
+  color: $color-white;
+  font-size: 1.13rem;
+  font-weight: 950;
+}
+
+.qr-message-card p {
+  margin: 8px 0 0;
+  color: rgba($color-white, 0.7);
+  line-height: 1.65;
+}
+
+.qr-message-card strong {
+  color: $color-success;
+  font-weight: 950;
+}
+
+/* ===============================
+   Botones
+   =============================== */
+
+.primary-action {
+  min-height: 54px;
+  border-radius: 18px;
+
+  color: $color-bg;
+  background: linear-gradient(135deg, $color-success 0%, $color-primary 100%);
+  font-weight: 950;
+  letter-spacing: -0.01em;
+
+  box-shadow:
+    0 16px 34px rgba($color-primary, 0.15),
+    inset 0 1px 0 rgba($color-white, 0.28);
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    filter 0.2s ease;
+}
+
+.primary-action:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 22px 44px rgba($color-primary, 0.2),
+    inset 0 1px 0 rgba($color-white, 0.34);
+  filter: saturate(1.05);
+}
+
+.primary-action :deep(.q-btn__content) {
+  gap: 9px;
+}
+
+.logout-action {
+  min-height: 48px;
+  margin-top: 10px;
+  border-radius: 18px;
+
+  color: rgba($color-white, 0.72);
+  font-weight: 900;
+
+  transition:
+    color 0.2s ease,
+    background 0.2s ease;
+}
+
+.logout-action:hover {
+  color: $color-white;
+  background: rgba($color-white, 0.04);
+}
+
+.logout-action :deep(.q-btn__content) {
+  gap: 8px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+/* ===============================
+   Responsive
+   =============================== */
+
+@media (max-width: 720px) {
+  .mi-qr-page {
+    align-items: flex-start;
+    padding: 30px 14px;
+  }
+
+  .mi-qr-card {
+    padding: 26px 20px;
+    border-radius: 26px;
+  }
+
+  .mi-qr-hero {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .mi-qr-icon-box {
+    width: 66px;
+    height: 66px;
+    border-radius: 21px;
+  }
+
+  .mi-qr-icon-box::after {
+    border-radius: 27px;
+  }
+
+  .mi-qr-icon-box .q-icon {
+    font-size: 36px;
+  }
+
+  .participant-card {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .qr-message-card {
+    grid-template-columns: 1fr;
+  }
+
+  .qr-message-card .q-icon {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+@media (max-width: 460px) {
+  .mi-qr-page {
+    padding: 22px 12px;
+  }
+
+  .mi-qr-card {
+    padding: 22px 16px;
+    border-radius: 24px;
+  }
+
+  .mi-qr-hero h1 {
+    font-size: 2.2rem;
+  }
+
+  .mi-qr-hero p {
+    font-size: 0.96rem;
+  }
+
+  .participant-card,
+  .qr-message-card {
+    padding: 18px;
+    border-radius: 22px;
+  }
+
+  .participant-avatar {
+    width: 58px;
+    height: 58px;
+    border-radius: 19px;
+  }
+
+  .primary-action {
+    min-height: 52px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .primary-action,
+  .logout-action {
+    transition: none !important;
+  }
+
+  .primary-action:hover {
+    transform: none;
+  }
+}

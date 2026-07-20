@@ -75,7 +75,7 @@
           dense
           :dark="!isLight"
           @update:model-value="handleImageChange"
-          :rules="[requiredFileRule]"
+
         >
           <template #prepend>
             <q-icon name="image" />

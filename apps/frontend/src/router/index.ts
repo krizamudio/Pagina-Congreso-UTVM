@@ -5,7 +5,7 @@ import {
   createMemoryHistory,
   createRouter,
   createWebHashHistory,
-  createWebHistory
+  createWebHistory,
 } from "vue-router";
 
 export default defineRouter((/* { store, ssrContext } */) => {
@@ -20,7 +20,7 @@ export default defineRouter((/* { store, ssrContext } */) => {
   const Router = createRouter({
     scrollBehavior: () => ({ left: 0, top: 0 }),
     routes,
-    history: createHistory(import.meta.env.QUASAR_VUE_ROUTER_BASE)
+    history: createHistory(import.meta.env.QUASAR_VUE_ROUTER_BASE),
   });
 
   return Router;

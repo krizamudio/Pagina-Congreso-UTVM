@@ -7,10 +7,12 @@ import {
   DeleteDateColumn,
   ManyToOne,
   JoinColumn,
+  OneToMany,
 } from 'typeorm';
 import { Ponente } from '../../ponente/entities/ponente.entity';
 import { Congreso } from '../../congreso/entities/congreso.entity';
 import { Ubicacion } from '../../ubicacion/entities/ubicacion.entity';
+import { InscripcionTaller } from '../../inscripcion-taller/entities/inscripcion-taller.entity';
 
 @Entity()
 export class Taller {
@@ -83,4 +85,6 @@ export class Taller {
     name: 'ubicacion_id',
   })
   ubicacion?: Ubicacion;
+  @OneToMany(() => InscripcionTaller, (inscripcion) => inscripcion.taller)
+  inscripciones!: InscripcionTaller[];
 }

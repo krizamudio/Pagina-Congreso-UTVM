@@ -9,10 +9,6 @@
           Completa tus datos, selecciona tus días de participación y adjunta tu comprobante de pago.
         </p>
         </div>
-
-        <div class="col-auto">
-          <q-btn flat label="Volver" text-color="white" @click="goToParticipantes" />
-        </div>
       </div>
     </section>
 

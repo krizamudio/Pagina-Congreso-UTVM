@@ -1,16 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-
-import { DatabaseErrorHandlerService } from '../../common/database/handle-database-error';
-import { ResourceLockService } from '../../common/resource-lock.service';
+import { DeepPartial, Repository } from 'typeorm';
 import { ValidadorCommon } from '../../common/validador.provider';
-import { validatePatch } from '../../common/validation/patch.validator';
-import { AgendaConflictService } from '../../gestion-contenido/agenda/agenda-conflict.service';
-import { AgendaRelationsService } from '../../gestion-contenido/agenda/agenda-relations.service';
-import { CreateTallerDto } from '../dto/create-taller.dto';
-import { UpdateTallerDto } from '../dto/update-taller.dto';
-import { Taller } from '../entities/taller.entity';
+import { Ponente } from '../../ponente/entities/ponente.entity';
+
+type TallerConInscritos = Taller & {
+  inscritos: number;
+};
 
 @Injectable()
 export class TallerService {
@@ -30,95 +26,150 @@ export class TallerService {
     private readonly dbErrors: DatabaseErrorHandlerService,
   ) {}
 
-  createTaller(dto: CreateTallerDto): Promise<Taller> {
-    return this.locks.withLock(`agenda:${dto.fecha}:${dto.ubicacion_id}`, () =>
-      this.createLocked(dto),
-    );
-  }
+  async createTaller(
+    createTallerDto: CreateTallerDto,
+  ): Promise<TallerConInscritos> {
+    const {
+      tallerista_id,
+      congreso_id,
+      ubicacion_id,
+      fecha,
+      hora_fin,
+      hora_inicio,
+      ...datosTaller
+    } = createTallerDto;
 
-  async findAllTalleres(): Promise<Taller[]> {
-    return this.repository.find({ relations: this.relations });
-  }
+    this.validador.FechaValida(fecha);
+    this.validador.ValidarHoras(hora_fin, hora_inicio);
 
-  async findOneTaller(id: string): Promise<Taller> {
-    const taller = await this.repository.findOne({
-      where: { id },
-      relations: this.relations,
-    });
-    if (!taller) throw new NotFoundException('Taller no encontrado');
-    return taller;
-  }
+    const tallerCreado = this.tallerRepository.create({
+      ...datosTaller,
+      fecha,
+      hora_fin,
+      hora_inicio,
 
-  async updateTaller(id: string, dto: UpdateTallerDto): Promise<Taller> {
-    validatePatch(dto, [
-      'congreso_id',
-      'ubicacion_id',
-      'tallerista_id',
-      'titulo',
-      'descripcion',
-      'cupo_maximo',
-      'fecha',
-      'hora_inicio',
-      'hora_fin',
-      'requisitos',
-    ]);
-    const current = await this.findOneTaller(id);
-    const date = dto.fecha ?? this.dateValue(current.fecha);
-    const locationId = dto.ubicacion_id ?? current.ubicacion?.id;
-    if (!locationId) throw new NotFoundException('La ubicación no existe');
-    return this.locks.withLock(`agenda:${date}:${locationId}`, () =>
-      this.updateLocked(current, dto),
-    );
-  }
+      ...(tallerista_id
+        ? {
+            ponente: {
+              id: tallerista_id,
+            } as Ponente,
+          }
+        : {}),
+    } as DeepPartial<Taller>);
 
-  async removeTaller(id: string): Promise<Taller> {
-    const taller = await this.findOneTaller(id);
     try {
-      await this.repository.softDelete(id);
-      return taller;
-    } catch (error) {
-      this.dbErrors.handle(error);
+      const tallerGuardado = await this.tallerRepository.save(tallerCreado);
+      return await this.findOneTaller(tallerGuardado.id);
+    } catch (err) {
+      throw new InternalServerErrorException(err);
+    }
+  }
+
+  async findAllTalleres(): Promise<TallerConInscritos[]> {
+    const talleres = await this.tallerRepository.find({
+      relations: [
+        'congreso',
+        'ubicacion',
+        'ponente',
+        'ponente.foto',
+        'inscripciones',
+      ],
+      order: {
+        fecha: 'ASC',
+        hora_inicio: 'ASC',
+      },
+    });
+
+    return talleres.map((taller) => ({
+      ...taller,
+      inscritos: taller.inscripciones?.length ?? 0,
+    }));
+  }
+
+  async findOneTaller(id: string): Promise<TallerConInscritos> {
+    const taller = await this.tallerRepository.findOne({
+      where: { id },
+      relations: [
+        'congreso',
+        'ubicacion',
+        'ponente',
+        'ponente.foto',
+        'inscripciones',
+      ],
+    });
+
+    if (!taller) {
+      throw new NotFoundException(
+        `No se encontro ningun taller con el id ${id}`,
+      );
+    }
+
+    return {
+      ...taller,
+      inscritos: taller.inscripciones?.length ?? 0,
+    };
+  }
+
+  async updateTaller(
+    id: string,
+    updateTallerDto: UpdateTallerDto,
+  ): Promise<TallerConInscritos> {
+    const {
+      tallerista_id,
+      congreso_id,
+      ubicacion_id,
+      fecha,
+      hora_fin,
+      hora_inicio,
+      ...datosTaller
+    } = updateTallerDto;
+
+    const tallerActual = await this.findOneTaller(id);
+
+    this.validador.FechaValida(fecha);
+
+    this.validador.ValidarHorasActualizacion(
+      tallerActual.hora_fin,
+      tallerActual.hora_inicio,
+      hora_fin,
+      hora_inicio,
+    );
+  }
+
+    const taller = await this.tallerRepository.preload({
+      id,
+      ...datosTaller,
+      ...(fecha ? { fecha } : {}),
+      ...(hora_inicio ? { hora_inicio } : {}),
+      ...(hora_fin ? { hora_fin } : {}),
+      ...(tallerista_id
+        ? {
+            ponente: {
+              id: tallerista_id,
+            } as Ponente,
+          }
+        : {}),
+    } as DeepPartial<Taller>);
+
+    if (!taller) {
+      throw new NotFoundException(
+        `No se encontro ningun taller con el id ${id}`,
+      );
     }
   }
 
   async restoreTaller(id: string): Promise<Taller> {
     try {
-      await this.repository.restore(id);
-      return await this.findOneTaller(id);
-    } catch (error) {
-      if (error instanceof NotFoundException) throw error;
-      this.dbErrors.handle(error);
+      const tallerActualizado = await this.tallerRepository.save(taller);
+      return await this.findOneTaller(tallerActualizado.id);
+    } catch (err) {
+      throw new InternalServerErrorException(err);
     }
   }
 
-  private async createLocked(dto: CreateTallerDto): Promise<Taller> {
-    this.validator.FechaValida(dto.fecha);
-    this.validator.ValidarHoras(dto.hora_fin, dto.hora_inicio);
-    const relations = await this.agendaRelations.resolve({
-      congresoId: dto.congreso_id,
-      ubicacionId: dto.ubicacion_id,
-      ponenteId: dto.tallerista_id,
-    });
-    this.agendaRelations.validateDateInsideCongress(
-      dto.fecha,
-      relations.congreso,
-    );
-    await this.conflicts.validate({
-      fecha: dto.fecha,
-      horaInicio: dto.hora_inicio,
-      horaFin: dto.hora_fin,
-      ubicacionId: dto.ubicacion_id,
-    });
-    const taller = this.repository.create({
-      titulo: dto.titulo,
-      descripcion: dto.descripcion,
-      cupo_maximo: dto.cupo_maximo,
-      fecha: dto.fecha as unknown as Date,
-      hora_inicio: dto.hora_inicio,
-      hora_fin: dto.hora_fin,
-      requisitos: dto.requisitos,
-      ...relations,
-    });
+  async removeTaller(id: string): Promise<TallerConInscritos> {
+    const taller = await this.findOneTaller(id);
+
     try {
       return await this.repository.save(taller);
     } catch (error) {
@@ -126,58 +177,12 @@ export class TallerService {
     }
   }
 
-  private async updateLocked(
-    current: Taller,
-    dto: UpdateTallerDto,
-  ): Promise<Taller> {
-    const fecha = dto.fecha ?? this.dateValue(current.fecha);
-    const horaInicio = dto.hora_inicio ?? current.hora_inicio;
-    const horaFin = dto.hora_fin ?? current.hora_fin;
-    const ids = {
-      congresoId: dto.congreso_id ?? current.congreso?.id,
-      ubicacionId: dto.ubicacion_id ?? current.ubicacion?.id,
-      ponenteId: dto.tallerista_id ?? current.ponente?.id,
-    };
-    if (!ids.congresoId || !ids.ubicacionId || !ids.ponenteId) {
-      throw new NotFoundException('Las relaciones de la actividad no existen');
-    }
-    if (dto.fecha !== undefined) this.validator.FechaValida(fecha);
-    this.validator.ValidarHoras(horaFin, horaInicio);
-    const relations = await this.agendaRelations.resolve({
-      congresoId: ids.congresoId,
-      ubicacionId: ids.ubicacionId,
-      ponenteId: ids.ponenteId,
-    });
-    this.agendaRelations.validateDateInsideCongress(fecha, relations.congreso);
-    await this.conflicts.validate({
-      fecha,
-      horaInicio,
-      horaFin,
-      ubicacionId: ids.ubicacionId,
-      excludeTallerId: current.id,
-    });
-    this.repository.merge(current, {
-      ...(dto.titulo !== undefined ? { titulo: dto.titulo } : {}),
-      ...(dto.descripcion !== undefined
-        ? { descripcion: dto.descripcion }
-        : {}),
-      ...(dto.cupo_maximo !== undefined
-        ? { cupo_maximo: dto.cupo_maximo }
-        : {}),
-      ...(dto.fecha !== undefined
-        ? { fecha: dto.fecha as unknown as Date }
-        : {}),
-      ...(dto.hora_inicio !== undefined
-        ? { hora_inicio: dto.hora_inicio }
-        : {}),
-      ...(dto.hora_fin !== undefined ? { hora_fin: dto.hora_fin } : {}),
-      ...(dto.requisitos !== undefined ? { requisitos: dto.requisitos } : {}),
-      ...relations,
-    });
+  async restoreTaller(id: string): Promise<TallerConInscritos> {
     try {
-      return await this.repository.save(current);
-    } catch (error) {
-      this.dbErrors.handle(error);
+      await this.tallerRepository.restore(id);
+      return await this.findOneTaller(id);
+    } catch (err) {
+      throw new InternalServerErrorException(err);
     }
   }
 
