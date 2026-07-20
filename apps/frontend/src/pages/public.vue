@@ -45,6 +45,15 @@
           />
 
           <q-btn
+            flat
+            no-caps
+            label="Dudas"
+            icon="support_agent"
+            class="nav-btn"
+            @click="mostrarCentroAyuda = true"
+          />
+
+          <q-btn
             v-if="!sesionActiva"
             flat
             no-caps
@@ -116,6 +125,25 @@
 
           <q-item-section>
             <q-item-label>{{ item.label }}</q-item-label>
+          </q-item-section>
+
+          <q-item-section side>
+            <q-icon name="arrow_forward" />
+          </q-item-section>
+        </q-item>
+
+        <q-item
+          clickable
+          v-ripple
+          class="drawer-item"
+          @click="abrirCentroAyuda"
+        >
+          <q-item-section avatar>
+            <q-icon name="support_agent" />
+          </q-item-section>
+
+          <q-item-section>
+            <q-item-label>Dudas</q-item-label>
           </q-item-section>
 
           <q-item-section side>
@@ -206,6 +234,8 @@
     <q-page-container>
       <router-view />
     </q-page-container>
+
+    <CentroAyuda v-model="mostrarCentroAyuda" />
   </q-layout>
 </template>
 
@@ -214,6 +244,7 @@ import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import type { ComponentPublicInstance, CSSProperties } from 'vue';
 import { useQuasar } from 'quasar';
 import { useRoute, useRouter } from 'vue-router';
+import CentroAyuda from '@/components/CentroAyuda.vue';
 
 interface PublicLink {
   label: string;
@@ -229,6 +260,7 @@ const $q = useQuasar();
 const menuOpen = ref(false);
 const sesionActiva = ref(false);
 const confirmLogout = ref(false);
+const mostrarCentroAyuda = ref(false);
 
 const navRef = ref<HTMLElement | null>(null);
 const navItems = new Map<string, HTMLElement>();
@@ -339,6 +371,11 @@ function cargarSesion() {
   const tipoGuardado = localStorage.getItem('tipoParticipante');
 
   sesionActiva.value = Boolean(participanteGuardado && tipoGuardado);
+}
+
+function abrirCentroAyuda() {
+  menuOpen.value = false;
+  mostrarCentroAyuda.value = true;
 }
 
 function pedirConfirmacionCerrarSesion() {
