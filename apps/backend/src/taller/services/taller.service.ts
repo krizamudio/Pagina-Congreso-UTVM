@@ -149,14 +149,11 @@ export class TallerService {
       manager,
       dto.ubicacion_id,
     );
-    const relations = await this.agendaRelations.resolve(
-      {
-        congresoId: dto.congreso_id,
-        ubicacionId: dto.ubicacion_id,
-        ponenteId: dto.tallerista_id,
-      },
-      manager,
-    );
+    const relations = await this.agendaRelations.resolve({
+      congresoId: dto.congreso_id,
+      ubicacionId: dto.ubicacion_id,
+      ponenteId: dto.tallerista_id,
+    });
     this.capacity.validateAgainstLocation(dto.cupo_maximo, ubicacion);
     this.agendaRelations.validateDateInsideCongress(
       dto.fecha,
@@ -223,14 +220,11 @@ export class TallerService {
     await this.capacity.validateAgainstEnrollments(manager, current.id, cupo);
     if (dto.fecha !== undefined) this.validator.FechaValida(fecha);
     this.validator.ValidarHoras(horaFin, horaInicio);
-    const relations = await this.agendaRelations.resolve(
-      {
-        congresoId: ids.congresoId,
-        ubicacionId: ids.ubicacionId,
-        ponenteId: ids.ponenteId,
-      },
-      manager,
-    );
+    const relations = await this.agendaRelations.resolve({
+      congresoId: ids.congresoId,
+      ubicacionId: ids.ubicacionId,
+      ponenteId: ids.ponenteId,
+    });
     this.agendaRelations.validateDateInsideCongress(fecha, relations.congreso);
     await this.conflicts.validate({
       fecha,
