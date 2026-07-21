@@ -20,6 +20,6 @@ import { TallerCapacityService } from './services/taller-capacity.service';
     AgendaModule,
     ParticipanteAccesoModule,
   ],
-  exports: [TypeOrmModule, TallerCapacityService],
+  exports: [TypeOrmModule, InscripcionTallerService, TallerCapacityService],
 })
 export class TallerModule {}

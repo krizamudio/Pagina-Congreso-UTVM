@@ -1,6 +1,6 @@
 import { IsEnum, IsUUID } from 'class-validator';
 
-import { TipoParticipanteTaller } from '../entities/inscripcion-taller.entity';
+import { ParticipanteTipo } from '../../participante-acceso/participante-tipo.enum';
 
 export class CrearInscripcionTallerDto {
   @IsUUID('4', {
@@ -13,8 +13,8 @@ export class CrearInscripcionTallerDto {
   })
   participanteId!: string;
 
-  @IsEnum(TipoParticipanteTaller, {
+  @IsEnum(ParticipanteTipo, {
     message: 'El tipo de participante no es válido.',
   })
-  tipoParticipante!: TipoParticipanteTaller;
+  tipoParticipante!: ParticipanteTipo;
 }

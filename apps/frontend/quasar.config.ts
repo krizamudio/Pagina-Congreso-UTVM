@@ -32,6 +32,10 @@ export default defineConfig((/* ctx */) => {
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-file#build
     build: {
+      env: {
+        clientPrefix: "VITE_"
+      },
+
       target: {
         // browser: 'baseline-widely-available',
         // node: 'node22'
@@ -46,7 +50,7 @@ export default defineConfig((/* ctx */) => {
       // https://v2.quasar.dev/quasar-cli-vite/page-routing-with-vue-router#filename-based-routing
       filenameBasedRouting: false,
 
-      vueRouterMode: "history", // available values: 'hash', 'history'
+      vueRouterMode: "history" // available values: 'hash', 'history'
       // vueRouterBase,
       // vueDevtools,
 
@@ -66,20 +70,20 @@ export default defineConfig((/* ctx */) => {
     },
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-file#devserver
-devServer: {
-  open: true,
-  headers: {
-    'Content-Security-Policy':
-      "default-src 'self'; " +
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:; " +
-      "worker-src 'self' blob:; " +
-      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
-      "style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
-      "font-src 'self' https://fonts.gstatic.com; " +
-      "img-src 'self' data: blob: https://*.supabase.co; " +
-      "connect-src 'self' http://localhost:3000 ws://localhost:*;",
-  },
-},
+    devServer: {
+      open: true,
+      headers: {
+        "Content-Security-Policy":
+          "default-src 'self'; " +
+          "script-src 'self' 'unsafe-inline' 'unsafe-eval' blob:; " +
+          "worker-src 'self' blob:; " +
+          "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+          "style-src-elem 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+          "font-src 'self' https://fonts.gstatic.com; " +
+          "img-src 'self' data: blob: https://*.supabase.co; " +
+          "connect-src 'self' http://localhost:3000 ws://localhost:*;"
+      }
+    },
 
     // https://v2.quasar.dev/quasar-cli-vite/quasar-config-file#framework
     framework: {
