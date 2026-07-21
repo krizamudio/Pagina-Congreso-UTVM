@@ -102,7 +102,7 @@
 import { computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 
-import { usePanelesQuery } from '@/composables/UsePanelesQuery';
+import { usePanelesQuery } from '@/composables/usePanelesQuery';
 
 interface PanelistaPublico {
   id: string;

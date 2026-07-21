@@ -327,7 +327,7 @@
     transform 0.2s ease,
     box-shadow 0.2s ease;
 
-  :deep(.q-btn__content) {
+  .q-btn__content {
     gap: 8px;
   }
 
@@ -524,11 +524,11 @@
   }
 
   .email-input {
-    :deep(.q-field__control) {
+    .q-field__control {
       min-height: 58px;
     }
 
-    :deep(.q-field__native) {
+    .q-field__native {
       min-height: 58px;
       font-size: 15px;
     }

@@ -13,6 +13,8 @@ import { UpdateTallerDto } from '../dto/update-taller.dto';
 import { Taller } from '../entities/taller.entity';
 import { TallerCapacityService } from './taller-capacity.service';
 
+type TallerConInscritos = Taller & { inscritos: number };
+
 @Injectable()
 export class TallerService {
   private readonly relations = {
@@ -40,7 +42,7 @@ export class TallerService {
   }
 
   async findAllTalleres(): Promise<TallerConInscritos[]> {
-    const talleres = await this.tallerRepository.find({
+    const talleres = await this.repository.find({
       relations: [
         'congreso',
         'ubicacion',
@@ -61,7 +63,7 @@ export class TallerService {
   }
 
   async findOneTaller(id: string): Promise<TallerConInscritos> {
-    const taller = await this.tallerRepository.findOne({
+    const taller = await this.repository.findOne({
       where: { id },
       relations: [
         'congreso',
@@ -108,34 +110,13 @@ export class TallerService {
     );
   }
 
-    const taller = await this.tallerRepository.preload({
-      id,
-      ...datosTaller,
-      ...(fecha ? { fecha } : {}),
-      ...(hora_inicio ? { hora_inicio } : {}),
-      ...(hora_fin ? { hora_fin } : {}),
-      ...(tallerista_id
-        ? {
-            ponente: {
-              id: tallerista_id,
-            } as Ponente,
-          }
-        : {}),
-    } as DeepPartial<Taller>);
-
-    if (!taller) {
-      throw new NotFoundException(
-        `No se encontro ningun taller con el id ${id}`,
-      );
-    }
-  }
-
-  async restoreTaller(id: string): Promise<Taller> {
+  async removeTaller(id: string): Promise<string> {
+    const taller = await this.findOneTaller(id);
     try {
-      const tallerActualizado = await this.tallerRepository.save(taller);
-      return await this.findOneTaller(tallerActualizado.id);
-    } catch (err) {
-      throw new InternalServerErrorException(err);
+      await this.repository.softDelete(taller.id);
+      return 'Taller eliminado correctamente';
+    } catch (error) {
+      this.dbErrors.handle(error);
     }
   }
 

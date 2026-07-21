@@ -244,7 +244,7 @@ import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import type { ComponentPublicInstance, CSSProperties } from 'vue';
 import { useQuasar } from 'quasar';
 import { useRoute, useRouter } from 'vue-router';
-import CentroAyuda from '@/components/CentroAyuda.vue';
+import CentroAyuda from '@/components/centroAyuda.vue';
 
 interface PublicLink {
   label: string;

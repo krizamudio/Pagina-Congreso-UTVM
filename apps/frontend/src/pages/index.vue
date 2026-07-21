@@ -66,33 +66,39 @@ const linksList: EssentialLinkProps[] = [
     link: "/admin/dashboard"
   },
   {
+    label: "Página principal",
+    caption: "Ir al sitio público",
+    icon: "home",
+    link: "/"
+  },
+  {
     label: "Participantes",
     caption: "Administración y validación",
-    icon: "badge",
+    icon: "groups",
     link: "/participantes"
   },
   {
     label: "Conferencias",
     caption: "Gestión de conferencias",
-    icon: "code",
+    icon: "campaign",
     link: "/conferencias"
   },
   {
     label: "Congresos",
     caption: "Ediciones y periodos",
-    icon: "event",
+    icon: "event_available",
     link: "/congresos"
   },
   {
     label: "Ubicaciones",
     caption: "Espacios y capacidades",
-    icon: "place",
+    icon: "meeting_room",
     link: "/ubicaciones"
   },
   {
     label: "Talleres",
     caption: "Gestión de talleres",
-    icon: "chat",
+    icon: "build",
     link: "/talleres"
   },
   {
@@ -116,7 +122,7 @@ const linksList: EssentialLinkProps[] = [
   {
     label: "Página oficial",
     caption: "Noticias, agenda y contenido",
-    icon: "web",
+    icon: "language",
     link: "/pagina-oficial"
   }
 ];

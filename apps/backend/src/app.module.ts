@@ -19,6 +19,10 @@ import { QrAccesoModule } from './qr-acceso/qr-acceso.module';
 import { DiaEventoModule } from './dia-evento/dia-evento.module';
 import { LoginModule } from './login/login.module';
 import { InscripcionTallerModule } from './inscripcion-taller/inscripcion-taller.module';
+import { ForoEmpresarialModule } from './foro-empresarial/foro-empresarial.module';
+import { GestionContenidoModule } from './gestion-contenido/gestion-contenido.module';
+import { ComprobanteModule } from './comprobante/comprobante.module';
+import { ReconocimientoModule } from './reconocimiento/reconocimiento.module';
 
 @Module({
   imports: [
@@ -80,6 +84,10 @@ import { InscripcionTallerModule } from './inscripcion-taller/inscripcion-taller
     QrAccesoModule,
     LoginModule,
     InscripcionTallerModule,
+    ForoEmpresarialModule,
+    GestionContenidoModule,
+    ComprobanteModule,
+    ReconocimientoModule,
   ],
   controllers: [],
   providers: [
