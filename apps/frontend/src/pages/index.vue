@@ -66,6 +66,12 @@ const linksList: EssentialLinkProps[] = [
     link: "/admin/dashboard"
   },
   {
+    label: "Página principal",
+    caption: "Ir al sitio público",
+    icon: "home",
+    link: "/"
+  },
+  {
     label: "Participantes",
     caption: "Administración y validación",
     icon: "groups",
