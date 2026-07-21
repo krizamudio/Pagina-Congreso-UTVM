@@ -12,7 +12,7 @@ import {
 import { Ponente } from '../../ponente/entities/ponente.entity';
 import { Congreso } from '../../congreso/entities/congreso.entity';
 import { Ubicacion } from '../../ubicacion/entities/ubicacion.entity';
-import { InscripcionTaller } from '../../inscripcion-taller/entities/inscripcion-taller.entity';
+import { InscripcionTaller } from './inscripcion-taller.entity';
 
 @Entity()
 export class Taller {
