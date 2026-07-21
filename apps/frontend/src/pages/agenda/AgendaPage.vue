@@ -85,7 +85,6 @@
           </div>
         </div>
 
-        <!-- Vista calendario -->
         <div
           class="agenda-table-wrapper"
           :class="{ 'is-hidden': vistaActiva !== 'calendario' }"
@@ -160,7 +159,6 @@
           </div>
         </div>
 
-        <!-- Vista lista -->
         <div
           class="agenda-list-view"
           :class="{ 'is-hidden': vistaActiva !== 'lista' }"
@@ -242,8 +240,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
-
-const API_BASE = 'http://localhost:3000/api';
+import { api } from '@/services/api';
 
 const router = useRouter();
 
@@ -458,30 +455,14 @@ async function cargarAgenda() {
   try {
     const [conferenciasResponse, talleresResponse, ubicacionesResponse] =
       await Promise.all([
-        fetch(`${API_BASE}/conferencias`),
-        fetch(`${API_BASE}/taller`),
-        fetch(`${API_BASE}/ubicacion`),
+        api.get<ConferenciaApi[]>('/conferencias'),
+        api.get<TallerApi[]>('/taller'),
+        api.get<UbicacionApi[]>('/ubicacion'),
       ]);
 
-    if (!conferenciasResponse.ok) {
-      throw new Error('No se pudieron cargar las conferencias.');
-    }
-
-    if (!talleresResponse.ok) {
-      throw new Error('No se pudieron cargar los talleres.');
-    }
-
-    const conferencias =
-      (await conferenciasResponse.json()) as ConferenciaApi[];
-
-    const talleres =
-      (await talleresResponse.json()) as TallerApi[];
-
-    if (ubicacionesResponse.ok) {
-      ubicaciones.value = (await ubicacionesResponse.json()) as UbicacionApi[];
-    } else {
-      ubicaciones.value = [];
-    }
+    const conferencias = conferenciasResponse.data;
+    const talleres = talleresResponse.data;
+    ubicaciones.value = ubicacionesResponse.data;
 
     const eventosConferencias = conferencias.map(mapearConferencia);
     const eventosTalleres = talleres.map(mapearTaller);

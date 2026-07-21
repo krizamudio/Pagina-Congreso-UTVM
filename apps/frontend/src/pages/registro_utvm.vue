@@ -9,7 +9,12 @@
           </div>
 
           <div>
-            <q-btn flat label="Volver" text-color="white" @click="goToParticipantes" />
+            <q-btn
+              flat
+              label="Volver"
+              text-color="white"
+              @click="goToParticipantes"
+            />
           </div>
         </div>
       </q-card-section>
@@ -26,12 +31,14 @@
             outlined
             class="col-12 col-md-4"
           />
+
           <q-input
             v-model="form.apellidoPaterno"
             label="Apellido paterno"
             outlined
             class="col-12 col-md-4"
           />
+
           <q-input
             v-model="form.apellidoMaterno"
             label="Apellido materno"
@@ -45,6 +52,7 @@
             outlined
             class="col-12 col-md-6"
           />
+
           <q-input
             v-model="form.telefono"
             label="Teléfono móvil"
@@ -59,6 +67,7 @@
             outlined
             class="col-12 col-md-6"
           />
+
           <q-input
             v-model="form.grupo"
             label="Grupo"
@@ -138,10 +147,12 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from "vue";
-import { useQuasar } from "quasar";
-import { useRouter } from "vue-router";
-import Papa from "papaparse";
+import { reactive, ref } from 'vue';
+import { useQuasar } from 'quasar';
+import { useRouter } from 'vue-router';
+import { AxiosError } from 'axios';
+import Papa from 'papaparse';
+import { api } from '../services/api';
 
 const $q = useQuasar();
 const router = useRouter();
@@ -156,81 +167,95 @@ interface ParticipanteUtvm {
   grupo: string;
 }
 
+interface ErrorBackend {
+  message?: string | string[];
+}
+
 const loading = ref(false);
 const participantes = ref<ParticipanteUtvm[]>([]);
 const archivoCsv = ref<File | null>(null);
 
 const form = reactive<ParticipanteUtvm>({
-  nombres: "",
-  apellidoPaterno: "",
-  apellidoMaterno: "",
-  correo: "",
-  telefono: "",
+  nombres: '',
+  apellidoPaterno: '',
+  apellidoMaterno: '',
+  correo: '',
+  telefono: '',
   cuatrimestre: 1,
-  grupo: "",
+  grupo: '',
 });
 
 const columns = [
   {
-    name: "nombres",
-    label: "Nombre(s)",
-    field: "nombres",
-    align: "left" as const,
+    name: 'nombres',
+    label: 'Nombre(s)',
+    field: 'nombres',
+    align: 'left' as const,
   },
   {
-    name: "apellidoPaterno",
-    label: "Apellido paterno",
-    field: "apellidoPaterno",
-    align: "left" as const,
-  },
-  { name: "correo", label: "Correo", field: "correo", align: "left" as const },
-  {
-    name: "telefono",
-    label: "Teléfono",
-    field: "telefono",
-    align: "left" as const,
+    name: 'apellidoPaterno',
+    label: 'Apellido paterno',
+    field: 'apellidoPaterno',
+    align: 'left' as const,
   },
   {
-    name: "cuatrimestre",
-    label: "Cuatrimestre",
-    field: "cuatrimestre",
-    align: "center" as const,
+    name: 'correo',
+    label: 'Correo',
+    field: 'correo',
+    align: 'left' as const,
   },
-  { name: "grupo", label: "Grupo", field: "grupo", align: "center" as const },
   {
-    name: "acciones",
-    label: "Acciones",
-    field: "acciones",
-    align: "center" as const,
+    name: 'telefono',
+    label: 'Teléfono',
+    field: 'telefono',
+    align: 'left' as const,
+  },
+  {
+    name: 'cuatrimestre',
+    label: 'Cuatrimestre',
+    field: 'cuatrimestre',
+    align: 'center' as const,
+  },
+  {
+    name: 'grupo',
+    label: 'Grupo',
+    field: 'grupo',
+    align: 'center' as const,
+  },
+  {
+    name: 'acciones',
+    label: 'Acciones',
+    field: 'acciones',
+    align: 'center' as const,
   },
 ];
 
 function limpiarFormulario() {
-  form.nombres = "";
-  form.apellidoPaterno = "";
-  form.apellidoMaterno = "";
-  form.correo = "";
-  form.telefono = "";
+  form.nombres = '';
+  form.apellidoPaterno = '';
+  form.apellidoMaterno = '';
+  form.correo = '';
+  form.telefono = '';
   form.cuatrimestre = 1;
-  form.grupo = "";
+  form.grupo = '';
 }
 
 function participanteValido(participante: ParticipanteUtvm): boolean {
   return (
-    participante.nombres.trim() !== "" &&
-    participante.apellidoPaterno.trim() !== "" &&
-    participante.correo.trim() !== "" &&
-    participante.telefono.trim() !== "" &&
+    participante.nombres.trim() !== '' &&
+    participante.apellidoPaterno.trim() !== '' &&
+    participante.correo.trim() !== '' &&
+    participante.telefono.trim() !== '' &&
     participante.cuatrimestre > 0 &&
-    participante.grupo.trim() !== ""
+    participante.grupo.trim() !== ''
   );
 }
 
 function agregarParticipante() {
   if (!participanteValido(form)) {
     $q.notify({
-      type: "negative",
-      message: "Completa todos los campos obligatorios",
+      type: 'negative',
+      message: 'Completa todos los campos obligatorios',
     });
     return;
   }
@@ -241,8 +266,8 @@ function agregarParticipante() {
 
   if (correoExiste) {
     $q.notify({
-      type: "warning",
-      message: "Ese correo ya fue agregado",
+      type: 'warning',
+      message: 'Ese correo ya fue agregado',
     });
     return;
   }
@@ -250,8 +275,8 @@ function agregarParticipante() {
   participantes.value.push({ ...form });
 
   $q.notify({
-    type: "positive",
-    message: "Participante agregado a la lista",
+    type: 'positive',
+    message: 'Participante agregado a la lista',
   });
 
   limpiarFormulario();
@@ -264,8 +289,8 @@ function eliminarParticipante(index: number) {
 function importarCsv() {
   if (!archivoCsv.value) {
     $q.notify({
-      type: "warning",
-      message: "Selecciona un archivo CSV",
+      type: 'warning',
+      message: 'Selecciona un archivo CSV',
     });
     return;
   }
@@ -275,13 +300,13 @@ function importarCsv() {
     skipEmptyLines: true,
     complete: (results) => {
       const registros: ParticipanteUtvm[] = results.data.map((fila) => ({
-        nombres: fila.nombres?.trim() ?? "",
-        apellidoPaterno: fila.apellidoPaterno?.trim() ?? "",
-        apellidoMaterno: fila.apellidoMaterno?.trim() ?? "",
-        correo: fila.correo?.trim() ?? "",
-        telefono: fila.telefono?.trim() ?? "",
+        nombres: fila.nombres?.trim() ?? '',
+        apellidoPaterno: fila.apellidoPaterno?.trim() ?? '',
+        apellidoMaterno: fila.apellidoMaterno?.trim() ?? '',
+        correo: fila.correo?.trim() ?? '',
+        telefono: fila.telefono?.trim() ?? '',
         cuatrimestre: Number(fila.cuatrimestre) || 0,
-        grupo: fila.grupo?.trim() ?? "",
+        grupo: fila.grupo?.trim() ?? '',
       }));
 
       const registrosValidos = registros.filter((participante) =>
@@ -296,7 +321,7 @@ function importarCsv() {
       participantes.value.push(...nuevos);
 
       $q.notify({
-        type: "positive",
+        type: 'positive',
         message: `CSV importado correctamente. Registros agregados: ${nuevos.length}`,
       });
 
@@ -304,8 +329,8 @@ function importarCsv() {
     },
     error: () => {
       $q.notify({
-        type: "negative",
-        message: "Error al leer el archivo CSV",
+        type: 'negative',
+        message: 'Error al leer el archivo CSV',
       });
     },
   });
@@ -314,8 +339,8 @@ function importarCsv() {
 async function guardarParticipantes() {
   if (participantes.value.length === 0) {
     $q.notify({
-      type: "warning",
-      message: "No hay participantes para guardar",
+      type: 'warning',
+      message: 'No hay participantes para guardar',
     });
     return;
   }
@@ -323,29 +348,35 @@ async function guardarParticipantes() {
   loading.value = true;
 
   try {
-    const response = await fetch("http://localhost:3000/api/utvm/multiple", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(participantes.value),
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || "Error al guardar participantes");
-    }
+    await api.post('/utvm/multiple', participantes.value);
 
     $q.notify({
-      type: "positive",
-      message: "Participantes UTVM guardados correctamente",
+      type: 'positive',
+      message: 'Participantes UTVM guardados correctamente',
     });
 
     participantes.value = [];
-  } catch (error) {
+  } catch (error: unknown) {
+    let mensaje = 'Error desconocido';
+
+    if (error instanceof AxiosError) {
+      const data = error.response?.data as ErrorBackend | undefined;
+      const mensajeBackend = data?.message;
+
+      if (Array.isArray(mensajeBackend)) {
+        mensaje = mensajeBackend.join(', ');
+      } else if (typeof mensajeBackend === 'string') {
+        mensaje = mensajeBackend;
+      } else {
+        mensaje = error.message;
+      }
+    } else if (error instanceof Error) {
+      mensaje = error.message;
+    }
+
     $q.notify({
-      type: "negative",
-      message: error instanceof Error ? error.message : "Error desconocido",
+      type: 'negative',
+      message: mensaje,
     });
   } finally {
     loading.value = false;

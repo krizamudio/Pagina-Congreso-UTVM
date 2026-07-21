@@ -1,5 +1,5 @@
 const apiBaseUrl = (
-  import.meta.env.VITE_API_URL ?? 'http://localhost:3000/api/'
+  import.meta.env.VITE_API_URL || '/api'
 ).replace(/\/$/, '');
 
 export function abrirComprobante(id: string): void {

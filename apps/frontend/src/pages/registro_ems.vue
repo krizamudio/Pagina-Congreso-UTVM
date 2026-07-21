@@ -9,7 +9,12 @@
           </div>
 
           <div>
-            <q-btn flat label="Volver" text-color="white" @click="goToParticipantes" />
+            <q-btn
+              flat
+              label="Volver"
+              text-color="white"
+              @click="goToParticipantes"
+            />
           </div>
         </div>
       </q-card-section>
@@ -20,15 +25,54 @@
         <div class="section-title">Datos del participante</div>
 
         <div class="row q-col-gutter-md">
-          <q-input v-model="form.nombres" label="Nombre(s)" outlined class="col-12 col-md-4" />
-          <q-input v-model="form.apellidoPaterno" label="Apellido paterno" outlined class="col-12 col-md-4" />
-          <q-input v-model="form.apellidoMaterno" label="Apellido materno" outlined class="col-12 col-md-4" />
+          <q-input
+            v-model="form.nombres"
+            label="Nombre(s)"
+            outlined
+            class="col-12 col-md-4"
+          />
 
-          <q-input v-model="form.correo" label="Correo electrónico" outlined class="col-12 col-md-6" />
-          <q-input v-model="form.telefono" label="Teléfono móvil" outlined class="col-12 col-md-6" />
+          <q-input
+            v-model="form.apellidoPaterno"
+            label="Apellido paterno"
+            outlined
+            class="col-12 col-md-4"
+          />
 
-          <q-input v-model="form.institucion" label="Institución" outlined class="col-12 col-md-6" />
-          <q-input v-model="form.carrera" label="Carrera" outlined class="col-12 col-md-6" />
+          <q-input
+            v-model="form.apellidoMaterno"
+            label="Apellido materno"
+            outlined
+            class="col-12 col-md-4"
+          />
+
+          <q-input
+            v-model="form.correo"
+            label="Correo electrónico"
+            outlined
+            class="col-12 col-md-6"
+          />
+
+          <q-input
+            v-model="form.telefono"
+            label="Teléfono móvil"
+            outlined
+            class="col-12 col-md-6"
+          />
+
+          <q-input
+            v-model="form.institucion"
+            label="Institución"
+            outlined
+            class="col-12 col-md-6"
+          />
+
+          <q-input
+            v-model="form.carrera"
+            label="Carrera"
+            outlined
+            class="col-12 col-md-6"
+          />
         </div>
 
         <div class="q-mt-lg">
@@ -67,7 +111,13 @@
       <q-card-section v-if="participantes.length > 0">
         <div class="section-title">Participantes agregados</div>
 
-        <q-table :rows="participantes" :columns="columns" row-key="correo" flat bordered>
+        <q-table
+          :rows="participantes"
+          :columns="columns"
+          row-key="correo"
+          flat
+          bordered
+        >
           <template #body-cell-acciones="props">
             <q-td :props="props">
               <q-btn
@@ -99,7 +149,9 @@
 import { reactive, ref } from 'vue';
 import { useQuasar } from 'quasar';
 import { useRouter } from 'vue-router';
+import { AxiosError } from 'axios';
 import Papa from 'papaparse';
+import { api } from '../services/api';
 
 const $q = useQuasar();
 const router = useRouter();
@@ -112,6 +164,10 @@ interface ParticipanteEms {
   telefono: string;
   institucion: string;
   carrera: string;
+}
+
+interface ErrorBackend {
+  message?: string | string[];
 }
 
 const loading = ref(false);
@@ -129,13 +185,48 @@ const form = reactive<ParticipanteEms>({
 });
 
 const columns = [
-  { name: 'nombres', label: 'Nombre(s)', field: 'nombres', align: 'left' as const },
-  { name: 'apellidoPaterno', label: 'Apellido paterno', field: 'apellidoPaterno', align: 'left' as const },
-  { name: 'correo', label: 'Correo', field: 'correo', align: 'left' as const },
-  { name: 'telefono', label: 'Teléfono', field: 'telefono', align: 'left' as const },
-  { name: 'institucion', label: 'Institución', field: 'institucion', align: 'left' as const },
-  { name: 'carrera', label: 'Carrera', field: 'carrera', align: 'left' as const },
-  { name: 'acciones', label: 'Acciones', field: 'acciones', align: 'center' as const },
+  {
+    name: 'nombres',
+    label: 'Nombre(s)',
+    field: 'nombres',
+    align: 'left' as const,
+  },
+  {
+    name: 'apellidoPaterno',
+    label: 'Apellido paterno',
+    field: 'apellidoPaterno',
+    align: 'left' as const,
+  },
+  {
+    name: 'correo',
+    label: 'Correo',
+    field: 'correo',
+    align: 'left' as const,
+  },
+  {
+    name: 'telefono',
+    label: 'Teléfono',
+    field: 'telefono',
+    align: 'left' as const,
+  },
+  {
+    name: 'institucion',
+    label: 'Institución',
+    field: 'institucion',
+    align: 'left' as const,
+  },
+  {
+    name: 'carrera',
+    label: 'Carrera',
+    field: 'carrera',
+    align: 'left' as const,
+  },
+  {
+    name: 'acciones',
+    label: 'Acciones',
+    field: 'acciones',
+    align: 'center' as const,
+  },
 ];
 
 function limpiarFormulario() {
@@ -168,7 +259,9 @@ function agregarParticipante() {
     return;
   }
 
-  const correoExiste = participantes.value.some((p) => p.correo === form.correo);
+  const correoExiste = participantes.value.some(
+    (p) => p.correo === form.correo,
+  );
 
   if (correoExiste) {
     $q.notify({
@@ -244,18 +337,7 @@ async function guardarParticipantes() {
   loading.value = true;
 
   try {
-    const response = await fetch('http://localhost:3000/api/ems/multiple', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(participantes.value),
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Error al guardar participantes');
-    }
+    await api.post('/ems/multiple', participantes.value);
 
     $q.notify({
       type: 'positive',
@@ -263,10 +345,27 @@ async function guardarParticipantes() {
     });
 
     participantes.value = [];
-  } catch (error) {
+  } catch (error: unknown) {
+    let mensaje = 'Error desconocido';
+
+    if (error instanceof AxiosError) {
+      const data = error.response?.data as ErrorBackend | undefined;
+      const mensajeBackend = data?.message;
+
+      if (Array.isArray(mensajeBackend)) {
+        mensaje = mensajeBackend.join(', ');
+      } else if (typeof mensajeBackend === 'string') {
+        mensaje = mensajeBackend;
+      } else {
+        mensaje = error.message;
+      }
+    } else if (error instanceof Error) {
+      mensaje = error.message;
+    }
+
     $q.notify({
       type: 'negative',
-      message: error instanceof Error ? error.message : 'Error desconocido',
+      message: mensaje,
     });
   } finally {
     loading.value = false;
@@ -281,5 +380,3 @@ function goToParticipantes() {
 <style lang="scss">
 @import "../css/registro-ems-utvm.scss";
 </style>
-
-
