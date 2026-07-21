@@ -17,10 +17,8 @@ import { seconds, ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { QrAccesoModule } from './qr-acceso/qr-acceso.module';
 import { DiaEventoModule } from './dia-evento/dia-evento.module';
-import { ForoEmpresarialModule } from './foro-empresarial/foro-empresarial.module';
-import { GestionContenidoModule } from './gestion-contenido/gestion-contenido.module';
-import { ComprobanteModule } from './comprobante/comprobante.module';
-import { ReconocimientoModule } from './reconocimiento/reconocimiento.module';
+import { LoginModule } from './login/login.module';
+import { InscripcionTallerModule } from './inscripcion-taller/inscripcion-taller.module';
 
 @Module({
   imports: [
@@ -31,25 +29,22 @@ import { ReconocimientoModule } from './reconocimiento/reconocimiento.module';
     ThrottlerModule.forRoot({
       throttlers: [
         {
-          // No mas de 3 llamadas en un segundo.
           name: 'short',
           ttl: seconds(1),
-          limit: 3,
-          blockDuration: seconds(30),
+          limit: 30,
+          blockDuration: seconds(3),
         },
         {
-          // No mas de 20 llamadas en 10 segundos.
           name: 'medium',
           ttl: seconds(10),
-          limit: 20,
-          blockDuration: seconds(30),
+          limit: 100,
+          blockDuration: seconds(3),
         },
         {
-          // No mas de 100 llamadas en un minuto.
           name: 'long',
           ttl: seconds(60),
-          limit: 100,
-          blockDuration: seconds(60),
+          limit: 500,
+          blockDuration: seconds(10),
         },
       ],
     }),
@@ -83,10 +78,8 @@ import { ReconocimientoModule } from './reconocimiento/reconocimiento.module';
     UbicacionModule,
     DiaEventoModule,
     QrAccesoModule,
-    ForoEmpresarialModule,
-    GestionContenidoModule,
-    ComprobanteModule,
-    ReconocimientoModule,
+    LoginModule,
+    InscripcionTallerModule,
   ],
   controllers: [],
   providers: [

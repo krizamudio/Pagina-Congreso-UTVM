@@ -39,17 +39,49 @@ export class TallerService {
     );
   }
 
-  async findAllTalleres(): Promise<Taller[]> {
-    return this.repository.find({ relations: this.relations });
+  async findAllTalleres(): Promise<TallerConInscritos[]> {
+    const talleres = await this.tallerRepository.find({
+      relations: [
+        'congreso',
+        'ubicacion',
+        'ponente',
+        'ponente.foto',
+        'inscripciones',
+      ],
+      order: {
+        fecha: 'ASC',
+        hora_inicio: 'ASC',
+      },
+    });
+
+    return talleres.map((taller) => ({
+      ...taller,
+      inscritos: taller.inscripciones?.length ?? 0,
+    }));
   }
 
-  async findOneTaller(id: string): Promise<Taller> {
-    const taller = await this.repository.findOne({
+  async findOneTaller(id: string): Promise<TallerConInscritos> {
+    const taller = await this.tallerRepository.findOne({
       where: { id },
-      relations: this.relations,
+      relations: [
+        'congreso',
+        'ubicacion',
+        'ponente',
+        'ponente.foto',
+        'inscripciones',
+      ],
     });
-    if (!taller) throw new NotFoundException('Taller no encontrado');
-    return taller;
+
+    if (!taller) {
+      throw new NotFoundException(
+        `No se encontro ningun taller con el id ${id}`,
+      );
+    }
+
+    return {
+      ...taller,
+      inscritos: taller.inscripciones?.length ?? 0,
+    };
   }
 
   async updateTaller(id: string, dto: UpdateTallerDto): Promise<Taller> {
@@ -76,23 +108,34 @@ export class TallerService {
     );
   }
 
-  async removeTaller(id: string): Promise<Taller> {
-    const taller = await this.findOneTaller(id);
-    try {
-      await this.repository.softDelete(id);
-      return taller;
-    } catch (error) {
-      this.dbErrors.handle(error);
+    const taller = await this.tallerRepository.preload({
+      id,
+      ...datosTaller,
+      ...(fecha ? { fecha } : {}),
+      ...(hora_inicio ? { hora_inicio } : {}),
+      ...(hora_fin ? { hora_fin } : {}),
+      ...(tallerista_id
+        ? {
+            ponente: {
+              id: tallerista_id,
+            } as Ponente,
+          }
+        : {}),
+    } as DeepPartial<Taller>);
+
+    if (!taller) {
+      throw new NotFoundException(
+        `No se encontro ningun taller con el id ${id}`,
+      );
     }
   }
 
   async restoreTaller(id: string): Promise<Taller> {
     try {
-      await this.repository.restore(id);
-      return await this.findOneTaller(id);
-    } catch (error) {
-      if (error instanceof NotFoundException) throw error;
-      this.dbErrors.handle(error);
+      const tallerActualizado = await this.tallerRepository.save(taller);
+      return await this.findOneTaller(tallerActualizado.id);
+    } catch (err) {
+      throw new InternalServerErrorException(err);
     }
   }
 

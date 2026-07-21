@@ -297,7 +297,8 @@ export class ExternosService {
       );
     }
 
-    const [payloadBase64, firmaRecibida] = partes;
+    const payloadBase64 = partes[0]!;
+    const firmaRecibida = partes[1]!;
 
     const firmaEsperada = createHmac('sha256', secret)
       .update(payloadBase64)

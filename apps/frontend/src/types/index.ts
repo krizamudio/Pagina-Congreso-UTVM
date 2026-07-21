@@ -33,17 +33,28 @@ export interface ReconocimientosPage {
 
 export interface Ponente {
   id: string;
-  usuario_id: string;
+
+  // Backend nuevo
+  usuarioId?: string;
+  visiblePublico?: boolean;
+  foto?: {
+    id: string;
+    url: string;
+  };
+
+  // Compatibilidad con frontend viejo/admin
+  usuario_id?: string;
+  archivo_foto_id?: string | null;
+  visible_publico?: boolean;
+
   nombre: string;
-  archivo_foto_id: string;
   institucion: string;
   tipo: PonenteTipo;
   semblanza: string;
   tema: string;
-  visible_publico?: boolean;
 }
 
-export type PonentePayload = Omit<Ponente, "id">;
+export type PonentePayload = Omit<Ponente, "id" | "foto" | "usuarioId" | "visiblePublico">;
 
 export type Panel = Ponente;
 export type PanelPayload = PonentePayload;
@@ -55,23 +66,40 @@ export interface ConferenciaReferencia {
 
 export interface Conferencia {
   id: string;
-  congreso_id: string;
   titulo: string;
-  ponente_id: string;
   resumen: string;
   fecha: string;
   hora_inicio: string;
   hora_fin: string;
-  ubicacion_id: string;
-  congreso?: ConferenciaReferencia;
-  ponente?: ConferenciaReferencia;
-  ubicacion?: ConferenciaReferencia;
-}
 
-export type ConferenciaPayload = Omit<
-  Conferencia,
-  "id" | "congreso" | "ponente" | "ubicacion"
->;
+  congreso_id?: string | null;
+  ponente_id?: string | null;
+  ubicacion_id?: string | null;
+
+  congreso?: {
+    id: string;
+    nombre: string;
+  } | null;
+
+  ponente?: {
+    id: string;
+    nombre: string;
+    institucion?: string;
+    semblanza?: string;
+    tema?: string;
+    visible_publico?: boolean;
+  } | null;
+
+  ubicacion?: {
+    id: string;
+    nombre: string;
+    capacidad?: number;
+  } | null;
+
+  created_at?: string;
+  updated_at?: string;
+  deleted_at?: string | null;
+}
 
 export interface Taller {
   id: string;

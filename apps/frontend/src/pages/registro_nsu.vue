@@ -361,19 +361,136 @@ const columns = [
 ];
 
 function agregarParticipante() {
+  const nombre = form.value.nombre.trim();
+  const apellidoPaterno = form.value.apellidoPaterno.trim();
+  const apellidoMaterno = form.value.apellidoMaterno.trim();
+  const correo = form.value.correo.trim().toLowerCase();
+  const institucion = form.value.institucion.trim();
+  const carrera = form.value.carrera.trim();
+  const telefono = form.value.telefono.replace(/\s/g, "").trim();
+  const dias = form.value.dias;
+
+  if (!nombre) {
+    Notify.create({
+      type: "warning",
+      message: "El nombre es obligatorio.",
+      position: "top",
+    });
+    return;
+  }
+
+  if (!apellidoPaterno) {
+    Notify.create({
+      type: "warning",
+      message: "El apellido paterno es obligatorio.",
+      position: "top",
+    });
+    return;
+  }
+
+  if (!correo) {
+    Notify.create({
+      type: "warning",
+      message: "El correo electrónico es obligatorio.",
+      position: "top",
+    });
+    return;
+  }
+
+  const correoValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if (!correoValido.test(correo)) {
+    Notify.create({
+      type: "warning",
+      message: "Ingresa un correo electrónico válido.",
+      position: "top",
+    });
+    return;
+  }
+
+  if (!institucion) {
+    Notify.create({
+      type: "warning",
+      message: "La institución es obligatoria.",
+      position: "top",
+    });
+    return;
+  }
+
+  if (!carrera) {
+    Notify.create({
+      type: "warning",
+      message: "La carrera es obligatoria.",
+      position: "top",
+    });
+    return;
+  }
+
+  if (!telefono) {
+    Notify.create({
+      type: "warning",
+      message: "El teléfono es obligatorio.",
+      position: "top",
+    });
+    return;
+  }
+
+  if (!/^\d{10}$/.test(telefono)) {
+    Notify.create({
+      type: "warning",
+      message: "El teléfono debe contener exactamente 10 dígitos.",
+      position: "top",
+    });
+    return;
+  }
+
+  if (dias.length === 0) {
+    Notify.create({
+      type: "warning",
+      message: "Selecciona al menos un día de participación.",
+      position: "top",
+    });
+    return;
+  }
+
+  const correoDuplicado = participantes.value.some(
+    (participante) =>
+      participante.correo.trim().toLowerCase() === correo,
+  );
+
+  if (correoDuplicado) {
+    Notify.create({
+      type: "warning",
+      message: "Este correo ya fue agregado a la tabla.",
+      position: "top",
+    });
+    return;
+  }
+
   const monto = montoParticipanteActual.value;
+
+  const nombreCompleto = [
+    nombre,
+    apellidoPaterno,
+    apellidoMaterno,
+  ]
+    .filter(Boolean)
+    .join(" ");
 
   participantes.value.push({
     id: participantes.value.length + 1,
-    nombreCompleto: `${form.value.nombre} ${form.value.apellidoPaterno} ${form.value.apellidoMaterno}`,
-    correo: form.value.correo,
-    institucion: form.value.institucion,
-    carrera: form.value.carrera,
-    telefono: form.value.telefono,
-    dias: form.value.dias.join(", "),
+    nombreCompleto,
+    correo,
+    institucion,
+    carrera,
+    telefono,
+    dias: dias.join(", "),
     monto: `$${monto.toFixed(2)}`,
     montoNumero: monto,
   });
+
+  // Se conserva el comprobante que ya hubiera seleccionado.
+  const comprobanteActual = form.value.comprobante;
 
   form.value = {
     nombre: "",
@@ -384,8 +501,14 @@ function agregarParticipante() {
     carrera: "",
     telefono: "",
     dias: [],
-    comprobante: null,
+    comprobante: comprobanteActual,
   };
+
+  Notify.create({
+    type: "positive",
+    message: "Participante agregado correctamente.",
+    position: "top",
+  });
 }
 const fileInput = ref();
 
