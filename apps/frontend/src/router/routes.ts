@@ -46,7 +46,7 @@ const routes: RouteRecordRaw[] = [
       },
       {
         path: "/panelistas_u/:id",
-        component: () => import("@/pages/TalleresU/panelista-detalle.vue"),
+        component: () => import("@/pages/TalleresU/Panelista-detalle.vue"),
       },
             {
         path: "/login",
@@ -185,6 +185,44 @@ const routes: RouteRecordRaw[] = [
         alias: "/foros-empresariales/:id/editar",
         component: () =>
           import("@/pages/dashboards/EditarForoEmpresarialPage.vue")
+      },
+
+      {
+        path: "pagina-oficial",
+        alias: "/pagina-oficial",
+        component: () => import("@/pages/dashboards/PaginaOficialPage.vue")
+      },
+      {
+        path: "pagina-oficial/noticias/nueva",
+        alias: "/pagina-oficial/noticias/nueva",
+        component: () => import("@/pages/dashboards/NoticiaEditorPage.vue")
+      },
+      {
+        path: "pagina-oficial/noticias/:id/editar",
+        alias: "/pagina-oficial/noticias/:id/editar",
+        component: () => import("@/pages/dashboards/NoticiaEditorPage.vue")
+      },
+      {
+        path: "pagina-oficial/secciones/nueva",
+        alias: "/pagina-oficial/secciones/nueva",
+        component: () =>
+          import("@/pages/dashboards/SeccionContenidoEditorPage.vue")
+      },
+      {
+        path: "pagina-oficial/secciones/:id/editar",
+        alias: "/pagina-oficial/secciones/:id/editar",
+        component: () =>
+          import("@/pages/dashboards/SeccionContenidoEditorPage.vue")
+      },
+      {
+        path: "pagina-oficial/banners/nuevo",
+        alias: "/pagina-oficial/banners/nuevo",
+        component: () => import("@/pages/dashboards/BannerEditorPage.vue")
+      },
+      {
+        path: "pagina-oficial/banners/:id/editar",
+        alias: "/pagina-oficial/banners/:id/editar",
+        component: () => import("@/pages/dashboards/BannerEditorPage.vue")
       },
 
       {
