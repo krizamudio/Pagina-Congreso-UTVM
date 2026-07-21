@@ -205,7 +205,7 @@ import { computed, onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 
 import { useConferenciasQuery } from '@/composables/useConferenciasQuery';
-import { usePanelesQuery } from '@/composables/UsePanelesQuery';
+import { usePanelesQuery } from '@/composables/usePanelesQuery';
 import type { Conferencia, Ponente } from '@/types';
 
 interface RelacionSimple {

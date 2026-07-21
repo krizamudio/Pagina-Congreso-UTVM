@@ -58,19 +58,6 @@ export default defineConfig((/* ctx */) => {
       // distDir
 
       // extendViteConf (viteConf) {},
-      extendViteConf(viteConf) {
-        viteConf.server = viteConf.server || {};
-        viteConf.server.headers = {
-          ...viteConf.server.headers,
-          "Content-Security-Policy":
-            "default-src 'self'; " +
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
-            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
-            "font-src 'self' https://fonts.gstatic.com; " +
-            "img-src 'self' data: blob: https://*.supabase.co; " +
-            "connect-src 'self' http://localhost:3000 ws://localhost:*;",
-        };
-      }
       // viteVuePluginOptions: {},
 
       // vitePlugins: [

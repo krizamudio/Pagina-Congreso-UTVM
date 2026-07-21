@@ -46,7 +46,7 @@ const routes: RouteRecordRaw[] = [
       },
       {
         path: "/panelistas_u/:id",
-        component: () => import("@/pages/TalleresU/panelista-detalle.vue"),
+        component: () => import("@/pages/TalleresU/Panelista-detalle.vue"),
       },
             {
         path: "/login",
