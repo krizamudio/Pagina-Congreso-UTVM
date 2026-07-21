@@ -1,5 +1,6 @@
 import {
   ConflictException,
+  HttpException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -7,11 +8,12 @@ import { CreateUbicacionDto } from './dto/create-ubicacion.dto';
 import { UpdateUbicacionDto } from './dto/update-ubicacion.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Ubicacion } from './entities/ubicacion.entity';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { DatabaseErrorHandlerService } from '../common/database/handle-database-error';
 import { UbicacionMapperService } from './mappers/ubicacion.mapper.service';
 import { FindUbicacionDto } from './dto/find-ubicacion.dto';
 import { ForoEmpresarial } from '../foro-empresarial/entities/foro-empresarial.entity';
+import { TallerCapacityService } from '../taller/services/taller-capacity.service';
 
 @Injectable()
 export class UbicacionService {
@@ -22,6 +24,8 @@ export class UbicacionService {
     private readonly forosRepository: Repository<ForoEmpresarial>,
     private readonly databaseError: DatabaseErrorHandlerService,
     private readonly mapper: UbicacionMapperService,
+    private readonly dataSource: DataSource,
+    private readonly capacity: TallerCapacityService,
   ) {}
 
   async create(createUbicacionDto: CreateUbicacionDto): Promise<string> {
@@ -59,22 +63,21 @@ export class UbicacionService {
     id: string,
     updateUbicacionDto: UpdateUbicacionDto,
   ): Promise<string> {
-    const ubicacionActualizada: Ubicacion | undefined =
-      await this.ubicacionRepository.preload({
-        id,
-        ...updateUbicacionDto,
-      });
-
-    if (ubicacionActualizada === undefined) {
-      throw new NotFoundException(
-        'No se encontró ninguna ubicación con ese ID',
-      );
-    }
-
     try {
-      await this.ubicacionRepository.save(ubicacionActualizada);
+      await this.dataSource.transaction(async (manager) => {
+        const ubicacion = await this.capacity.lockLocation(manager, id);
+        const capacidad = updateUbicacionDto.capacidad ?? ubicacion.capacidad;
+
+        if (capacidad < ubicacion.capacidad) {
+          await this.capacity.validateLocationReduction(manager, id, capacidad);
+        }
+
+        manager.getRepository(Ubicacion).merge(ubicacion, updateUbicacionDto);
+        await manager.getRepository(Ubicacion).save(ubicacion);
+      });
       return 'Ubicación actualizada correctamente';
     } catch (err) {
+      if (err instanceof HttpException) throw err;
       this.databaseError.handle(err);
     }
   }

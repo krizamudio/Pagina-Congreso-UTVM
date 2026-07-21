@@ -9,16 +9,17 @@ import { InscripcionTaller } from './entities/inscripcion-taller.entity';
 import { ParticipanteAccesoModule } from '../participante-acceso/participante-acceso.module';
 import { InscripcionTallerController } from './inscripcion-taller.controller';
 import { InscripcionTallerService } from './services/inscripcion-taller.service';
+import { TallerCapacityService } from './services/taller-capacity.service';
 
 @Module({
   controllers: [TallerController, InscripcionTallerController],
-  providers: [TallerService, InscripcionTallerService],
+  providers: [TallerService, InscripcionTallerService, TallerCapacityService],
   imports: [
     TypeOrmModule.forFeature([Taller, InscripcionTaller]),
     CommonModule,
     AgendaModule,
     ParticipanteAccesoModule,
   ],
-  exports: [TypeOrmModule],
+  exports: [TypeOrmModule, TallerCapacityService],
 })
 export class TallerModule {}

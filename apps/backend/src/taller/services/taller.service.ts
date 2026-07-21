@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, EntityManager, Repository } from 'typeorm';
 
 import { DatabaseErrorHandlerService } from '../../common/database/handle-database-error';
 import { ResourceLockService } from '../../common/resource-lock.service';
@@ -11,6 +11,7 @@ import { AgendaRelationsService } from '../../gestion-contenido/agenda/agenda-re
 import { CreateTallerDto } from '../dto/create-taller.dto';
 import { UpdateTallerDto } from '../dto/update-taller.dto';
 import { Taller } from '../entities/taller.entity';
+import { TallerCapacityService } from './taller-capacity.service';
 
 @Injectable()
 export class TallerService {
@@ -28,11 +29,13 @@ export class TallerService {
     private readonly conflicts: AgendaConflictService,
     private readonly locks: ResourceLockService,
     private readonly dbErrors: DatabaseErrorHandlerService,
+    private readonly dataSource: DataSource,
+    private readonly capacity: TallerCapacityService,
   ) {}
 
   createTaller(dto: CreateTallerDto): Promise<Taller> {
     return this.locks.withLock(`agenda:${dto.fecha}:${dto.ubicacion_id}`, () =>
-      this.createLocked(dto),
+      this.dataSource.transaction((manager) => this.createLocked(dto, manager)),
     );
   }
 
@@ -67,7 +70,9 @@ export class TallerService {
     const locationId = dto.ubicacion_id ?? current.ubicacion?.id;
     if (!locationId) throw new NotFoundException('La ubicación no existe');
     return this.locks.withLock(`agenda:${date}:${locationId}`, () =>
-      this.updateLocked(current, dto),
+      this.dataSource.transaction((manager) =>
+        this.updateLocked(current.id, dto, manager),
+      ),
     );
   }
 
@@ -91,14 +96,25 @@ export class TallerService {
     }
   }
 
-  private async createLocked(dto: CreateTallerDto): Promise<Taller> {
+  private async createLocked(
+    dto: CreateTallerDto,
+    manager: EntityManager,
+  ): Promise<Taller> {
     this.validator.FechaValida(dto.fecha);
     this.validator.ValidarHoras(dto.hora_fin, dto.hora_inicio);
-    const relations = await this.agendaRelations.resolve({
-      congresoId: dto.congreso_id,
-      ubicacionId: dto.ubicacion_id,
-      ponenteId: dto.tallerista_id,
-    });
+    const ubicacion = await this.capacity.lockLocation(
+      manager,
+      dto.ubicacion_id,
+    );
+    const relations = await this.agendaRelations.resolve(
+      {
+        congresoId: dto.congreso_id,
+        ubicacionId: dto.ubicacion_id,
+        ponenteId: dto.tallerista_id,
+      },
+      manager,
+    );
+    this.capacity.validateAgainstLocation(dto.cupo_maximo, ubicacion);
     this.agendaRelations.validateDateInsideCongress(
       dto.fecha,
       relations.congreso,
@@ -109,7 +125,8 @@ export class TallerService {
       horaFin: dto.hora_fin,
       ubicacionId: dto.ubicacion_id,
     });
-    const taller = this.repository.create({
+    const repository = manager.getRepository(Taller);
+    const taller = repository.create({
       titulo: dto.titulo,
       descripcion: dto.descripcion,
       cupo_maximo: dto.cupo_maximo,
@@ -118,18 +135,31 @@ export class TallerService {
       hora_fin: dto.hora_fin,
       requisitos: dto.requisitos,
       ...relations,
+      ubicacion,
     });
     try {
-      return await this.repository.save(taller);
+      return await repository.save(taller);
     } catch (error) {
       this.dbErrors.handle(error);
     }
   }
 
   private async updateLocked(
-    current: Taller,
+    id: string,
     dto: UpdateTallerDto,
+    manager: EntityManager,
   ): Promise<Taller> {
+    const repository = manager.getRepository(Taller);
+    const current = await repository
+      .createQueryBuilder('taller')
+      .leftJoinAndSelect('taller.congreso', 'congreso')
+      .leftJoinAndSelect('taller.ubicacion', 'ubicacion')
+      .leftJoinAndSelect('taller.ponente', 'ponente')
+      .where('taller.id = :id', { id })
+      .setLock('pessimistic_write', undefined, ['taller'])
+      .getOne();
+    if (!current) throw new NotFoundException('Taller no encontrado');
+
     const fecha = dto.fecha ?? this.dateValue(current.fecha);
     const horaInicio = dto.hora_inicio ?? current.hora_inicio;
     const horaFin = dto.hora_fin ?? current.hora_fin;
@@ -141,13 +171,23 @@ export class TallerService {
     if (!ids.congresoId || !ids.ubicacionId || !ids.ponenteId) {
       throw new NotFoundException('Las relaciones de la actividad no existen');
     }
+    const ubicacion = await this.capacity.lockLocation(
+      manager,
+      ids.ubicacionId,
+    );
+    const cupo = dto.cupo_maximo ?? current.cupo_maximo;
+    this.capacity.validateAgainstLocation(cupo, ubicacion);
+    await this.capacity.validateAgainstEnrollments(manager, current.id, cupo);
     if (dto.fecha !== undefined) this.validator.FechaValida(fecha);
     this.validator.ValidarHoras(horaFin, horaInicio);
-    const relations = await this.agendaRelations.resolve({
-      congresoId: ids.congresoId,
-      ubicacionId: ids.ubicacionId,
-      ponenteId: ids.ponenteId,
-    });
+    const relations = await this.agendaRelations.resolve(
+      {
+        congresoId: ids.congresoId,
+        ubicacionId: ids.ubicacionId,
+        ponenteId: ids.ponenteId,
+      },
+      manager,
+    );
     this.agendaRelations.validateDateInsideCongress(fecha, relations.congreso);
     await this.conflicts.validate({
       fecha,
@@ -156,7 +196,7 @@ export class TallerService {
       ubicacionId: ids.ubicacionId,
       excludeTallerId: current.id,
     });
-    this.repository.merge(current, {
+    repository.merge(current, {
       ...(dto.titulo !== undefined ? { titulo: dto.titulo } : {}),
       ...(dto.descripcion !== undefined
         ? { descripcion: dto.descripcion }
@@ -173,9 +213,10 @@ export class TallerService {
       ...(dto.hora_fin !== undefined ? { hora_fin: dto.hora_fin } : {}),
       ...(dto.requisitos !== undefined ? { requisitos: dto.requisitos } : {}),
       ...relations,
+      ubicacion,
     });
     try {
-      return await this.repository.save(current);
+      return await repository.save(current);
     } catch (error) {
       this.dbErrors.handle(error);
     }
