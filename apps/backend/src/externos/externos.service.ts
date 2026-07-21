@@ -141,7 +141,10 @@ export class ExternosService {
 
   async findAll() {
     return await this.externoRepository.find({
-      where: { deleted_at: IsNull() },
+      where: {
+        correoVerificado: true,
+        deleted_at: IsNull(),
+      },
       relations: {
         comprobante: true,
       },

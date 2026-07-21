@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { EntityManager, Repository } from 'typeorm';
 
 import { Congreso } from '../../congreso/entities/congreso.entity';
 import { Ponente } from '../../ponente/entities/ponente.entity';
@@ -22,11 +22,17 @@ export class AgendaRelationsService {
     private readonly ponentes: Repository<Ponente>,
   ) {}
 
-  async resolve(ids: AgendaRelationIds): Promise<AgendaRelations> {
+  async resolve(
+    ids: AgendaRelationIds,
+    manager?: EntityManager,
+  ): Promise<AgendaRelations> {
+    const congresos = manager?.getRepository(Congreso) ?? this.congresos;
+    const ubicaciones = manager?.getRepository(Ubicacion) ?? this.ubicaciones;
+    const ponentes = manager?.getRepository(Ponente) ?? this.ponentes;
     const [congreso, ubicacion, ponente] = await Promise.all([
-      this.congresos.findOneBy({ id: ids.congresoId }),
-      this.ubicaciones.findOneBy({ id: ids.ubicacionId }),
-      this.ponentes.findOneBy({ id: ids.ponenteId }),
+      congresos.findOneBy({ id: ids.congresoId }),
+      ubicaciones.findOneBy({ id: ids.ubicacionId }),
+      ponentes.findOneBy({ id: ids.ponenteId }),
     ]);
     if (!congreso) throw new NotFoundException('El congreso no existe');
     if (!ubicacion) throw new NotFoundException('La ubicación no existe');
