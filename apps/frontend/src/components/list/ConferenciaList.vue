@@ -95,10 +95,11 @@ const columns: QTableColumn[] = [
   {
     name: "ponente_id",
     label: "Ponente o panelista",
-    field: (row: Conferencia) =>
-      row.ponente?.nombre ??
-      props.ponenteNames[row.ponente_id] ??
-      row.ponente_id,
+    field: (row: Conferencia) => {
+      if (row.ponente?.nombre) return row.ponente.nombre;
+      if (!row.ponente_id) return "Sin asignar";
+      return props.ponenteNames[row.ponente_id] ?? row.ponente_id;
+    },
     align: "left"
   },
   { name: "fecha", label: "Fecha", field: "fecha", align: "center" },

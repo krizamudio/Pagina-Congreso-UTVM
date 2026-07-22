@@ -242,8 +242,9 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { apiBaseUrl } from '@/services/api';
 
-const API_BASE = 'http://localhost:3000/api';
+const API_BASE = apiBaseUrl;
 
 const router = useRouter();
 

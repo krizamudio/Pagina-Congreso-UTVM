@@ -101,6 +101,22 @@ export interface Conferencia {
   deleted_at?: string | null;
 }
 
+export type ConferenciaPayload = Pick<
+  Conferencia,
+  | "congreso_id"
+  | "titulo"
+  | "ponente_id"
+  | "resumen"
+  | "fecha"
+  | "hora_inicio"
+  | "hora_fin"
+  | "ubicacion_id"
+> & {
+  congreso_id: string;
+  ponente_id: string;
+  ubicacion_id: string;
+};
+
 export interface Taller {
   id: string;
   congreso_id: string;
@@ -198,6 +214,13 @@ export interface ArchivoComprobante {
   nombre_original: string;
   mime_type: string;
   size: number;
+}
+
+export interface ArchivoMultimedia {
+  id: string;
+  url: string;
+  path: string;
+  tipoMime: string;
 }
 
 export interface ParticipanteEms {

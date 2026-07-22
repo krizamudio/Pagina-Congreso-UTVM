@@ -6,8 +6,10 @@ if (!baseURL) {
   throw new Error("Falta configurar VITE_API_URL");
 }
 
+export const apiBaseUrl = baseURL.replace(/\/$/, "");
+
 export const api = axios.create({
-  baseURL,
+  baseURL: apiBaseUrl,
   headers: { "Content-Type": "application/json" }
 });
 
