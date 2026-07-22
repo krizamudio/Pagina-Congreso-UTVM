@@ -379,7 +379,7 @@ const formatActivity = (
     titulo: string;
     fecha: string;
     hora_inicio: string;
-    ubicacion?: { nombre: string };
+    ubicacion?: { nombre: string } | null;
   },
   type: "Conferencia" | "Taller"
 ) => {

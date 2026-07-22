@@ -47,14 +47,14 @@ const initialConferenciaData = computed<Partial<ConferenciaPayload>>(() => {
   if (!data.value) return {};
 
   return {
-    congreso_id: data.value.congreso_id,
+    congreso_id: data.value.congreso_id ?? "",
     titulo: data.value.titulo,
-    ponente_id: data.value.ponente_id,
+    ponente_id: data.value.ponente_id ?? "",
     resumen: data.value.resumen,
     fecha: data.value.fecha,
     hora_inicio: data.value.hora_inicio,
     hora_fin: data.value.hora_fin,
-    ubicacion_id: data.value.ubicacion_id
+    ubicacion_id: data.value.ubicacion_id ?? ""
   };
 });
 const isLoading = ref(false);
