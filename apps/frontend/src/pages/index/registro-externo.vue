@@ -549,10 +549,11 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { apiBaseUrl } from '@/services/api'
 
 const router = useRouter()
 
-const API_EXTERNOS = 'http://localhost:3000/api/externos'
+const API_EXTERNOS = `${apiBaseUrl}/externos`
 
 const COSTO_DIA = 250
 const MAX_SIZE = 5 * 1024 * 1024

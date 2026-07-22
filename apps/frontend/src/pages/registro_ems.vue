@@ -100,6 +100,7 @@ import { reactive, ref } from 'vue';
 import { useQuasar } from 'quasar';
 import { useRouter } from 'vue-router';
 import Papa from 'papaparse';
+import { apiBaseUrl } from '@/services/api';
 
 const $q = useQuasar();
 const router = useRouter();
@@ -244,7 +245,7 @@ async function guardarParticipantes() {
   loading.value = true;
 
   try {
-    const response = await fetch('http://localhost:3000/api/ems/multiple', {
+    const response = await fetch(`${apiBaseUrl}/ems/multiple`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -281,5 +282,4 @@ function goToParticipantes() {
 <style lang="scss">
 @import "../css/registro-ems-utvm.scss";
 </style>
-
 

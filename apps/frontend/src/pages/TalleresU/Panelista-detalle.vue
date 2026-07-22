@@ -150,7 +150,7 @@ interface PanelistaDetalle {
   };
 }
 
-const route = useRoute();
+const route = useRoute() as unknown as { params: { id?: string } };
 const router = useRouter();
 
 const id = String(route.params.id || '');

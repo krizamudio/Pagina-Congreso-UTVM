@@ -142,6 +142,7 @@ import { reactive, ref } from "vue";
 import { useQuasar } from "quasar";
 import { useRouter } from "vue-router";
 import Papa from "papaparse";
+import { apiBaseUrl } from "@/services/api";
 
 const $q = useQuasar();
 const router = useRouter();
@@ -323,7 +324,7 @@ async function guardarParticipantes() {
   loading.value = true;
 
   try {
-    const response = await fetch("http://localhost:3000/api/utvm/multiple", {
+    const response = await fetch(`${apiBaseUrl}/utvm/multiple`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
