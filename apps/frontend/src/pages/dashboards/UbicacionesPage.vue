@@ -12,6 +12,7 @@
           color="primary"
           icon="add"
           label="Nueva ubicación"
+          :disable="isRefreshing || deletingId !== null"
           to="/ubicaciones/nueva" /></div
     ></div>
     <q-card class="dashboard-card q-pa-md"
@@ -45,12 +46,12 @@
                 color="primary"
                 icon="edit"
                 class="q-mr-sm"
-                :disable="deletingId === props.row.id"
+                :disable="isRefreshing || deletingId !== null"
                 :to="`/ubicaciones/${props.row.id}/editar`" /><q-btn
                 dense
                 color="negative"
                 icon="delete"
-                :disable="deletingId !== null"
+                :disable="isRefreshing || deletingId !== null"
                 :loading="deletingId === props.row.id"
                 @click="confirmRemove(props.row.id)" /></q-td
           ></template>

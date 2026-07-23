@@ -107,6 +107,7 @@
             type="submit"
             label="Guardar sección"
             :loading="saving"
+            :disable="saving"
           />
         </q-card-actions>
       </q-form>

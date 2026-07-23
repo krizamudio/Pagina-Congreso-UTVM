@@ -92,6 +92,7 @@
               color="orange"
               label="Pendiente todos"
               :loading="isSaving"
+              :disable="isSaving || isLoading"
               @click="setGroupStatus('PENDIENTE')"
             />
             <q-btn
@@ -100,6 +101,7 @@
               color="positive"
               label="Validar todos"
               :loading="isSaving"
+              :disable="isSaving || isLoading"
               @click="setGroupStatus('VALIDADO')"
             />
             <q-btn
@@ -108,6 +110,7 @@
               color="negative"
               label="Rechazar todos"
               :loading="isSaving"
+              :disable="isSaving || isLoading"
               @click="setGroupStatus('RECHAZADO')"
             />
           </div>
@@ -191,6 +194,7 @@
                   color="negative"
                   title="Eliminar participante"
                   :disable="isSaving || isLoading"
+                  :loading="isSaving"
                   @click="deleteParticipant(props.row.id)"
                 />
               </q-td>

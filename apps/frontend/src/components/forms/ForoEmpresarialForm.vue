@@ -135,7 +135,7 @@
         color="primary"
         type="submit"
         :loading="props.loading"
-        :disable="catalogsLoading || !!catalogsError"
+        :disable="props.loading || catalogsLoading || !!catalogsError"
         :label="props.submitLabel"
       />
     </div>

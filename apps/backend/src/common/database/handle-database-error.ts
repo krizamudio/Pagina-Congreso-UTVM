@@ -20,6 +20,16 @@ export class DatabaseErrorHandlerService {
       const dbError = error.driverError as PostgresError;
 
       switch (dbError.code) {
+        case '22001':
+          throw new BadRequestException(
+            'Algún texto excede la longitud permitida',
+          );
+
+        case '22003':
+          throw new BadRequestException(
+            'Algún valor numérico excede el límite permitido',
+          );
+
         case '23505':
           throw new ConflictException('Ya existe un registro con esos datos');
 

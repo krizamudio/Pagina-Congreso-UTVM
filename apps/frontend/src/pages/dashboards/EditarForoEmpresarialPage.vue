@@ -125,6 +125,8 @@ const save = async ({
   logo,
   eliminarLogo
 }: ForoEmpresarialFormSubmit) => {
+  if (isPending.value) return;
+
   isPending.value = true;
 
   try {

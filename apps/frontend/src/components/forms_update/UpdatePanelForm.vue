@@ -91,6 +91,7 @@
         label="Actualizar panelista"
         type="submit"
         :loading="props.loading"
+        :disable="props.loading"
       />
     </div>
 
@@ -192,6 +193,8 @@ const handleImageChange = (file: File | null) => {
 };
 
 const submit = () => {
+  if (props.loading) return;
+
   error.value = null;
 
   emit("submit", {
