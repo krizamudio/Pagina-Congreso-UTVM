@@ -13,6 +13,7 @@
         icon="refresh"
         label="Actualizar"
         :loading="isLoading"
+        :disable="isLoading || downloadingId !== null"
         @click="loadItems"
       />
     </div>
@@ -86,6 +87,7 @@
                 icon="download"
                 label="Descargar"
                 :loading="downloadingId === slotProps.row.id"
+                :disable="isLoading || downloadingId !== null"
                 @click="downloadPdf(slotProps.row)"
               />
             </q-td>
@@ -206,6 +208,8 @@ const statusColor = (value: ReconocimientoEstado) =>
   ({ PENDIENTE: "warning", EMITIDO: "positive", FALLIDO: "negative" })[value];
 
 const downloadPdf = async (item: Reconocimiento) => {
+  if (downloadingId.value || isLoading.value) return;
+
   downloadingId.value = item.id;
   try {
     await download(item);

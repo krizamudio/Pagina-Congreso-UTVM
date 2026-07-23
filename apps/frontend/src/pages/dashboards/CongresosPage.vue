@@ -13,6 +13,7 @@
           color="primary"
           icon="add"
           label="Nuevo congreso"
+          :disable="isRefreshing || deletingId !== null"
           to="/congresos/nuevo"
       /></div>
     </div>
@@ -52,12 +53,12 @@
                 color="primary"
                 icon="edit"
                 class="q-mr-sm"
-                :disable="deletingId === props.row.id"
+                :disable="isRefreshing || deletingId !== null"
                 :to="`/congresos/${props.row.id}/editar`" /><q-btn
                 dense
                 color="negative"
                 icon="delete"
-                :disable="deletingId !== null"
+                :disable="isRefreshing || deletingId !== null"
                 :loading="deletingId === props.row.id"
                 @click="confirmRemove(props.row.id)" /></q-td
           ></template>
@@ -110,7 +111,7 @@ const columns: QTableColumn[] = [
 const formatDate = (value: string) =>
   new Intl.DateTimeFormat("es-MX", {
     dateStyle: "medium",
-    timeStyle: "short"
+    timeZone: "UTC"
   }).format(new Date(value));
 const confirmRemove = (id: string) =>
   $q

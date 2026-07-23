@@ -23,6 +23,7 @@
       :items="data"
       :is-refreshing="isRefreshing"
       :error="error"
+      :deleting-id="deletingId"
       @edit="handleEdit"
       @delete="handleDelete"
     />
@@ -30,7 +31,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from "vue";
+import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useQuasar } from "quasar";
 import PanelesList from "../../components/list/PanelesList.vue";
@@ -41,6 +42,7 @@ const router = useRouter();
 const $q = useQuasar();
 const { confirmDelete } = useDeleteConfirmation();
 const { data, isRefreshing, error, load, remove } = usePanelesQuery();
+const deletingId = ref<string | null>(null);
 
 const goToNew = () => {
   void router.push("/paneles/nuevo");
@@ -69,12 +71,15 @@ const notify = (type: "positive" | "negative", message: string) => {
 };
 
 const handleDelete = async (id: string) => {
+  if (deletingId.value) return;
+
   const confirmed = await confirmDelete({
     title: "Eliminar panelista",
     message: "¿Seguro que deseas eliminar este panelista?"
   });
   if (!confirmed) return;
 
+  deletingId.value = id;
   try {
     await remove(id);
     notify("positive", "Panelista eliminado correctamente.");
@@ -82,6 +87,8 @@ const handleDelete = async (id: string) => {
   } catch (err) {
     console.error(err);
     notify("negative", "No se pudo eliminar el panelista.");
+  } finally {
+    deletingId.value = null;
   }
 };
 

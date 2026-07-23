@@ -41,12 +41,15 @@
               color="primary"
               icon="edit"
               class="q-mr-sm"
+              :disable="props.deletingId !== null"
               @click="emit('edit', bodyProps.row.id)"
             />
             <q-btn
               dense
               color="negative"
               icon="delete"
+              :disable="props.deletingId !== null"
+              :loading="props.deletingId === bodyProps.row.id"
               @click="emit('delete', bodyProps.row.id)"
             />
           </q-td>
@@ -70,6 +73,7 @@ interface Props {
   items: Ponente[];
   isRefreshing: boolean;
   error: string | null;
+  deletingId: string | null;
 }
 
 const props = defineProps<Props>();

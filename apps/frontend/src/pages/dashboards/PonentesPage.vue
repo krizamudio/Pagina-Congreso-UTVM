@@ -23,6 +23,7 @@
       :items="data"
       :is-refreshing="isLoading"
       :error="error"
+      :deleting-id="deletingId"
       @edit="handleEdit"
       @delete="handleDelete"
     />
@@ -30,7 +31,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from "vue";
+import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useQuasar } from "quasar";
 import PonenteList from "../../components/list/PonenteList.vue";
@@ -43,6 +44,7 @@ const { confirmDelete } = useDeleteConfirmation();
 const { useGetPonentes, useDeletePonente } = usePonente();
 const { data, isLoading, error, refetch } = useGetPonentes(50, 0, null);
 const { mutate: deletePonente } = useDeletePonente();
+const deletingId = ref<string | null>(null);
 
 const load = async () => {
   await refetch();
@@ -73,12 +75,15 @@ const notify = (type: "positive" | "negative", message: string) => {
 };
 
 const handleDelete = async (id: string) => {
+  if (deletingId.value) return;
+
   const confirmed = await confirmDelete({
     title: "Eliminar participante",
     message: "¿Seguro que deseas eliminar este ponente o panelista?"
   });
   if (!confirmed) return;
 
+  deletingId.value = id;
   try {
     await deletePonente(id);
     notify("positive", "Participante eliminado correctamente.");
@@ -86,6 +91,8 @@ const handleDelete = async (id: string) => {
   } catch (err) {
     console.error(err);
     notify("negative", "No se pudo eliminar el participante.");
+  } finally {
+    deletingId.value = null;
   }
 };
 
