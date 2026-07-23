@@ -140,6 +140,7 @@
             type="submit"
             label="Guardar noticia"
             :loading="saving"
+            :disable="saving"
           />
         </q-card-actions>
       </q-form>

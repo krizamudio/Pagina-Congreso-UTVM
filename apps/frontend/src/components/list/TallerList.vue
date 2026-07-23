@@ -42,6 +42,7 @@
               icon="workspace_premium"
               class="q-mr-sm"
               title="Ver reconocimientos"
+              :disable="props.deletingId !== null"
               @click="emit('recognitions', bodyProps.row.id)"
             />
             <q-btn
@@ -49,12 +50,15 @@
               color="primary"
               icon="edit"
               class="q-mr-sm"
+              :disable="props.deletingId !== null"
               @click="emit('edit', bodyProps.row.id)"
             />
             <q-btn
               dense
               color="negative"
               icon="delete"
+              :disable="props.deletingId !== null"
+              :loading="props.deletingId === bodyProps.row.id"
               @click="emit('delete', bodyProps.row.id)"
             />
           </q-td>
@@ -80,6 +84,7 @@ interface Props {
   talleristaNames: Record<string, string>;
   isRefreshing: boolean;
   error: string | null;
+  deletingId: string | null;
 }
 
 const props = defineProps<Props>();

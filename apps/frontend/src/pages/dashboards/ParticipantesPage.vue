@@ -80,6 +80,7 @@
                   round
                   icon="edit"
                   color="primary"
+                  :disable="saving || isRefreshing || qrSendingKey !== null"
                   @click="openEmsDialog(props.row)"
                 />
                 <q-btn
@@ -89,6 +90,7 @@
                   icon="qr_code_2"
                   color="positive"
                   title="Enviar QR"
+                  :disable="saving || isRefreshing || qrSendingKey !== null"
                   :loading="qrSendingKey === `EMS:${props.row.id}`"
                   @click="sendAutomaticQr('EMS', props.row.id)"
                 />
@@ -98,6 +100,8 @@
                   round
                   icon="delete"
                   color="negative"
+                  :disable="saving || isRefreshing || qrSendingKey !== null"
+                  :loading="actionKey === `EMS:delete:${props.row.id}`"
                   @click="deleteEms(props.row.id)"
                 />
               </q-td>
@@ -139,6 +143,7 @@
                   round
                   icon="edit"
                   color="primary"
+                  :disable="saving || isRefreshing || qrSendingKey !== null"
                   @click="openUtvmDialog(props.row)"
                 />
                 <q-btn
@@ -148,6 +153,7 @@
                   icon="qr_code_2"
                   color="positive"
                   title="Enviar QR"
+                  :disable="saving || isRefreshing || qrSendingKey !== null"
                   :loading="qrSendingKey === `UTVM:${props.row.id}`"
                   @click="sendAutomaticQr('UTVM', props.row.id)"
                 />
@@ -157,6 +163,8 @@
                   round
                   icon="delete"
                   color="negative"
+                  :disable="saving || isRefreshing || qrSendingKey !== null"
+                  :loading="actionKey === `UTVM:delete:${props.row.id}`"
                   @click="deleteUtvm(props.row.id)"
                 />
               </q-td>
@@ -237,6 +245,8 @@
                   round
                   icon="check_circle"
                   color="positive"
+                  :disable="isRefreshing || saving"
+                  :loading="actionKey === `NSU:VALIDADO:${props.row.id}`"
                   @click="setNsuStatus(props.row.id, 'VALIDADO')"
                 />
                 <q-btn
@@ -245,6 +255,8 @@
                   round
                   icon="cancel"
                   color="negative"
+                  :disable="isRefreshing || saving"
+                  :loading="actionKey === `NSU:RECHAZADO:${props.row.id}`"
                   @click="setNsuStatus(props.row.id, 'RECHAZADO')"
                 />
                 <q-btn
@@ -253,6 +265,8 @@
                   round
                   icon="delete"
                   color="negative"
+                  :disable="isRefreshing || saving"
+                  :loading="actionKey === `NSU:delete:${props.row.id}`"
                   @click="deleteNsu(props.row.id)"
                 />
               </q-td>
@@ -323,6 +337,7 @@
                   round
                   icon="edit"
                   color="primary"
+                  :disable="saving || isRefreshing || qrSendingKey !== null"
                   @click="openExternoDialog(props.row)"
                 />
                 <q-btn
@@ -331,6 +346,8 @@
                   round
                   icon="check_circle"
                   color="positive"
+                  :disable="saving || isRefreshing || qrSendingKey !== null"
+                  :loading="actionKey === `EXTERNO:validado:${props.row.id}`"
                   @click="setExternoStatus(props.row.id, 'validado')"
                 />
                 <q-btn
@@ -339,6 +356,8 @@
                   round
                   icon="cancel"
                   color="warning"
+                  :disable="saving || isRefreshing || qrSendingKey !== null"
+                  :loading="actionKey === `EXTERNO:rechazado:${props.row.id}`"
                   @click="setExternoStatus(props.row.id, 'rechazado')"
                 />
                 <q-btn
@@ -349,6 +368,9 @@
                   color="positive"
                   title="Enviar QR"
                   :disable="
+                    saving ||
+                    isRefreshing ||
+                    qrSendingKey !== null ||
                     !props.row.correoVerificado ||
                     props.row.status !== 'validado'
                   "
@@ -361,6 +383,8 @@
                   round
                   icon="delete"
                   color="negative"
+                  :disable="saving || isRefreshing || qrSendingKey !== null"
+                  :loading="actionKey === `EXTERNO:delete:${props.row.id}`"
                   @click="deleteExterno(props.row.id)"
                 />
               </q-td>
@@ -430,12 +454,13 @@
               dense
             />
             <div class="col-12 row justify-end q-gutter-sm">
-              <q-btn flat label="Cancelar" v-close-popup />
+              <q-btn flat label="Cancelar" :disable="saving" v-close-popup />
               <q-btn
                 color="primary"
                 label="Guardar"
                 type="submit"
                 :loading="saving"
+                :disable="saving"
               />
             </div>
           </q-form>
@@ -506,12 +531,13 @@
               dense
             />
             <div class="col-12 row justify-end q-gutter-sm">
-              <q-btn flat label="Cancelar" v-close-popup />
+              <q-btn flat label="Cancelar" :disable="saving" v-close-popup />
               <q-btn
                 color="primary"
                 label="Guardar"
                 type="submit"
                 :loading="saving"
+                :disable="saving"
               />
             </div>
           </q-form>
@@ -606,12 +632,13 @@
               dense
             />
             <div class="col-12 row justify-end q-gutter-sm">
-              <q-btn flat label="Cancelar" v-close-popup />
+              <q-btn flat label="Cancelar" :disable="saving" v-close-popup />
               <q-btn
                 color="primary"
                 label="Guardar"
                 type="submit"
                 :loading="saving"
+                :disable="saving"
               />
             </div>
           </q-form>
@@ -655,6 +682,7 @@ const editingUtvmId = ref<number | null>(null);
 const editingExternoId = ref<string | null>(null);
 const externoComprobante = ref<File | null>(null);
 const qrSendingKey = ref<string | null>(null);
+const actionKey = ref<string | null>(null);
 
 const {
   ems,
@@ -966,6 +994,8 @@ function openEmsDialog(row?: ParticipanteEms) {
 }
 
 async function saveEms() {
+  if (saving.value) return;
+
   saving.value = true;
   try {
     if (editingEmsId.value) {
@@ -990,7 +1020,11 @@ async function deleteEms(id: number) {
     message: "¿Seguro que deseas eliminar este participante EMS?"
   });
   if (!confirmed) return;
-  await removeWithReload(() => removeEms(id), "Participante EMS eliminado.");
+  await removeWithReload(
+    () => removeEms(id),
+    "Participante EMS eliminado.",
+    `EMS:delete:${id}`
+  );
 }
 
 function openUtvmDialog(row?: ParticipanteUtvm) {
@@ -1000,6 +1034,8 @@ function openUtvmDialog(row?: ParticipanteUtvm) {
 }
 
 async function saveUtvm() {
+  if (saving.value) return;
+
   saving.value = true;
   try {
     if (editingUtvmId.value) {
@@ -1024,7 +1060,11 @@ async function deleteUtvm(id: number) {
     message: "¿Seguro que deseas eliminar este participante UTVM?"
   });
   if (!confirmed) return;
-  await removeWithReload(() => removeUtvm(id), "Participante UTVM eliminado.");
+  await removeWithReload(
+    () => removeUtvm(id),
+    "Participante UTVM eliminado.",
+    `UTVM:delete:${id}`
+  );
 }
 
 function openExternoDialog(row?: ParticipanteExterno) {
@@ -1051,6 +1091,8 @@ function openExternoDialog(row?: ParticipanteExterno) {
 }
 
 async function saveExterno() {
+  if (saving.value) return;
+
   saving.value = true;
   try {
     if (editingExternoId.value) {
@@ -1090,7 +1132,8 @@ async function saveExterno() {
 async function setNsuStatus(id: string, status: RegistroNsu["estado_pago"]) {
   await removeWithReload(
     () => updateNsuStatus(id, status),
-    "Estatus NSU actualizado."
+    "Estatus NSU actualizado.",
+    `NSU:${status}:${id}`
   );
 }
 
@@ -1100,7 +1143,11 @@ async function deleteNsu(id: string) {
     message: "¿Seguro que deseas eliminar este registro NSU?"
   });
   if (!confirmed) return;
-  await removeWithReload(() => removeNsu(id), "Registro NSU eliminado.");
+  await removeWithReload(
+    () => removeNsu(id),
+    "Registro NSU eliminado.",
+    `NSU:delete:${id}`
+  );
 }
 
 async function setExternoStatus(
@@ -1109,7 +1156,8 @@ async function setExternoStatus(
 ) {
   await removeWithReload(
     () => updateExternoStatus(id, status),
-    "Estatus de externo actualizado."
+    "Estatus de externo actualizado.",
+    `EXTERNO:${status}:${id}`
   );
 }
 
@@ -1141,17 +1189,20 @@ async function deleteExterno(id: string) {
   if (!confirmed) return;
   await removeWithReload(
     () => removeExterno(id),
-    "Participante externo eliminado."
+    "Participante externo eliminado.",
+    `EXTERNO:delete:${id}`
   );
 }
 
 async function removeWithReload(
   action: () => Promise<unknown>,
-  successMessage: string
+  successMessage: string,
+  key: string
 ) {
   if (isRefreshing.value || saving.value) return;
 
   saving.value = true;
+  actionKey.value = key;
 
   try {
     await action();
@@ -1162,11 +1213,12 @@ async function removeWithReload(
     notify("negative", "No se pudo completar la acción.");
   } finally {
     saving.value = false;
+    actionKey.value = null;
   }
 }
 
 async function sendAutomaticQr(type: QrParticipantType, id: string | number) {
-  if (qrSendingKey.value) return;
+  if (qrSendingKey.value || saving.value || isRefreshing.value) return;
   qrSendingKey.value = `${type}:${id}`;
   try {
     const response = await qrAccessService.sendAutomatic(type, id);
