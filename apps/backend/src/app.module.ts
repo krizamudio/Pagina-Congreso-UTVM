@@ -23,6 +23,7 @@ import { ForoEmpresarialModule } from './foro-empresarial/foro-empresarial.modul
 import { GestionContenidoModule } from './gestion-contenido/gestion-contenido.module';
 import { ComprobanteModule } from './comprobante/comprobante.module';
 import { ReconocimientoModule } from './reconocimiento/reconocimiento.module';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
@@ -88,6 +89,7 @@ import { ReconocimientoModule } from './reconocimiento/reconocimiento.module';
     GestionContenidoModule,
     ComprobanteModule,
     ReconocimientoModule,
+    HealthModule,
   ],
   controllers: [],
   providers: [

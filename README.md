@@ -488,123 +488,108 @@ pnpm dev
 * Probar backend y frontend antes de abrir un Pull Request.
 * Mantener actualizado el `README.md` cuando cambie el flujo del proyecto.
 
-## Base de datos
+## Ejecución completa con Docker
 
-Para la base de datos se utiliza Docker Compose. Esto permite que todos los integrantes del equipo trabajen con una base de datos local configurada de la misma manera.
+El archivo `docker-compose.yml` levanta la aplicación completa con tres servicios:
 
-La configuración de la base de datos se encuentra en el archivo `docker-compose.yml`, ubicado en la raíz del proyecto.
+- `frontend`: aplicación Quasar compilada y servida por Nginx.
+- `backend`: API NestJS ejecutada en modo producción.
+- `postgres`: PostgreSQL 16 con almacenamiento persistente.
 
-## Requisitos
+### Requisitos
 
-Antes de levantar la base de datos, asegúrate de tener instalado Docker y el plugin de Docker Compose.
+- Git.
+- Docker Engine.
+- Plugin Docker Compose.
+- Plugin Docker Buildx.
 
-Puedes comprobarlo con los siguientes comandos:
+Comprueba que Docker esté disponible:
 
 ```bash
 docker --version
+docker compose version
+docker buildx version
 ```
+
+### 1. Clonar y entrar al proyecto
 
 ```bash
-docker compose version
+git clone <URL_DEL_REPOSITORIO>
+cd sistema-congreso
 ```
 
-Si alguno de los comandos anteriores no muestra una versión instalada, será necesario instalar Docker y Docker Compose antes de continuar.
+### 2. Configurar las variables de entorno
 
-## Configuración de variables de entorno
-
-En la raíz del proyecto existe un archivo de ejemplo llamado:
-
-```text
-.env.example
-```
-
-Este archivo contiene las variables necesarias para configurar la base de datos.
-
-Para usarlo, copia el archivo y renómbralo como `.env`:
+Copia el archivo de ejemplo de la raíz:
 
 ```bash
 cp .env.example .env
 ```
 
-Después, abre el archivo `.env` y asigna los valores correspondientes a las variables de la base de datos.
+Edita `.env` y reemplaza todos los valores de ejemplo, especialmente:
 
-Ejemplo:
+- La contraseña de PostgreSQL.
+- Las credenciales SMTP.
+- `EMAIL_VERIFICATION_SECRET` con un valor largo y aleatorio.
+- La URL, API key y nombres de buckets de Supabase.
 
-```env
-POSTGRES_DB=sistema_congreso
-POSTGRES_USER=congreso_user
-POSTGRES_PASSWORD=congreso_password
-POSTGRES_PORT=5432
-```
+El archivo `.env` está ignorado por Git y nunca debe agregarse al repositorio. Docker Compose utiliza este único archivo para configurar los tres servicios.
 
-El archivo `.env` no debe subirse al repositorio, ya que puede contener información sensible o configuraciones locales de cada desarrollador.
+Supabase Storage continúa siendo un servicio externo. Los buckets de imágenes y comprobantes deben existir previamente; consulta [`docs/supabase-setup.md`](docs/supabase-setup.md).
 
-## Levantar la base de datos
+### 3. Construir y levantar todo el sistema
 
-Para iniciar la base de datos, ejecuta el siguiente comando desde la raíz del proyecto, al mismo nivel donde se encuentra el archivo `docker-compose.yml`:
+Desde la raíz del proyecto ejecuta:
 
 ```bash
-docker compose up -d
+docker compose up --build -d
 ```
 
-El parámetro `-d` permite ejecutar el contenedor en segundo plano.
+No es necesario instalar Node.js, pnpm, PostgreSQL ni Nginx en el equipo anfitrión.
 
-## Verificar que la base de datos esté corriendo
+### 4. Acceder a la aplicación
 
-Para revisar el estado de los contenedores:
+Con los puertos predeterminados:
+
+| Servicio | Dirección |
+| --- | --- |
+| Aplicación web | `http://localhost:9000` |
+| API NestJS | `http://localhost:3000/api` |
+| Estado del backend | `http://localhost:3000/api/health` |
+| PostgreSQL | `localhost:5432` |
+
+La aplicación web envía las solicitudes `/api/` al backend mediante el proxy de Nginx. Los puertos se pueden cambiar en `.env` con `FRONTEND_PORT`, `BACKEND_PORT` y `POSTGRES_EXPOSE_PORT`. Si cambias los puertos públicos o usas un dominio, actualiza también `FRONTEND_URL`, `BACKEND_URL` y `QR_ACCESS_BASE_URL`.
+
+### Operación del stack
+
+Consultar el estado y los healthchecks:
 
 ```bash
 docker compose ps
 ```
 
-Si el contenedor de PostgreSQL aparece en estado `running`, la base de datos se levantó correctamente.
+Seguir los registros:
 
-## Detener la base de datos
+```bash
+docker compose logs -f
+```
 
-Para detener los contenedores sin eliminar los datos:
+Reconstruir después de cambiar código o dependencias:
+
+```bash
+docker compose up --build -d
+```
+
+Detener los contenedores conservando la información de PostgreSQL:
 
 ```bash
 docker compose down
 ```
 
-## Eliminar la base de datos y sus datos
-
-Si necesitas eliminar completamente la base de datos local, incluyendo los datos guardados en el volumen, ejecuta:
+Eliminar también el volumen y todos los datos locales de PostgreSQL:
 
 ```bash
 docker compose down -v
 ```
 
-Este comando elimina los contenedores y también los volúmenes asociados, por lo que se perderá la información almacenada localmente.
-
-## Flujo recomendado
-
-Cada integrante del equipo debe seguir estos pasos:
-
-```bash
-cp .env.example .env
-docker compose up -d
-pnpm dev:backend
-```
-
-Con esto, la base de datos quedará activa y el backend podrá conectarse a PostgreSQL usando las variables definidas en el archivo `.env`.
-
-## Almacenamiento de imágenes (Supabase Storage)
-
-El backend utiliza [Supabase Storage](https://supabase.com/storage) para almacenar imágenes (fotos, archivos multimedia). Para configurarlo, sigue la guía paso a paso:
-
-```text
-docs/supabase-setup.md
-```
-
-La guía explica cómo crear una cuenta, configurar un bucket, obtener las API keys y completar las variables de entorno necesarias en `apps/backend/.env`.
-
-### Variables de entorno de Supabase
-
-```env
-SUPABASE_URL=https://TU-PROYECTO.supabase.co
-SUPABASE_SECRET_KEY=tu_service_role_key
-SUPABASE_BUCKET=congreso-imagenes
-```
-
-> Para más detalles, consulta `docs/supabase-setup.md`.
+> `docker compose down -v` elimina definitivamente la base de datos local.
