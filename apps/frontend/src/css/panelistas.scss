@@ -458,3 +458,202 @@ $border-green: rgba(0, 230, 118, 0.28);
   border-radius: 50% !important;
   display: block !important;
 }
+.panelista-tipo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: center;
+  margin-top: 12px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.panelista-tipo.is-ponente {
+  background: rgba(0, 120, 255, 0.12);
+  color: #174ea6;
+}
+
+.panelista-tipo.is-panelista {
+  background: rgba(0, 230, 118, 0.14);
+  color: #0f5132;
+}
+
+.panelista-tipo.is-invitado {
+  background: rgba(20, 43, 79, 0.08);
+  color: #142b4f;
+}
+.panelista-tipo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  margin: 12px auto 10px;
+  padding: 7px 16px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.22);
+}
+
+.panelista-tipo.is-ponente {
+  background: rgba(59, 130, 246, 0.22) !important;
+  color: #93c5fd !important;
+  border: 1px solid rgba(147, 197, 253, 0.45);
+}
+
+.panelista-tipo.is-panelista {
+  background: rgba(0, 230, 118, 0.18) !important;
+  color: #66f5b5 !important;
+  border: 1px solid rgba(102, 245, 181, 0.45);
+}
+
+.panelista-tipo.is-invitado {
+  background: rgba(255, 255, 255, 0.12) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+}
+
+.panelista-card {
+  position: relative;
+}
+
+.panelista-tipo {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  z-index: 2;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: auto;
+  min-width: 82px;
+  margin: 0;
+  padding: 6px 12px;
+
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.01em;
+
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.24);
+}
+
+.panelista-tipo.is-ponente {
+  background: rgba(37, 99, 235, 0.26) !important;
+  color: #bfdbfe !important;
+  border: 1px solid rgba(147, 197, 253, 0.55);
+}
+
+.panelista-tipo.is-panelista {
+  background: rgba(0, 230, 118, 0.2) !important;
+  color: #9fffd0 !important;
+  border: 1px solid rgba(102, 245, 181, 0.5);
+}
+
+.panelista-tipo.is-invitado {
+  background: rgba(255, 255, 255, 0.12) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.24);
+}
+
+@media (max-width: 600px) {
+  .panelista-tipo {
+    top: 14px;
+    right: 14px;
+    min-width: 74px;
+    padding: 5px 10px;
+    font-size: 0.72rem;
+  }
+}
+
+.panelista-tipo {
+  position: static;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+
+  margin: 4px auto 12px;
+  padding: 5px 14px;
+
+  border-radius: 999px;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #d9f7e6 !important;
+  border: 1px solid rgba(102, 245, 181, 0.28);
+  box-shadow: none;
+}
+
+.panelista-tipo.is-ponente,
+.panelista-tipo.is-panelista,
+.panelista-tipo.is-invitado {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #d9f7e6 !important;
+  border: 1px solid rgba(102, 245, 181, 0.28);
+}
+
+/* Etiqueta de Ponente / Panelista centrada y con colores adaptados */
+.panelista-card {
+  text-align: center;
+}
+
+.panelista-tipo {
+  position: static !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: fit-content;
+  min-width: 95px;
+
+  margin: 6px auto 14px;
+  padding: 6px 16px;
+
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.02em;
+
+  box-shadow: none !important;
+}
+
+/* Ponente: azul verdoso, combina con el fondo oscuro */
+.panelista-tipo.is-ponente {
+  background: rgba(59, 130, 246, 0.14) !important;
+  color: #9cc9ff !important;
+  border: 1px solid rgba(147, 197, 253, 0.35);
+}
+
+.panelista-tipo.is-panelista {
+  background: rgba(249, 115, 22, 0.16) !important;
+  color: #fdba74 !important;
+  border: 1px solid rgba(253, 186, 116, 0.42);
+}
+
+/* Invitado o sin tipo */
+.panelista-tipo.is-invitado {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #d9f7e6 !important;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+@media (max-width: 600px) {
+  .panelista-tipo {
+    min-width: 86px;
+    padding: 5px 13px;
+    font-size: 0.72rem;
+    margin-top: 5px;
+    margin-bottom: 12px;
+  }
+}
