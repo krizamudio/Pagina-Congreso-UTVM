@@ -40,7 +40,9 @@
       <div v-else-if="eventos.length === 0" class="agenda-empty">
         <q-icon name="event_busy" />
         <strong>No hay actividades registradas</strong>
-        <span>Cuando el administrador registre conferencias o talleres, aparecerán aquí.</span>
+        <span>
+          Cuando el administrador registre conferencias o talleres, aparecerán aquí.
+        </span>
       </div>
 
       <template v-else>
@@ -151,7 +153,7 @@
                   </div>
 
                   <div class="event-time">
-                    {{ formatTime(evento.inicio) }} - {{ formatTime(evento.fin) }}
+                    {{ formatTimeRange(evento.inicio, evento.fin) }}
                   </div>
                 </article>
               </div>
@@ -179,9 +181,14 @@
             ]"
             @click="irADetalleEvento(evento)"
           >
-            <div class="list-time">
+            <div class="list-time agenda-mobile-time">
+              <q-icon name="schedule" />
+
               <strong>{{ formatTime(evento.inicio) }}</strong>
-              <span>{{ formatTime(evento.fin) }}</span>
+
+              <span class="agenda-time-separator">-</span>
+
+              <strong>{{ formatTime(evento.fin) }}</strong>
             </div>
 
             <div class="list-content">
@@ -198,7 +205,7 @@
 
                 <span>
                   <q-icon name="schedule" />
-                  {{ formatTime(evento.inicio) }} - {{ formatTime(evento.fin) }}
+                  {{ formatTimeRange(evento.inicio, evento.fin) }}
                 </span>
 
                 <span v-if="evento.tipo === 'taller'">
@@ -758,6 +765,10 @@ function formatTime(hora: string) {
   const minutes = Number(minutesText);
 
   return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+}
+
+function formatTimeRange(inicio: string, fin: string) {
+  return `${formatTime(inicio)} - ${formatTime(fin)}`;
 }
 
 function getTipoIcon(tipo: TipoEvento) {
