@@ -6,6 +6,9 @@ import { ParticipanteNsu } from '../registro-nsu/entities/participante-nsu.entit
 import { Ems } from '../ems/entities/ems.entity';
 import { Utvm } from '../utvm/entities/utvm.entity';
 
+import { CorreoModule } from '../correo/correo.module';
+
+import { CodigoLogin } from './entities/codigo-login.entity';
 import { LoginController } from './login.controller';
 import { LoginService } from './login.service';
 
@@ -16,7 +19,9 @@ import { LoginService } from './login.service';
       ParticipanteNsu,
       Ems,
       Utvm,
+      CodigoLogin,
     ]),
+    CorreoModule,
   ],
   controllers: [LoginController],
   providers: [LoginService],
