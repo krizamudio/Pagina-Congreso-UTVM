@@ -15,6 +15,8 @@ import { Congreso } from '../../congreso/entities/congreso.entity';
 import { ParticipanteAcceso } from '../../participante-acceso/entities/participante-acceso.entity';
 import { Ponente } from '../../ponente/entities/ponente.entity';
 import { Taller } from '../../taller/entities/taller.entity';
+import { Hackaton } from '../../hackaton/entities/hackaton.entity';
+import { HackatonEquipo } from '../../hackaton/entities/hackaton-equipo.entity';
 import { ReconocimientoEstado } from '../enums/reconocimiento-estado.enum';
 import { ReconocimientoTipo } from '../enums/reconocimiento-tipo.enum';
 
@@ -38,6 +40,14 @@ export class Reconocimiento {
   @ManyToOne(() => Conferencia, { nullable: true, onDelete: 'CASCADE' })
   @JoinColumn({ name: 'conferencia_id' })
   conferencia?: Conferencia | null;
+
+  @ManyToOne(() => Hackaton, { nullable: true, onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'hackaton_id' })
+  hackaton?: Hackaton | null;
+
+  @ManyToOne(() => HackatonEquipo, { nullable: true, onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'hackaton_equipo_id' })
+  hackaton_equipo?: HackatonEquipo | null;
 
   @ManyToOne(() => ParticipanteAcceso, {
     nullable: true,
