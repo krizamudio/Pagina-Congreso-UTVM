@@ -43,7 +43,7 @@
       <template v-else-if="panelista">
         <section class="panelista-hero">
           <div
-            class="panelista-hero-avatar"
+            class="panelista-hero-avatar panelista-detail-avatar"
             :class="{ 'has-photo': !!obtenerFotoPanelista(panelista) }"
           >
             <img
