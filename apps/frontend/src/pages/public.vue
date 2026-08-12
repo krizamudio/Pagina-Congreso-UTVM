@@ -360,27 +360,6 @@ const publicLinks: PublicLink[] = [
     to: '/mi-qr',
     icon: 'qr_code_2',
   },
-  {
-    label: 'Admin',
-    to: '/admin/dashboard',
-    icon: 'admin_panel_settings',
-    variant: 'admin',
-  },
-  {
-    label: 'Registro NSU',
-    to: '/registro_nsu',
-    icon: 'school',
-  },
-  {
-    label: 'Registro EMS',
-    to: '/registro_ems',
-    icon: 'groups_2',
-  },
-  {
-    label: 'Registro UTVM',
-    to: '/registro_utvm',
-    icon: 'account_balance',
-  },
 ];
 
 const handleResize = () => {
