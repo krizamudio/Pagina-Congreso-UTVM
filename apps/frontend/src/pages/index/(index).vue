@@ -1,14 +1,12 @@
 <template>
   <q-page class="hero-page dashboard-home q-pa-md q-pa-lg-lg">
     <section class="welcome-card q-mb-lg">
-      <div class="sparkle sparkle-one">✦</div>
-      <div class="sparkle sparkle-two">♡</div>
       <div class="welcome-content">
-        <div class="welcome-kicker">Centro de control ✨</div>
-        <h1>¡Hola, admin! <span>(｡•̀ᴗ-)✧</span></h1>
+        <div class="welcome-kicker">Centro de control</div>
+        <h1>Panel de administración</h1>
         <p>
-          Todo el congreso está floreciendo. Aquí tienes un vistazo rápido de
-          participantes, validaciones y actividades.
+          Consulta el estado general de participantes, validaciones y
+          actividades del congreso.
         </p>
         <div class="row q-gutter-sm q-mt-md">
           <q-btn
@@ -23,23 +21,11 @@
             flat
             rounded
             class="soft-button"
-            icon="auto_awesome"
+            icon="language"
             label="Página oficial"
             to="/pagina-oficial"
           />
         </div>
-      </div>
-      <div class="mascot" aria-hidden="true">
-        <div class="onza-tail"></div>
-        <div class="onza-ears"><span></span><span></span></div>
-        <div class="onza-spots"><i></i><i></i><i></i><i></i><i></i></div>
-        <div class="onza-face">
-          <span class="onza-eye"></span><span class="onza-eye"></span>
-          <div class="onza-muzzle"><b></b><i></i></div>
-          <div class="onza-whiskers left"></div>
-          <div class="onza-whiskers right"></div>
-        </div>
-        <div class="onza-paws">ᐠ&nbsp;&nbsp;ᐟ</div>
       </div>
     </section>
 
@@ -58,7 +44,7 @@
       <article
         v-for="metric in metrics"
         :key="metric.label"
-        class="kawaii-card metric-card"
+        class="dashboard-panel metric-card"
         :class="metric.tone"
       >
         <div class="metric-icon"><q-icon :name="metric.icon" /></div>
@@ -72,14 +58,13 @@
 
     <div class="row q-col-gutter-lg q-mb-lg">
       <div class="col-12 col-lg-7">
-        <q-card flat class="kawaii-card chart-card full-height">
+        <q-card flat class="dashboard-panel chart-card full-height">
           <q-card-section>
             <div class="section-heading">
               <div
                 ><span class="eyebrow">Comunidad</span
                 ><h2>Participantes por procedencia</h2></div
               >
-              <span class="tiny-deco">₍^. .^₎⟆</span>
             </div>
             <div v-if="isLoading" class="q-py-xl"
               ><q-linear-progress indeterminate rounded color="primary"
@@ -91,7 +76,7 @@
                 class="bar-row"
               >
                 <div class="bar-meta"
-                  ><span>{{ item.emoji }} {{ item.label }}</span
+                  ><span>{{ item.label }}</span
                   ><strong>{{ item.value }}</strong></div
                 >
                 <div class="bar-track"
@@ -106,15 +91,15 @@
               </div>
             </div>
             <div class="chart-total"
-              >Total de personitas registradas:
-              <strong>{{ totalParticipants }}</strong> ♡</div
+              >Total de participantes registrados:
+              <strong>{{ totalParticipants }}</strong></div
             >
           </q-card-section>
         </q-card>
       </div>
 
       <div class="col-12 col-lg-5">
-        <q-card flat class="kawaii-card validation-card full-height">
+        <q-card flat class="dashboard-panel validation-card full-height">
           <q-card-section>
             <div class="section-heading"
               ><div
@@ -147,7 +132,7 @@
 
     <div class="row q-col-gutter-lg">
       <div class="col-12 col-lg-7">
-        <q-card flat class="kawaii-card activity-card full-height">
+        <q-card flat class="dashboard-panel activity-card full-height">
           <q-card-section>
             <div class="section-heading"
               ><div
@@ -186,7 +171,8 @@
               </div>
             </div>
             <div v-else class="empty-state"
-              ><div>☁️</div><strong>Todo tranquilito por ahora</strong
+              ><q-icon name="event_available" /><strong
+                >Agenda sin actividades próximas</strong
               ><span>No hay actividades próximas registradas.</span></div
             >
           </q-card-section>
@@ -194,14 +180,14 @@
       </div>
 
       <div class="col-12 col-lg-5">
-        <q-card flat class="kawaii-card quick-card full-height">
+        <q-card flat class="dashboard-panel quick-card full-height">
           <q-card-section>
             <div class="section-heading"
               ><div
-                ><span class="eyebrow">Atajos mágicos</span
-                ><h2>¿Qué hacemos hoy?</h2></div
-              ><span>☆</span></div
-            >
+                ><span class="eyebrow">Accesos directos</span
+                ><h2>Gestión del congreso</h2></div
+              ><q-icon name="bolt"
+            /></div>
             <div class="quick-grid">
               <router-link
                 v-for="action in quickActions"
@@ -277,25 +263,21 @@ const participantBreakdown = computed(() =>
   [
     {
       label: "EMS",
-      emoji: "🌸",
       value: ems.value.length,
       color: "linear-gradient(90deg, #ff83b7, #ffb8d5)"
     },
     {
       label: "UTVM",
-      emoji: "🌿",
       value: utvm.value.length,
       color: "linear-gradient(90deg, #42d6a4, #9ae8cb)"
     },
     {
       label: "NSU",
-      emoji: "⭐",
       value: nsuPeople.value,
       color: "linear-gradient(90deg, #a98bff, #d1c2ff)"
     },
     {
       label: "Externos",
-      emoji: "🫧",
       value: externos.value.length,
       color: "linear-gradient(90deg, #55baf7, #a9dcff)"
     }
@@ -346,28 +328,28 @@ const metrics = computed(() => [
   {
     label: "Participantes",
     value: totalParticipants.value,
-    note: "en toda la comunidad",
+    note: "registrados en total",
     icon: "groups",
     tone: "pink"
   },
   {
     label: "Por validar",
     value: validationBreakdown.value[1]!.value,
-    note: "esperando atención",
+    note: "pendientes de revisión",
     icon: "hourglass_top",
     tone: "yellow"
   },
   {
     label: "Conferencias",
     value: conferenceQuery.data.value.length,
-    note: "ideas por compartir",
+    note: "actividades registradas",
     icon: "record_voice_over",
     tone: "purple"
   },
   {
     label: "Talleres",
     value: workshopQuery.data.value.length,
-    note: "manos a la obra",
+    note: "actividades registradas",
     icon: "palette",
     tone: "mint"
   }
@@ -413,28 +395,28 @@ const upcomingActivities = computed(() => {
 const quickActions = [
   {
     label: "Nueva conferencia",
-    caption: "Comparte una gran idea",
+    caption: "Registrar actividad",
     icon: "mic",
     color: "#ff9bc2",
     to: "/conferencias/nueva"
   },
   {
     label: "Nuevo taller",
-    caption: "Crea una experiencia",
+    caption: "Registrar actividad",
     icon: "brush",
     color: "#b69cff",
     to: "/talleres/nuevo"
   },
   {
     label: "Ponentes y panelistas",
-    caption: "Conoce a las estrellas",
+    caption: "Gestionar perfiles",
     icon: "stars",
     color: "#68dcb4",
     to: "/ponentes"
   },
   {
     label: "Reconocimientos",
-    caption: "Celebra su participación",
+    caption: "Administrar documentos",
     icon: "workspace_premium",
     color: "#ffc86e",
     to: "/reconocimientos"
@@ -506,10 +488,6 @@ onMounted(() => void loadDashboard());
   font-size: clamp(30px, 4vw, 48px);
   line-height: 1.1;
 }
-.welcome-content h1 span {
-  color: #ff8db8;
-  white-space: nowrap;
-}
 .welcome-content p {
   max-width: 610px;
   margin: 12px 0 0;
@@ -520,180 +498,12 @@ onMounted(() => void loadDashboard());
   color: var(--text-main);
   background: rgba(255, 255, 255, 0.08);
 }
-.sparkle {
-  position: absolute;
-  color: #ffc4dc;
-  font-size: 28px;
-  animation: float 3s ease-in-out infinite;
-}
-.sparkle-one {
-  left: 51%;
-  top: 25px;
-}
-.sparkle-two {
-  left: 57%;
-  bottom: 25px;
-  animation-delay: 0.8s;
-}
-.mascot {
-  position: relative;
-  z-index: 2;
-  width: 150px;
-  height: 150px;
-  margin-right: 45px;
-  border-radius: 48% 48% 44% 44%;
-  background: linear-gradient(145deg, #ffc864, #e99c3e);
-  box-shadow:
-    inset 0 -12px 0 rgba(139, 72, 27, 0.13),
-    0 18px 30px rgba(91, 51, 30, 0.22);
-  flex: 0 0 auto;
-}
-.onza-ears span {
-  position: absolute;
-  width: 55px;
-  height: 55px;
-  top: -16px;
-  left: 3px;
-  background: #eaa044;
-  border: 9px solid #ffc967;
-  border-radius: 50% 50% 42% 48%;
-  transform: rotate(-18deg);
-  box-shadow: inset 0 0 0 7px #8e583e;
-}
-.onza-ears span:last-child {
-  left: auto;
-  right: 3px;
-  transform: rotate(18deg);
-}
-.onza-face {
-  position: absolute;
-  inset: 48px 31px auto;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  color: #56372c;
-}
-.onza-eye {
-  width: 12px;
-  height: 16px;
-  border-radius: 50%;
-  background: #3d2a25;
-  box-shadow: inset 3px 2px 0 rgba(255, 255, 255, 0.75);
-}
-.onza-muzzle {
-  position: absolute;
-  width: 58px;
-  height: 42px;
-  top: 24px;
-  left: 15px;
-  border-radius: 48%;
-  background: #ffe6b1;
-  box-shadow: 0 3px 0 rgba(123, 65, 34, 0.12);
-}
-.onza-muzzle b {
-  position: absolute;
-  left: 21px;
-  top: 6px;
-  width: 17px;
-  height: 12px;
-  border-radius: 55% 55% 70% 70%;
-  background: #5b372f;
-}
-.onza-muzzle i {
-  position: absolute;
-  left: 25px;
-  top: 20px;
-  width: 10px;
-  height: 7px;
-  border-bottom: 2px solid #7b4438;
-  border-radius: 0 0 50% 50%;
-}
-.onza-spots i {
-  position: absolute;
-  width: 10px;
-  height: 7px;
-  border-radius: 50%;
-  background: #7a5035;
-  opacity: 0.75;
-  transform: rotate(25deg);
-}
-.onza-spots i:nth-child(1) {
-  left: 27px;
-  top: 36px;
-}
-.onza-spots i:nth-child(2) {
-  right: 25px;
-  top: 37px;
-  transform: rotate(-25deg);
-}
-.onza-spots i:nth-child(3) {
-  left: 16px;
-  top: 72px;
-}
-.onza-spots i:nth-child(4) {
-  right: 15px;
-  top: 76px;
-  transform: rotate(-20deg);
-}
-.onza-spots i:nth-child(5) {
-  left: 69px;
-  top: 22px;
-  width: 8px;
-}
-.onza-whiskers {
-  position: absolute;
-  top: 64px;
-  width: 35px;
-  height: 15px;
-  border-top: 2px solid #724a3c;
-  border-bottom: 2px solid #724a3c;
-  opacity: 0.7;
-}
-.onza-whiskers.left {
-  right: 62px;
-  transform: rotate(7deg);
-}
-.onza-whiskers.right {
-  left: 62px;
-  transform: rotate(-7deg);
-}
-.onza-paws {
-  position: absolute;
-  bottom: 15px;
-  width: 100%;
-  text-align: center;
-  color: #89512f;
-  font-weight: 800;
-}
-.onza-tail {
-  position: absolute;
-  z-index: -1;
-  right: -38px;
-  bottom: 4px;
-  width: 65px;
-  height: 78px;
-  border: 14px solid #d98c37;
-  border-left-color: transparent;
-  border-radius: 50%;
-  transform: rotate(22deg);
-}
-.onza-tail::after {
-  content: "";
-  position: absolute;
-  width: 9px;
-  height: 8px;
-  right: 2px;
-  top: -7px;
-  border-radius: 50%;
-  background: #714832;
-  box-shadow: -12px 3px 0 #714832;
-}
 .metric-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 16px;
 }
-.kawaii-card {
+.dashboard-panel {
   border-radius: 22px;
   color: var(--text-main);
   background: color-mix(in srgb, var(--surface) 92%, transparent);
@@ -708,14 +518,6 @@ onMounted(() => void loadDashboard());
   gap: 17px;
   position: relative;
   overflow: hidden;
-}
-.metric-card::after {
-  content: "♡";
-  position: absolute;
-  right: 12px;
-  top: 4px;
-  font-size: 35px;
-  opacity: 0.09;
 }
 .metric-icon {
   width: 54px;
@@ -973,18 +775,9 @@ onMounted(() => void loadDashboard());
   color: var(--text-muted);
   margin-top: 2px;
 }
-@keyframes float {
-  50% {
-    transform: translateY(-8px) rotate(8deg);
-  }
-}
 @media (max-width: 1023px) {
   .metric-grid {
     grid-template-columns: repeat(2, 1fr);
-  }
-  .mascot {
-    margin-right: 0;
-    transform: scale(0.85);
   }
 }
 @media (max-width: 650px) {
@@ -996,12 +789,6 @@ onMounted(() => void loadDashboard());
     min-height: 300px;
     align-items: flex-start;
   }
-  .mascot {
-    position: absolute;
-    right: -20px;
-    bottom: -28px;
-    transform: scale(0.65);
-  }
   .welcome-content p {
     max-width: 85%;
   }
@@ -1011,9 +798,6 @@ onMounted(() => void loadDashboard());
   .donut-layout {
     flex-direction: column;
     gap: 20px;
-  }
-  .sparkle {
-    display: none;
   }
 }
 </style>
