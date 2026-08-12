@@ -1,23 +1,21 @@
-import axios from "axios";
+import axios from 'axios';
 
-const baseURL = import.meta.env.VITE_API_URL;
+const baseURL = import.meta.env.VITE_API_URL || '/api';
 
-if (!baseURL) {
-  throw new Error("Falta configurar VITE_API_URL");
-}
-
-export const apiBaseUrl = baseURL.replace(/\/$/, "");
+export const apiBaseUrl = baseURL.replace(/\/$/, '');
 
 export const api = axios.create({
-  baseURL: apiBaseUrl,
-  headers: { "Content-Type": "application/json" }
+  baseURL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
 
 export function setAuthToken(token?: string) {
   if (token) {
-    api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
   } else {
-    delete api.defaults.headers.common["Authorization"];
+    delete api.defaults.headers.common['Authorization'];
   }
 }
 

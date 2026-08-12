@@ -131,9 +131,35 @@ export interface Taller {
   requisitos: string;
   fecha_creacion: string;
   fecha_actualizacion?: string;
+
+  inscritos?: number;
+  porcentaje_ocupacion?: number;
+  estado_cupo?: string;
+
+  inscripciones?: Array<{
+    id: string;
+    created_at?: string;
+    updated_at?: string;
+    deleted_at?: string | null;
+  }>;
+
   congreso?: ConferenciaReferencia;
-  ponente?: ConferenciaReferencia;
-  ubicacion?: ConferenciaReferencia;
+
+  ponente?: ConferenciaReferencia & {
+    institucion?: string;
+    tema?: string;
+
+    foto?: {
+      id?: string;
+      url?: string;
+      ruta_archivo?: string;
+      path?: string;
+    } | null;
+  };
+
+  ubicacion?: ConferenciaReferencia & {
+    capacidad?: number;
+  };
 }
 
 export type TallerPayload = Omit<
@@ -144,8 +170,11 @@ export type TallerPayload = Omit<
   | "congreso"
   | "ponente"
   | "ubicacion"
+  | "inscritos"
+  | "porcentaje_ocupacion"
+  | "estado_cupo"
+  | "inscripciones"
 >;
-
 export interface Congreso {
   id: string;
   nombre: string;

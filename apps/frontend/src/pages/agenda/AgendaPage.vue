@@ -40,7 +40,9 @@
       <div v-else-if="eventos.length === 0" class="agenda-empty">
         <q-icon name="event_busy" />
         <strong>No hay actividades registradas</strong>
-        <span>Cuando el administrador registre conferencias o talleres, aparecerán aquí.</span>
+        <span>
+          Cuando el administrador registre conferencias o talleres, aparecerán aquí.
+        </span>
       </div>
 
       <template v-else>
@@ -85,7 +87,6 @@
           </div>
         </div>
 
-        <!-- Vista calendario -->
         <div
           class="agenda-table-wrapper"
           :class="{ 'is-hidden': vistaActiva !== 'calendario' }"
@@ -152,7 +153,7 @@
                   </div>
 
                   <div class="event-time">
-                    {{ formatTime(evento.inicio) }} - {{ formatTime(evento.fin) }}
+                    {{ formatTimeRange(evento.inicio, evento.fin) }}
                   </div>
                 </article>
               </div>
@@ -160,7 +161,6 @@
           </div>
         </div>
 
-        <!-- Vista lista -->
         <div
           class="agenda-list-view"
           :class="{ 'is-hidden': vistaActiva !== 'lista' }"
@@ -181,9 +181,14 @@
             ]"
             @click="irADetalleEvento(evento)"
           >
-            <div class="list-time">
+            <div class="list-time agenda-mobile-time">
+              <q-icon name="schedule" />
+
               <strong>{{ formatTime(evento.inicio) }}</strong>
-              <span>{{ formatTime(evento.fin) }}</span>
+
+              <span class="agenda-time-separator">-</span>
+
+              <strong>{{ formatTime(evento.fin) }}</strong>
             </div>
 
             <div class="list-content">
@@ -200,7 +205,7 @@
 
                 <span>
                   <q-icon name="schedule" />
-                  {{ formatTime(evento.inicio) }} - {{ formatTime(evento.fin) }}
+                  {{ formatTimeRange(evento.inicio, evento.fin) }}
                 </span>
 
                 <span v-if="evento.tipo === 'taller'">
@@ -242,9 +247,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { apiBaseUrl } from '@/services/api';
-
-const API_BASE = apiBaseUrl;
+import { api } from '@/services/api';
 
 const router = useRouter();
 
@@ -459,30 +462,14 @@ async function cargarAgenda() {
   try {
     const [conferenciasResponse, talleresResponse, ubicacionesResponse] =
       await Promise.all([
-        fetch(`${API_BASE}/conferencias`),
-        fetch(`${API_BASE}/taller`),
-        fetch(`${API_BASE}/ubicacion`),
+        api.get<ConferenciaApi[]>('/conferencias'),
+        api.get<TallerApi[]>('/taller'),
+        api.get<UbicacionApi[]>('/ubicacion'),
       ]);
 
-    if (!conferenciasResponse.ok) {
-      throw new Error('No se pudieron cargar las conferencias.');
-    }
-
-    if (!talleresResponse.ok) {
-      throw new Error('No se pudieron cargar los talleres.');
-    }
-
-    const conferencias =
-      (await conferenciasResponse.json()) as ConferenciaApi[];
-
-    const talleres =
-      (await talleresResponse.json()) as TallerApi[];
-
-    if (ubicacionesResponse.ok) {
-      ubicaciones.value = (await ubicacionesResponse.json()) as UbicacionApi[];
-    } else {
-      ubicaciones.value = [];
-    }
+    const conferencias = conferenciasResponse.data;
+    const talleres = talleresResponse.data;
+    ubicaciones.value = ubicacionesResponse.data;
 
     const eventosConferencias = conferencias.map(mapearConferencia);
     const eventosTalleres = talleres.map(mapearTaller);
@@ -778,6 +765,10 @@ function formatTime(hora: string) {
   const minutes = Number(minutesText);
 
   return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+}
+
+function formatTimeRange(inicio: string, fin: string) {
+  return `${formatTime(inicio)} - ${formatTime(fin)}`;
 }
 
 function getTipoIcon(tipo: TipoEvento) {

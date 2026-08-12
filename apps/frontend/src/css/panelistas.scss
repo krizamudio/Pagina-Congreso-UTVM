@@ -1,24 +1,39 @@
 $bg-main: #071e1b;
 $bg-deep: #031411;
 $surface: rgba(31, 42, 40, 0.72);
+
 $green-primary: #00e676;
 $green-secondary: #00b86b;
 $green-soft: #66f5b5;
+
 $text-main: #ffffff;
 $text-soft: rgba(255, 255, 255, 0.72);
 $text-muted: rgba(255, 255, 255, 0.52);
+
 $border-soft: rgba(255, 255, 255, 0.09);
 $border-green: rgba(0, 230, 118, 0.28);
+
+$ponente-bg: rgba(59, 130, 246, 0.14);
+$ponente-text: #9cc9ff;
+$ponente-border: rgba(147, 197, 253, 0.35);
+
+$panelista-bg: rgba(249, 115, 22, 0.16);
+$panelista-text: #fdba74;
+$panelista-border: rgba(253, 186, 116, 0.42);
+
+/* ===============================
+   Layout general
+================================ */
 
 .panelistas-page,
 .panelista-detail-page {
   min-height: calc(100vh - 64px);
   padding: 34px 22px;
+  color: $text-main;
   background:
     radial-gradient(circle at 75% 18%, rgba(0, 230, 118, 0.22), transparent 34%),
     radial-gradient(circle at 10% 70%, rgba(0, 184, 107, 0.14), transparent 30%),
     linear-gradient(135deg, $bg-main 0%, $bg-deep 100%);
-  color: $text-main;
 }
 
 .panelistas-shell,
@@ -28,20 +43,24 @@ $border-green: rgba(0, 230, 118, 0.28);
   margin: 0 auto;
 }
 
+/* ===============================
+   Header
+================================ */
+
 .panelistas-header {
   display: flex;
-  justify-content: space-between;
   align-items: flex-start;
+  justify-content: space-between;
   gap: 22px;
   margin-bottom: 34px;
 
   h1 {
     margin: 8px 0 10px;
+    color: $text-main;
     font-size: clamp(2.7rem, 6vw, 5rem);
     line-height: 0.95;
     font-weight: 900;
     letter-spacing: -0.06em;
-    color: $text-main;
   }
 
   p {
@@ -60,8 +79,8 @@ $border-green: rgba(0, 230, 118, 0.28);
   background: rgba(0, 230, 118, 0.12);
   color: $green-soft;
   border: 1px solid rgba(0, 230, 118, 0.22);
-  font-weight: 900;
   font-size: 0.82rem;
+  font-weight: 900;
 }
 
 .panelistas-refresh-btn,
@@ -72,9 +91,47 @@ $border-green: rgba(0, 230, 118, 0.28);
   font-weight: 900;
 }
 
+/* ===============================
+   Estados
+================================ */
+
+.panelistas-state {
+  min-height: 320px;
+  display: grid;
+  place-items: center;
+  gap: 10px;
+  padding: 34px;
+  border-radius: 20px;
+  background: $surface;
+  border: 1px solid $border-soft;
+  text-align: center;
+
+  .q-icon {
+    color: $green-primary;
+    font-size: 46px;
+  }
+
+  strong {
+    color: $text-main;
+    font-size: 1.2rem;
+  }
+
+  span {
+    color: $text-soft;
+  }
+
+  &.error .q-icon {
+    color: #ff4d9d;
+  }
+}
+
+/* ===============================
+   Grid y cards
+================================ */
+
 .panelistas-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(245px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 18px;
 }
 
@@ -90,6 +147,7 @@ $border-green: rgba(0, 230, 118, 0.28);
     0 20px 44px rgba(0, 0, 0, 0.22),
     inset 0 0 0 1px rgba(255, 255, 255, 0.025);
   cursor: pointer;
+  text-align: center;
   transition:
     transform 0.18s ease,
     border-color 0.18s ease,
@@ -108,8 +166,7 @@ $border-green: rgba(0, 230, 118, 0.28);
   }
 
   h2 {
-    margin: 18px 0 12px;
-    text-align: center;
+    margin: 18px 0 8px;
     color: $text-main;
     font-size: 1.18rem;
     line-height: 1.25;
@@ -117,12 +174,19 @@ $border-green: rgba(0, 230, 118, 0.28);
   }
 }
 
+/* ===============================
+   Avatares circulares
+================================ */
+
 .panelista-avatar,
-.panelista-hero-avatar {
+.panelista-hero-avatar,
+.panelista-detail-avatar {
   display: grid;
   place-items: center;
-  border-radius: 50%;
   margin: 0 auto;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  overflow: hidden;
   background:
     radial-gradient(circle at top, rgba(102, 245, 181, 0.24), transparent 58%),
     linear-gradient(145deg, rgba(0, 230, 118, 0.28), rgba(255, 255, 255, 0.06));
@@ -130,21 +194,127 @@ $border-green: rgba(0, 230, 118, 0.28);
   box-shadow:
     0 0 0 10px rgba(0, 230, 118, 0.04),
     0 22px 44px rgba(0, 0, 0, 0.28);
+  flex-shrink: 0;
+
+  &.has-photo {
+    padding: 0;
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  img,
+  span {
+    width: 100%;
+    height: 100%;
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+  }
+
+  img {
+    display: block;
+    object-fit: cover;
+    object-position: center top;
+    transition: transform 0.18s ease;
+  }
 
   span {
+    display: grid;
+    place-items: center;
     color: $text-main;
     font-weight: 900;
   }
 }
 
 .panelista-avatar {
-  width: 96px;
-  height: 96px;
+  width: 180px;
+  height: 180px;
+  min-width: 180px;
+  max-width: 180px;
+  min-height: 180px;
+  max-height: 180px;
+  margin-bottom: 22px;
 
   span {
-    font-size: 2rem;
+    font-size: 2.6rem;
   }
 }
+
+.panelista-card:hover .panelista-avatar img {
+  transform: scale(1.06);
+}
+
+.panelista-hero-avatar,
+.panelista-detail-avatar {
+  width: 190px;
+  height: 190px;
+  min-width: 190px;
+  max-width: 190px;
+  min-height: 190px;
+  max-height: 190px;
+
+  span {
+    font-size: 3rem;
+  }
+}
+
+.panelista-hero:hover .panelista-hero-avatar img,
+.panelista-hero:hover .panelista-detail-avatar img {
+  transform: scale(1.04);
+}
+
+/* ===============================
+   Etiquetas Ponente / Panelista
+================================ */
+
+.panelista-tipo,
+.panelista-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  min-width: 95px;
+  padding: 6px 16px;
+  border-radius: 999px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0.02em;
+}
+
+.panelista-tipo {
+  position: static !important;
+  margin: 6px auto 14px;
+  font-size: 0.78rem;
+  box-shadow: none !important;
+}
+
+.panelista-badge {
+  margin-bottom: 10px;
+  font-size: 0.82rem;
+}
+
+.panelista-tipo.is-ponente,
+.panelista-badge.is-ponente {
+  background: $ponente-bg !important;
+  color: $ponente-text !important;
+  border: 1px solid $ponente-border;
+}
+
+.panelista-tipo.is-panelista,
+.panelista-badge.is-panelista {
+  background: $panelista-bg !important;
+  color: $panelista-text !important;
+  border: 1px solid $panelista-border;
+}
+
+.panelista-tipo.is-invitado,
+.panelista-badge.is-invitado {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #d9f7e6 !important;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+/* ===============================
+   Contenido de card
+================================ */
 
 .panelista-tema {
   margin: 0 0 10px;
@@ -182,6 +352,7 @@ $border-green: rgba(0, 230, 118, 0.28);
     align-items: center;
     gap: 6px;
     min-width: 0;
+    text-align: left;
   }
 
   .q-icon {
@@ -189,35 +360,9 @@ $border-green: rgba(0, 230, 118, 0.28);
   }
 }
 
-.panelistas-state {
-  min-height: 320px;
-  display: grid;
-  place-items: center;
-  gap: 10px;
-  padding: 34px;
-  border-radius: 20px;
-  background: $surface;
-  border: 1px solid $border-soft;
-  text-align: center;
-
-  .q-icon {
-    color: $green-primary;
-    font-size: 46px;
-  }
-
-  strong {
-    color: $text-main;
-    font-size: 1.2rem;
-  }
-
-  span {
-    color: $text-soft;
-  }
-
-  &.error .q-icon {
-    color: #ff4d9d;
-  }
-}
+/* ===============================
+   Vista detalle
+================================ */
 
 .panelista-detail-back {
   display: flex;
@@ -237,19 +382,10 @@ $border-green: rgba(0, 230, 118, 0.28);
 
 .panelista-hero {
   display: grid;
-  grid-template-columns: 150px 1fr;
-  gap: 34px;
+  grid-template-columns: 210px 1fr;
+  gap: 42px;
   align-items: center;
   margin-bottom: 34px;
-}
-
-.panelista-hero-avatar {
-  width: 150px;
-  height: 150px;
-
-  span {
-    font-size: 3rem;
-  }
 }
 
 .panelista-hero-info {
@@ -267,17 +403,6 @@ $border-green: rgba(0, 230, 118, 0.28);
     color: $text-soft;
     font-size: 1.1rem;
   }
-}
-
-.panelista-badge {
-  display: inline-flex;
-  padding: 6px 12px;
-  border-radius: 999px;
-  background: rgba(0, 230, 118, 0.14);
-  color: $green-soft;
-  border: 1px solid rgba(0, 230, 118, 0.28);
-  font-size: 0.82rem;
-  font-weight: 900;
 }
 
 .panelista-topic {
@@ -312,8 +437,8 @@ $border-green: rgba(0, 230, 118, 0.28);
   }
 
   p {
-    margin: 0;
     max-width: 1050px;
+    margin: 0;
     color: $text-soft;
     font-size: 1.05rem;
     line-height: 1.8;
@@ -322,6 +447,7 @@ $border-green: rgba(0, 230, 118, 0.28);
 
 .panelista-info-grid {
   display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 14px;
 
   span {
@@ -338,6 +464,10 @@ $border-green: rgba(0, 230, 118, 0.28);
     word-break: break-word;
   }
 }
+
+/* ===============================
+   Responsive
+================================ */
 
 @media (max-width: 720px) {
   .panelistas-page,
@@ -359,12 +489,18 @@ $border-green: rgba(0, 230, 118, 0.28);
 
   .panelista-hero {
     grid-template-columns: 1fr;
+    gap: 22px;
     text-align: center;
   }
 
-  .panelista-hero-avatar {
-    width: 120px;
-    height: 120px;
+  .panelista-hero-avatar,
+  .panelista-detail-avatar {
+    width: 150px;
+    height: 150px;
+    min-width: 150px;
+    max-width: 150px;
+    min-height: 150px;
+    max-height: 150px;
 
     span {
       font-size: 2.4rem;
@@ -376,85 +512,33 @@ $border-green: rgba(0, 230, 118, 0.28);
   }
 }
 
-.panelista-avatar {
-  overflow: hidden;
-}
+@media (max-width: 600px) {
+  .panelista-card {
+    padding: 24px 18px 18px;
+  }
 
-.panelista-avatar.has-photo {
-  padding: 0;
-  background: rgba(255, 255, 255, 0.06);
-}
+  .panelista-avatar {
+    width: 150px;
+    height: 150px;
+    min-width: 150px;
+    max-width: 150px;
+    min-height: 150px;
+    max-height: 150px;
 
-.panelista-avatar img {
-  width: 100%;
-  height: 100%;
-  display: block;
-  object-fit: cover;
-  border-radius: 50%;
-  transition: transform 0.18s ease;
-}
+    span {
+      font-size: 2.1rem;
+    }
+  }
 
-.panelista-card:hover .panelista-avatar img {
-  transform: scale(1.06);
-}
+  .panelista-tipo {
+    min-width: 86px;
+    padding: 5px 13px;
+    font-size: 0.72rem;
+    margin-top: 5px;
+    margin-bottom: 12px;
+  }
 
-.panelista-hero-avatar {
-  overflow: hidden;
-}
-
-.panelista-hero-avatar.has-photo {
-  padding: 0;
-  background: rgba(255, 255, 255, 0.06);
-}
-
-.panelista-hero-avatar img {
-  width: 100%;
-  height: 100%;
-  display: block;
-  object-fit: cover;
-  border-radius: 50%;
-  transition: transform 0.18s ease;
-}
-
-.panelista-hero:hover .panelista-hero-avatar img {
-  transform: scale(1.04);
-}
-
-/* Solo hacer más grande la imagen del panelista */
-.panelista-avatar {
-  width: 170px !important;
-  height: 170px !important;
-  min-width: 170px !important;
-}
-
-.panelista-avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-/* Forzar imagen perfectamente circular */
-.panelista-avatar,
-.panelista-hero-avatar {
-  width: 170px !important;
-  height: 170px !important;
-  min-width: 170px !important;
-  max-width: 170px !important;
-  min-height: 170px !important;
-  max-height: 170px !important;
-  aspect-ratio: 1 / 1 !important;
-  border-radius: 50% !important;
-  overflow: hidden !important;
-  flex-shrink: 0 !important;
-}
-
-.panelista-avatar img,
-.panelista-hero-avatar img {
-  width: 100% !important;
-  height: 100% !important;
-  aspect-ratio: 1 / 1 !important;
-  object-fit: cover !important;
-  object-position: center !important;
-  border-radius: 50% !important;
-  display: block !important;
+  .panelista-footer {
+    font-size: 0.78rem;
+  }
 }
