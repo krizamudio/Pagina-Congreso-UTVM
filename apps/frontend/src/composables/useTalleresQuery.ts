@@ -84,7 +84,7 @@ const normalizeTaller = (
 
     inscritos,
     porcentaje_ocupacion: porcentajeOcupacion,
-    estado_cupo: record.estado_cupo,
+    ...(record.estado_cupo ? { estado_cupo: record.estado_cupo } : {}),
 
     fecha_creacion: record.created_at ?? "",
 

@@ -297,7 +297,7 @@ const congresoActivo = computed<CongresoPublico | null>(() => {
     const fechaB = obtenerFechaInicioCongreso(b);
 
     return new Date(fechaB).getTime() - new Date(fechaA).getTime();
-  })[0];
+  })[0] ?? null;
 });
 
 const anioCongreso = computed(() => {
