@@ -4,9 +4,11 @@
       <div class="panelistas-header">
         <div>
           <span class="panelistas-kicker">Congreso UTVM</span>
-          <h1>Panelistas</h1>
+
+          <h1>Ponentes y panelistas</h1>
+
           <p>
-            Conoce a los panelistas registrados para el congreso.
+            Conoce a los ponentes y panelistas registrados para el congreso.
           </p>
         </div>
 
@@ -27,7 +29,7 @@
         class="panelistas-state"
       >
         <q-icon name="hourglass_top" />
-        <strong>Cargando panelistas...</strong>
+        <strong>Cargando ponentes y panelistas...</strong>
         <span>Estamos consultando la información registrada.</span>
       </div>
 
@@ -36,7 +38,7 @@
         class="panelistas-state error"
       >
         <q-icon name="error_outline" />
-        <strong>No se pudieron cargar los panelistas</strong>
+        <strong>No se pudieron cargar los ponentes y panelistas</strong>
         <span>{{ error }}</span>
       </div>
 
@@ -45,8 +47,10 @@
         class="panelistas-state"
       >
         <q-icon name="groups" />
-        <strong>No hay panelistas registrados</strong>
-        <span>Cuando el administrador registre panelistas, aparecerán aquí.</span>
+        <strong>No hay ponentes o panelistas registrados</strong>
+        <span>
+          Cuando el administrador registre ponentes o panelistas, aparecerán aquí.
+        </span>
       </div>
 
       <div
@@ -76,12 +80,19 @@
 
           <h2>{{ panelista.nombre }}</h2>
 
+          <span
+            class="panelista-tipo"
+            :class="obtenerClaseTipo(panelista.tipo)"
+          >
+            {{ obtenerTextoTipo(panelista.tipo) }}
+          </span>
+
           <p class="panelista-tema">
             {{ panelista.tema || 'Tema no registrado' }}
           </p>
 
           <p class="panelista-semblanza">
-            {{ panelista.semblanza || 'Este panelista aún no cuenta con semblanza registrada.' }}
+            {{ panelista.semblanza || 'Esta persona aún no cuenta con semblanza registrada.' }}
           </p>
 
           <div class="panelista-footer">
@@ -101,64 +112,105 @@
 <script setup lang="ts">
 import { computed, onMounted } from 'vue';
 import { useRouter } from 'vue-router';
-
-import { usePanelesQuery } from '@/composables/usePanelesQuery';
+import { usePonente } from '@/composables/usePonente';
 
 interface PanelistaPublico {
   id: string;
   nombre: string;
-  institucion?: string;
-  semblanza?: string;
-  tema?: string;
-
+  institucion?: string | null;
+  tema?: string | null;
+  semblanza?: string | null;
+  tipo?: string | null;
   visible_publico?: boolean;
   visiblePublico?: boolean;
-
   foto?: {
-    id: string;
-    url: string;
-  };
+    url?: string | null;
+    ruta_archivo?: string | null;
+  } | null;
 }
 
 const router = useRouter();
 
+const { useGetPonentes } = usePonente();
+
 const {
   data,
-  isRefreshing,
+  isLoading: isRefreshing,
   error,
-  load,
-} = usePanelesQuery();
+  refetch,
+} = useGetPonentes(50, 0, null);
 
-const panelistasVisibles = computed<PanelistaPublico[]>(() =>
-  (data.value as PanelistaPublico[]).filter((panelista) => {
-    return panelista.visible_publico !== false && panelista.visiblePublico !== false;
-  }),
-);
+const panelistasVisibles = computed<PanelistaPublico[]>(() => {
+  const lista: PanelistaPublico[] = Array.isArray(data.value)
+    ? (data.value as PanelistaPublico[])
+    : [];
+
+  return lista.filter((panelista) => {
+    const visibleNuevo = panelista.visiblePublico !== false;
+    const visibleViejo = panelista.visible_publico !== false;
+
+    return visibleNuevo && visibleViejo;
+  });
+});
 
 onMounted(() => {
   void load();
 });
+
+function load() {
+  return refetch();
+}
 
 function irADetalle(id: string) {
   void router.push(`/panelistas_u/${id}`);
 }
 
 function obtenerFotoPanelista(panelista: PanelistaPublico) {
-  return panelista.foto?.url || '';
+  return panelista.foto?.url || panelista.foto?.ruta_archivo || '';
 }
 
 function obtenerIniciales(nombre: string) {
-  const partes = nombre.trim().split(' ').filter(Boolean);
+  if (!nombre) {
+    return '?';
+  }
 
-  const primera = partes[0]?.charAt(0) || '';
-  const segunda = partes[1]?.charAt(0) || '';
+  return nombre
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((parte) => parte[0]?.toUpperCase())
+    .join('');
+}
 
-  const iniciales = `${primera}${segunda}`.toUpperCase();
+function obtenerTextoTipo(tipo?: string | null) {
+  const tipoNormalizado = String(tipo || '').toLowerCase();
 
-  return iniciales || '?';
+  if (tipoNormalizado === 'ponente') {
+    return 'Ponente';
+  }
+
+  if (tipoNormalizado === 'panelista') {
+    return 'Panelista';
+  }
+
+  return 'Invitado';
+}
+
+function obtenerClaseTipo(tipo?: string | null) {
+  const tipoNormalizado = String(tipo || '').toLowerCase();
+
+  if (tipoNormalizado === 'ponente') {
+    return 'is-ponente';
+  }
+
+  if (tipoNormalizado === 'panelista') {
+    return 'is-panelista';
+  }
+
+  return 'is-invitado';
 }
 </script>
 
-<style scoped lang="scss">
+<style lang="scss">
 @import "@/css/panelistas.scss";
 </style>

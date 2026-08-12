@@ -3,11 +3,11 @@
     <section class="registro-externo-header">
       <div class="row items-start justify-between q-col-gutter-md full-width">
         <div class="col">
-        <h1>Registro de Participantes Externos</h1>
+          <h1>Registro de Participantes Externos</h1>
 
-        <p>
-          Completa tus datos, selecciona tus días de participación y adjunta tu comprobante de pago.
-        </p>
+          <p>
+            Completa tus datos, selecciona tus días de participación y adjunta tu comprobante de pago.
+          </p>
         </div>
       </div>
     </section>
@@ -242,7 +242,6 @@
       </q-form>
     </section>
 
-    <!-- Diálogo de resumen -->
     <q-dialog
       v-model="mostrarResumen"
       persistent
@@ -397,58 +396,56 @@
       </q-card>
     </q-dialog>
 
-    <!-- Diálogo de registro ya recibido -->
-<q-dialog
-  v-model="mostrarCorreoDuplicado"
-  persistent
->
-  <q-card
-    class="resumen-externo-card"
-    style="width:560px;max-width:90vw"
-  >
-    <q-card-section class="dialog-header">
-      <div class="text-h6 text-weight-bold">
-        Registro ya recibido
-      </div>
+    <q-dialog
+      v-model="mostrarCorreoDuplicado"
+      persistent
+    >
+      <q-card
+        class="resumen-externo-card"
+        style="width:560px;max-width:90vw"
+      >
+        <q-card-section class="dialog-header">
+          <div class="text-h6 text-weight-bold">
+            Registro ya recibido
+          </div>
 
-      <div class="text-caption">
-        Tu solicitud ya se encuentra en proceso.
-      </div>
-    </q-card-section>
+          <div class="text-caption">
+            Tu solicitud ya se encuentra en proceso.
+          </div>
+        </q-card-section>
 
-    <q-card-section class="text-center q-pa-lg">
-      <q-icon
-        name="assignment_turned_in"
-        class="dialog-main-icon"
-        size="72px"
-      />
+        <q-card-section class="text-center q-pa-lg">
+          <q-icon
+            name="assignment_turned_in"
+            class="dialog-main-icon"
+            size="72px"
+          />
 
-      <div class="text-h6 q-mt-md">
-        Tus datos serán revisados
-      </div>
+          <div class="text-h6 q-mt-md">
+            Tus datos serán revisados
+          </div>
 
-      <div class="text-grey-7 q-mt-sm">
-        Este correo ya tiene un registro asociado. Si ya verificaste tu correo,
-        tu solicitud quedó pendiente para revisión de pago.
-      </div>
+          <div class="text-grey-7 q-mt-sm">
+            Este correo ya tiene un registro asociado. Si ya verificaste tu correo,
+            tu solicitud quedó pendiente para revisión de pago.
+          </div>
 
-      <div class="text-grey-7 q-mt-sm">
-        Si aún no lo has verificado, revisa tu bandeja de entrada o spam para
-        finalizar el proceso.
-      </div>
-    </q-card-section>
+          <div class="text-grey-7 q-mt-sm">
+            Si aún no lo has verificado, revisa tu bandeja de entrada o spam para
+            finalizar el proceso.
+          </div>
+        </q-card-section>
 
-    <q-card-actions align="right">
-      <q-btn
-        label="Entendido"
-        class="dialog-btn-primary"
-        v-close-popup
-      />
-    </q-card-actions>
-  </q-card>
-</q-dialog>
+        <q-card-actions align="right">
+          <q-btn
+            label="Entendido"
+            class="dialog-btn-primary"
+            v-close-popup
+          />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
 
-    <!-- Diálogo de verificación enviada -->
     <q-dialog
       v-model="mostrarVerificacionEnviada"
       persistent
@@ -498,7 +495,6 @@
       </q-card>
     </q-dialog>
 
-    <!-- Diálogo de correo verificado -->
     <q-dialog
       v-model="mostrarCorreoVerificado"
       persistent
