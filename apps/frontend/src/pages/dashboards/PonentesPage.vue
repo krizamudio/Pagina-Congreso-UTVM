@@ -2,15 +2,17 @@
   <q-page class="hero-page q-pa-md">
     <div class="row justify-between items-center q-mb-lg">
       <div>
-        <div class="text-h4 text-weight-bold">Ponentes y panelistas</div>
+        <div class="text-h4 text-weight-bold"
+          >Ponentes, panelistas y evaluadores</div
+        >
         <div class="text-subtitle2 text-grey-7"
-          >Lista de ponentes y panelistas del congreso.</div
+          >Lista de perfiles disponibles para actividades y Hackatón.</div
         >
       </div>
 
       <div class="row items-center q-gutter-sm">
         <q-btn
-          label="Nuevo ponente o panelista"
+          label="Nuevo perfil"
           icon="add"
           unelevated
           color="primary"
@@ -79,7 +81,7 @@ const handleDelete = async (id: string) => {
 
   const confirmed = await confirmDelete({
     title: "Eliminar participante",
-    message: "¿Seguro que deseas eliminar este ponente o panelista?"
+    message: "¿Seguro que deseas eliminar este perfil?"
   });
   if (!confirmed) return;
 

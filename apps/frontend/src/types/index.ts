@@ -1,7 +1,12 @@
-export type PonenteTipo = "Ponente" | "Panelista";
+export type PonenteTipo = "Ponente" | "Panelista" | "Evaluador";
 
 export type ReconocimientoEstado = "PENDIENTE" | "EMITIDO" | "FALLIDO";
-export type ReconocimientoTipo = "GENERAL" | "TALLERISTA" | "CONFERENCISTA";
+export type ReconocimientoTipo =
+  | "GENERAL"
+  | "TALLERISTA"
+  | "CONFERENCISTA"
+  | "HACKATON_EVALUADOR"
+  | "HACKATON_PREMIACION";
 
 export interface ReconocimientoReferencia {
   id: string;
@@ -21,7 +26,57 @@ export interface Reconocimiento {
   taller?: ReconocimientoReferencia | null;
   conferencia?: ReconocimientoReferencia | null;
   ponente?: ReconocimientoReferencia | null;
+  participante?: ReconocimientoReferencia | null;
   congreso?: ReconocimientoReferencia | null;
+  hackaton?: ReconocimientoReferencia | null;
+  hackaton_equipo?: ReconocimientoReferencia | null;
+}
+
+export type HackatonResultado =
+  | "PRIMER_LUGAR"
+  | "SEGUNDO_LUGAR"
+  | "TERCER_LUGAR"
+  | "MENCION_HONORIFICA";
+export interface HackatonPersona {
+  id: string;
+  participante_acceso_id: string;
+  tipo: ParticipanteTipo;
+  nombre: string;
+  correo: string;
+}
+export interface HackatonEquipo {
+  id: string;
+  nombre: string;
+  resultado: HackatonResultado | null;
+  bloqueado: boolean;
+  integrantes: HackatonPersona[];
+}
+export interface HackatonEvaluador {
+  id: string;
+  bloqueado: boolean;
+  ponente: Pick<Ponente, "id" | "nombre" | "institucion" | "tipo">;
+}
+export interface Hackaton {
+  id: string;
+  nombre: string;
+  descripcion: string;
+  fecha_inicio: string;
+  fecha_fin: string;
+  congreso: {
+    id: string;
+    nombre: string;
+    fecha_inicio: string;
+    fecha_fin: string;
+  };
+  evaluadores: HackatonEvaluador[];
+  equipos: HackatonEquipo[];
+}
+export interface HackatonPayload {
+  congreso_id: string;
+  nombre: string;
+  descripcion: string;
+  fecha_inicio: string;
+  fecha_fin: string;
 }
 
 export interface ReconocimientosPage {
@@ -54,7 +109,10 @@ export interface Ponente {
   tema: string;
 }
 
-export type PonentePayload = Omit<Ponente, "id" | "foto" | "usuarioId" | "visiblePublico">;
+export type PonentePayload = Omit<
+  Ponente,
+  "id" | "foto" | "usuarioId" | "visiblePublico"
+>;
 
 export type Panel = Ponente;
 export type PanelPayload = PonentePayload;

@@ -3,7 +3,7 @@
     <q-card-section>
       <div class="row justify-between items-center q-mb-md">
         <div>
-          <div class="text-h6">Lista de ponentes y panelistas</div>
+          <div class="text-h6">Lista de ponentes, panelistas y evaluadores</div>
           <div class="text-caption text-grey-7"
             >Datos cargados con caché local y revalidación.</div
           >

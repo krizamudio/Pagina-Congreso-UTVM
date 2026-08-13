@@ -24,4 +24,18 @@ describe('ReconocimientoRendererService', () => {
       height: 598.125,
     });
   });
+
+  it('renderiza los datos nominales de premiación y evaluación', async () => {
+    const [premiacion, evaluador] = await Promise.all([
+      service.render(ReconocimientoTipo.HACKATON_PREMIACION, 'Ana Pérez', {
+        equipo: 'Bit Force',
+        resultado: 'Primer lugar',
+      }),
+      service.render(ReconocimientoTipo.HACKATON_EVALUADOR, 'Luis Díaz', {
+        participacion: 'Participación como evaluador de Innova 2026',
+      }),
+    ]);
+    expect(premiacion.subarray(0, 5).toString()).toBe('%PDF-');
+    expect(evaluador.subarray(0, 5).toString()).toBe('%PDF-');
+  });
 });

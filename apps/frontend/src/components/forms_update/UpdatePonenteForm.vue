@@ -155,7 +155,8 @@ const selectedImage = ref<File | null>(null);
 const imagePreviewUrl = ref<string | null>(null);
 const tipoOptions: { label: string; value: PonenteTipo }[] = [
   { label: "Ponente", value: "Ponente" },
-  { label: "Panelista", value: "Panelista" }
+  { label: "Panelista", value: "Panelista" },
+  { label: "Evaluador", value: "Evaluador" }
 ];
 const displayedPreviewUrl = computed(
   () => imagePreviewUrl.value || props.currentPhotoUrl || null
