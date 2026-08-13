@@ -4,7 +4,7 @@
       <div>
         <div class="text-h4 text-weight-bold">Reconocimientos</div>
         <div class="text-subtitle2 text-grey-7">
-          Reconocimientos de ponentes y panelistas asignados a actividades.
+          Reconocimientos de actividades, evaluadores y premiación de Hackatón.
         </div>
       </div>
       <q-btn
@@ -146,7 +146,7 @@ const estadoOptions = [
 const columns: QTableColumn<Reconocimiento>[] = [
   {
     name: "destinatario",
-    label: "Ponente o panelista",
+    label: "Destinatario",
     field: "nombre_destinatario",
     align: "left",
     sortable: true
@@ -154,14 +154,19 @@ const columns: QTableColumn<Reconocimiento>[] = [
   {
     name: "tipoPersona",
     label: "Tipo",
-    field: row => row.ponente?.tipo ?? "—",
+    field: row =>
+      row.ponente?.tipo ?? (row.participante ? "Participante" : "—"),
     align: "left"
   },
   {
     name: "actividad",
     label: "Actividad",
     field: row =>
-      row.taller?.titulo ?? row.conferencia?.titulo ?? "Sin actividad",
+      row.taller?.titulo ??
+      row.conferencia?.titulo ??
+      row.hackaton_equipo?.nombre ??
+      row.hackaton?.nombre ??
+      "Sin actividad",
     align: "left",
     sortable: true
   },
@@ -183,6 +188,8 @@ const filteredItems = computed(() => {
       item.nombre_destinatario,
       item.taller?.titulo,
       item.conferencia?.titulo,
+      item.hackaton?.nombre,
+      item.hackaton_equipo?.nombre,
       item.ponente?.tipo
     ]
       .filter(Boolean)

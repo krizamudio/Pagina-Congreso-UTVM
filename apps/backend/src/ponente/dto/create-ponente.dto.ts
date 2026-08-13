@@ -43,7 +43,7 @@ export class CreatePonenteDto {
   institucion!: string;
 
   @IsEnum(PonenteTipo, {
-    message: 'El tipo debe ser Ponente o Panelista',
+    message: 'El tipo debe ser Ponente, Panelista o Evaluador',
   })
   tipo!: PonenteTipo;
 

@@ -1,0 +1,82 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: sistema_congreso_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-sistema_congreso}
+      POSTGRES_USER: ${POSTGRES_USER:-congreso_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-congreso_password}
+    ports:
+      - "127.0.0.1:${POSTGRES_EXPOSE_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  backend:
+    build:
+      context: .
+      dockerfile: apps/backend/Dockerfile
+    image: sistema-congreso-backend:local
+    container_name: sistema_congreso_backend
+    restart: unless-stopped
+    env_file:
+      - ./.env
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB:-sistema_congreso}
+      POSTGRES_USER: ${POSTGRES_USER:-congreso_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-congreso_password}
+      BACKEND_URL: ${BACKEND_URL:-http://localhost:3000}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:9000}
+      QR_ACCESS_BASE_URL: ${QR_ACCESS_BASE_URL:-http://localhost:9000/acceso/qr}
+      CONGRESS_TIMEZONE: ${CONGRESS_TIMEZONE:-America/Mexico_City}
+    ports:
+      - "${BACKEND_PORT:-3000}:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:3000/api/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  frontend:
+    build:
+      context: .
+      dockerfile: apps/frontend/Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL:-/api/}
+    image: sistema-congreso-frontend:local
+    container_name: sistema_congreso_frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-9000}:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://127.0.0.1/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+volumes:
+  postgres_data:

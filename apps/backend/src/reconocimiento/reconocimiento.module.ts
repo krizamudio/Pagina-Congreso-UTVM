@@ -12,6 +12,7 @@ import { ReconocimientoService } from './reconocimiento.service';
 import { ReconocimientoEmisionService } from './services/reconocimiento-emision.service';
 import { ReconocimientoJobService } from './services/reconocimiento-job.service';
 import { ReconocimientoRendererService } from './services/reconocimiento-renderer.service';
+import { ReconocimientoTemplateRegistryService } from './services/reconocimiento-template-registry.service';
 
 @Module({
   imports: [
@@ -28,8 +29,13 @@ import { ReconocimientoRendererService } from './services/reconocimiento-rendere
   providers: [
     ReconocimientoService,
     ReconocimientoRendererService,
+    ReconocimientoTemplateRegistryService,
     ReconocimientoEmisionService,
     ReconocimientoJobService,
+  ],
+  exports: [
+    ReconocimientoRendererService,
+    ReconocimientoTemplateRegistryService,
   ],
 })
 export class ReconocimientoModule {}
