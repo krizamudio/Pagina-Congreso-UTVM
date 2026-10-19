@@ -3,9 +3,11 @@
     <div class="row items-center q-gutter-sm q-mb-lg">
       <q-btn flat round icon="arrow_back" aria-label="Volver" @click="goBack" />
       <div>
-        <div class="text-h4 text-weight-bold">Editar ponente o panelista</div>
+        <div class="text-h4 text-weight-bold"
+          >Editar ponente, panelista o evaluador</div
+        >
         <div class="text-subtitle2 text-grey-7"
-          >Actualiza los datos del ponente o panelista.</div
+          >Actualiza los datos del perfil.</div
         >
       </div>
     </div>

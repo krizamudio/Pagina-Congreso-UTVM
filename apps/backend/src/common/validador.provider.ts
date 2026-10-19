@@ -31,7 +31,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
  *
  * Métodos públicos:
  *   - FechaValida(fecha):
- *       Valida que la fecha sea estrictamente posterior a la fecha actual.
+ *       Valida que la fecha no sea anterior a la fecha actual.
  *       Compara fechas a medianoche local para evitar falsos negativos.
  *   - ValidarHoras(horaFin, horaInicio):
  *       Valida que horaFin > horaInicio (ambas en segundos).
@@ -77,9 +77,9 @@ export class ValidadorCommon {
         diaActual.getDate(),
       );
 
-      if (fechaFormateada.getTime() <= diaActualFormateado.getTime()) {
+      if (fechaFormateada.getTime() < diaActualFormateado.getTime()) {
         throw new BadRequestException(
-          'La fecha no puede ser anterior ni igual al dia actual',
+          'La fecha no puede ser anterior al dia actual',
         );
       }
     }
@@ -191,7 +191,8 @@ export class ValidadorCommon {
       nombre: string;
     }> = [],
   ): void {
-    const fechaInicio = fechaInicioActualizada ?? fechaInicioActual.toISOString();
+    const fechaInicio =
+      fechaInicioActualizada ?? fechaInicioActual.toISOString();
     const fechaFin = fechaFinActualizada ?? fechaFinActual.toISOString();
 
     this.ValidarSolapamientoFechas(fechaInicio, fechaFin, congresosExistentes);

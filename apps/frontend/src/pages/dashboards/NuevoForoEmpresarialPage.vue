@@ -73,6 +73,8 @@ const uploadLogo = async (logo: File) => {
 };
 
 const save = async ({ foro, logo }: ForoEmpresarialFormSubmit) => {
+  if (isPending.value) return;
+
   isPending.value = true;
 
   try {

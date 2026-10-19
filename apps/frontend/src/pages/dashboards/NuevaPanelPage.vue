@@ -12,19 +12,23 @@
 
     <q-card class="dashboard-card q-pa-md">
       <q-card-section>
-        <NewPanelForm @submit="handleSubmit" :loading="isPending" />
+        <NewPanelForm
+          @submit="handleSubmit"
+          :loading="isSubmitting || isPending"
+        />
       </q-card-section>
     </q-card>
   </q-page>
 </template>
 
 <script setup lang="ts">
-import { useRouter } from 'vue-router';
-import { useQuasar } from 'quasar';
-import NewPanelForm from '../../components/forms/NewPanelForm.vue';
-import { usePonente } from '../../composables/usePonente';
-import { api } from '../../services/api';
-import type { PanelPayload } from '../../types';
+import { ref } from "vue";
+import { useRouter } from "vue-router";
+import { useQuasar } from "quasar";
+import NewPanelForm from "../../components/forms/NewPanelForm.vue";
+import { usePonente } from "../../composables/usePonente";
+import { api } from "../../services/api";
+import type { PanelPayload } from "../../types";
 
 interface NewPanelSubmitPayload {
   panelista: PanelPayload;
@@ -35,22 +39,27 @@ const router = useRouter();
 const $q = useQuasar();
 const { useCreatePonente } = usePonente();
 const { mutate: createPanelista, isPending } = useCreatePonente();
+const isSubmitting = ref(false);
 const panelistaPhotoUploadEndpoint =
-  (import.meta.env.VITE_UPLOAD_PANELISTA_PHOTO_ENDPOINT as string | undefined)?.trim() ||
-  (import.meta.env.VITE_UPLOAD_PONENTE_PHOTO_ENDPOINT as string | undefined)?.trim() ||
-  '';
+  (
+    import.meta.env.VITE_UPLOAD_PANELISTA_PHOTO_ENDPOINT as string | undefined
+  )?.trim() ||
+  (
+    import.meta.env.VITE_UPLOAD_PONENTE_PHOTO_ENDPOINT as string | undefined
+  )?.trim() ||
+  "";
 
-const notify = (type: 'positive' | 'negative' | 'warning', message: string) => {
-  if (typeof $q.notify === 'function') {
+const notify = (type: "positive" | "negative" | "warning", message: string) => {
+  if (typeof $q.notify === "function") {
     $q.notify({
       type,
       message,
-      position: 'top',
+      position: "top",
       timeout: 3200,
       multiLine: true,
       progress: true,
-      textColor: type === 'negative' ? 'white' : 'black',
-      classes: `app-notify app-notify-${type}`,
+      textColor: type === "negative" ? "white" : "black",
+      classes: `app-notify app-notify-${type}`
     });
     return;
   }
@@ -59,22 +68,29 @@ const notify = (type: 'positive' | 'negative' | 'warning', message: string) => {
 };
 
 const goBack = () => {
-  void router.push('/paneles');
+  void router.push("/paneles");
 };
 
 const handleSubmit = async ({ panelista, foto }: NewPanelSubmitPayload) => {
+  if (isSubmitting.value || isPending.value) return;
+
+  isSubmitting.value = true;
   try {
     const payload: PanelPayload = { ...panelista };
 
     if (foto && panelistaPhotoUploadEndpoint) {
       const uploadFormData = new FormData();
-      uploadFormData.append('file', foto);
+      uploadFormData.append("file", foto);
 
-      const uploadResponse = await api.post(panelistaPhotoUploadEndpoint, uploadFormData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
+      const uploadResponse = await api.post(
+        panelistaPhotoUploadEndpoint,
+        uploadFormData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data"
+          }
+        }
+      );
 
       const uploadedPhotoId =
         uploadResponse.data?.id ??
@@ -82,23 +98,31 @@ const handleSubmit = async ({ panelista, foto }: NewPanelSubmitPayload) => {
         uploadResponse.data?.data?.id ??
         uploadResponse.data?.data?.archivo_foto_id;
 
-      if (typeof uploadedPhotoId === 'string' && uploadedPhotoId.length > 0) {
+      if (typeof uploadedPhotoId === "string" && uploadedPhotoId.length > 0) {
         payload.archivo_foto_id = uploadedPhotoId;
       } else {
-        notify('warning', 'La imagen se subio, pero no se recibio archivo_foto_id en la respuesta.');
+        notify(
+          "warning",
+          "La imagen se subio, pero no se recibio archivo_foto_id en la respuesta."
+        );
       }
     }
 
     if (foto && !panelistaPhotoUploadEndpoint) {
-      notify('warning', 'No hay endpoint de upload configurado. Define VITE_UPLOAD_PANELISTA_PHOTO_ENDPOINT.');
+      notify(
+        "warning",
+        "No hay endpoint de upload configurado. Define VITE_UPLOAD_PANELISTA_PHOTO_ENDPOINT."
+      );
     }
 
     await createPanelista(payload);
-    notify('positive', 'Panelista creado exitosamente.');
-    void router.push('/paneles');
+    notify("positive", "Panelista creado exitosamente.");
+    void router.push("/paneles");
   } catch (err) {
-    console.error('Error al crear panelista:', err);
-    notify('negative', 'No se pudo crear el panelista.');
+    console.error("Error al crear panelista:", err);
+    notify("negative", "No se pudo crear el panelista.");
+  } finally {
+    isSubmitting.value = false;
   }
 };
 </script>

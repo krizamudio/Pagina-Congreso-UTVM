@@ -2,15 +2,17 @@
   <q-page class="hero-page q-pa-md">
     <div class="row justify-between items-center q-mb-lg">
       <div>
-        <div class="text-h4 text-weight-bold">Ponentes y panelistas</div>
+        <div class="text-h4 text-weight-bold"
+          >Ponentes, panelistas y evaluadores</div
+        >
         <div class="text-subtitle2 text-grey-7"
-          >Lista de ponentes y panelistas del congreso.</div
+          >Lista de perfiles disponibles para actividades y Hackatón.</div
         >
       </div>
 
       <div class="row items-center q-gutter-sm">
         <q-btn
-          label="Nuevo ponente o panelista"
+          label="Nuevo perfil"
           icon="add"
           unelevated
           color="primary"
@@ -23,6 +25,7 @@
       :items="data"
       :is-refreshing="isLoading"
       :error="error"
+      :deleting-id="deletingId"
       @edit="handleEdit"
       @delete="handleDelete"
     />
@@ -30,7 +33,7 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted } from "vue";
+import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useQuasar } from "quasar";
 import PonenteList from "../../components/list/PonenteList.vue";
@@ -43,6 +46,7 @@ const { confirmDelete } = useDeleteConfirmation();
 const { useGetPonentes, useDeletePonente } = usePonente();
 const { data, isLoading, error, refetch } = useGetPonentes(50, 0, null);
 const { mutate: deletePonente } = useDeletePonente();
+const deletingId = ref<string | null>(null);
 
 const load = async () => {
   await refetch();
@@ -73,12 +77,15 @@ const notify = (type: "positive" | "negative", message: string) => {
 };
 
 const handleDelete = async (id: string) => {
+  if (deletingId.value) return;
+
   const confirmed = await confirmDelete({
     title: "Eliminar participante",
-    message: "¿Seguro que deseas eliminar este ponente o panelista?"
+    message: "¿Seguro que deseas eliminar este perfil?"
   });
   if (!confirmed) return;
 
+  deletingId.value = id;
   try {
     await deletePonente(id);
     notify("positive", "Participante eliminado correctamente.");
@@ -86,6 +93,8 @@ const handleDelete = async (id: string) => {
   } catch (err) {
     console.error(err);
     notify("negative", "No se pudo eliminar el participante.");
+  } finally {
+    deletingId.value = null;
   }
 };
 

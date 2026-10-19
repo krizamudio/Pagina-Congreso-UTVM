@@ -6,6 +6,7 @@
         round
         icon="arrow_back"
         aria-label="Volver"
+        :disable="isLoading || isPending"
         to="/ubicaciones"
       />
       <div>
@@ -23,7 +24,13 @@
     </div>
     <q-card class="dashboard-card q-pa-md"
       ><q-card-section>
-        <div v-if="isLoading" class="text-grey-5">Cargando ubicación...</div>
+        <div
+          v-if="isLoading"
+          class="row items-center justify-center q-gutter-sm q-pa-lg text-grey-5"
+        >
+          <q-spinner color="primary" size="2em" />
+          <span>Cargando ubicación...</span>
+        </div>
         <StatePanel
           v-else-if="loadError"
           title="No se pudo cargar"
@@ -32,9 +39,11 @@
           tone="warning"
         />
         <UbicacionForm
+          ref="formRef"
           v-else
           :initial-data="record"
           :loading="isPending"
+          :persist-draft="!editing"
           :submit-label="editing ? 'Actualizar ubicación' : 'Guardar ubicación'"
           @submit="save"
         /> </q-card-section
@@ -60,6 +69,7 @@ const id = computed(() =>
 const editing = computed(() => !!id.value);
 const { getById, create, update } = useUbicacionesQuery();
 const record = ref<Ubicacion | null>(null);
+const formRef = ref<{ clearDraft: () => void } | null>(null);
 const isLoading = ref(false);
 const isPending = ref(false);
 const loadError = ref<string | null>(null);
@@ -69,12 +79,14 @@ const apiMessage = (error: unknown, fallback: string) => {
   return Array.isArray(message) ? message.join(" ") : message || fallback;
 };
 const save = async (payload: UbicacionPayload) => {
+  if (isPending.value) return;
   isPending.value = true;
   try {
     if (editing.value) {
       await update(id.value, payload);
     } else {
       await create(payload);
+      formRef.value?.clearDraft();
     }
     $q.notify({
       type: "positive",

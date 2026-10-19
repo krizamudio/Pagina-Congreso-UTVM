@@ -8,10 +8,12 @@ import {
   IsString,
   Length,
   Matches,
+  Max,
   MaxLength,
   Min,
   ValidateNested,
 } from 'class-validator';
+import { POSTGRES_NUMERIC_10_2_MAX } from '../../common/database/postgres-limits.constant';
 import { UploadedFile } from '../types/uploaded-file.type';
 
 export class CreateParticipanteNsuDto {
@@ -48,6 +50,9 @@ export class CreateParticipanteNsuDto {
   @Type(() => Number)
   @IsNumber({}, { message: 'El monto debe ser numérico' })
   @Min(0, { message: 'El monto no puede ser negativo' })
+  @Max(POSTGRES_NUMERIC_10_2_MAX, {
+    message: `El monto no puede ser mayor a ${POSTGRES_NUMERIC_10_2_MAX}`,
+  })
   montoNumero!: number;
 }
 

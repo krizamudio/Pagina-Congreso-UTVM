@@ -234,7 +234,7 @@ interface ConferenciaDetalle extends Conferencia {
   deleted_at?: string | null;
 }
 
-const route = useRoute();
+const route = useRoute() as unknown as { params: { id?: string } };
 const router = useRouter();
 
 const { getById } = useConferenciasQuery();

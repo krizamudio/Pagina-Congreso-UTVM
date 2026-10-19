@@ -5,23 +5,30 @@ import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
 import { ReconocimientoTipo } from '../enums/reconocimiento-tipo.enum';
+import {
+  RecognitionTemplate,
+  ReconocimientoTemplateRegistryService,
+} from './reconocimiento-template-registry.service';
 
-interface TemplateDefinition {
-  background: string;
-  nameBox: { x: number; yFromTop: number; width: number; height: number };
+export interface ReconocimientoRenderContext {
+  equipo?: string;
+  resultado?: string;
+  participacion?: string;
 }
 
 @Injectable()
 export class ReconocimientoRendererService {
   private readonly resourcesDir = join(__dirname, '..', '..', 'resources');
-  private readonly templates: Record<ReconocimientoTipo, TemplateDefinition> = {
-    [ReconocimientoTipo.GENERAL]: this.template('general.jpg'),
-    [ReconocimientoTipo.TALLERISTA]: this.template('tallerista.jpg'),
-    [ReconocimientoTipo.CONFERENCISTA]: this.template('conferencista.jpg'),
-  };
+  constructor(
+    private readonly registry: ReconocimientoTemplateRegistryService = new ReconocimientoTemplateRegistryService(),
+  ) {}
 
-  async render(tipo: ReconocimientoTipo, nombre: string): Promise<Buffer> {
-    const template = this.templates[tipo];
+  async render(
+    tipo: ReconocimientoTipo,
+    nombre: string,
+    context: ReconocimientoRenderContext = {},
+  ): Promise<Buffer> {
+    const template = this.registry.get(tipo);
     const [backgroundBytes, fontBytes] = await Promise.all([
       readFile(join(this.resourcesDir, 'backgrounds', template.background)),
       readFile(join(this.resourcesDir, 'fonts', 'NotoSans-Bold.ttf')),
@@ -38,6 +45,21 @@ export class ReconocimientoRendererService {
       height: page.getHeight(),
     });
     this.drawCenteredName(page, font, nombre.trim(), template.nameBox);
+    const details =
+      tipo === ReconocimientoTipo.HACKATON_EVALUADOR
+        ? [context.participacion ?? 'Participación como evaluador del Hackatón']
+        : [
+            context.equipo ? `Equipo: ${context.equipo}` : '',
+            context.resultado ?? '',
+          ];
+    template.detailBoxes?.forEach((box, index) => {
+      if (details[index])
+        this.drawCenteredName(page, font, details[index], {
+          x: 110,
+          width: 548,
+          ...box,
+        });
+    });
     return Buffer.from(await document.save());
   }
 
@@ -45,7 +67,7 @@ export class ReconocimientoRendererService {
     page: PDFPage,
     font: PDFFont,
     nombre: string,
-    box: TemplateDefinition['nameBox'],
+    box: RecognitionTemplate['nameBox'],
   ): void {
     let size = 24;
     while (size > 12 && font.widthOfTextAtSize(nombre, size) > box.width) {
@@ -60,17 +82,5 @@ export class ReconocimientoRendererService {
       font,
       color: rgb(0, 0, 0),
     });
-  }
-
-  private template(background: string): TemplateDefinition {
-    return {
-      background,
-      nameBox: {
-        x: 115.71,
-        yFromTop: 321.43,
-        width: 574.46,
-        height: 29.08,
-      },
-    };
   }
 }

@@ -6,6 +6,7 @@
         round
         icon="arrow_back"
         aria-label="Volver"
+        :disable="isLoading || isPending"
         to="/congresos"
       />
       <div>
@@ -23,7 +24,13 @@
     </div>
     <q-card class="dashboard-card q-pa-md"
       ><q-card-section>
-        <div v-if="isLoading" class="text-grey-5">Cargando congreso...</div>
+        <div
+          v-if="isLoading"
+          class="row items-center justify-center q-gutter-sm q-pa-lg text-grey-5"
+        >
+          <q-spinner color="primary" size="2em" />
+          <span>Cargando congreso...</span>
+        </div>
         <StatePanel
           v-else-if="loadError"
           title="No se pudo cargar"
@@ -32,6 +39,7 @@
           tone="warning"
         />
         <CongresoForm
+          ref="formRef"
           v-else
           :initial-data="record"
           :loading="isPending"
@@ -61,6 +69,7 @@ const id = computed(() =>
 const editing = computed(() => !!id.value);
 const { getById, create, update } = useCongresosQuery();
 const record = ref<Congreso | null>(null);
+const formRef = ref<{ clearDraft: () => void } | null>(null);
 const isLoading = ref(false);
 const isPending = ref(false);
 const loadError = ref<string | null>(null);
@@ -70,6 +79,7 @@ const apiMessage = (error: unknown, fallback: string) => {
   return Array.isArray(message) ? message.join(" ") : message || fallback;
 };
 const save = async (payload: CongresoPayload) => {
+  if (isPending.value) return;
   isPending.value = true;
   try {
     if (editing.value) {
@@ -77,6 +87,7 @@ const save = async (payload: CongresoPayload) => {
     } else {
       await create(payload);
     }
+    formRef.value?.clearDraft();
     $q.notify({
       type: "positive",
       message: `Congreso ${editing.value ? "actualizado" : "creado"} correctamente.`

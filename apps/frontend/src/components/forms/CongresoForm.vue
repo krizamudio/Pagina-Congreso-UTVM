@@ -37,8 +37,8 @@
         class="col-12 col-md-6"
         :dark="!isLight"
         dense
-        type="datetime-local"
-        label="Fecha y hora de inicio"
+        type="date"
+        label="Fecha de inicio"
         :rules="[required]"
       />
       <q-input
@@ -46,8 +46,8 @@
         class="col-12 col-md-6"
         :dark="!isLight"
         dense
-        type="datetime-local"
-        label="Fecha y hora de fin"
+        type="date"
+        label="Fecha de fin"
         :rules="[required, validRange]"
       />
     </div>
@@ -57,6 +57,7 @@
         color="primary"
         type="submit"
         :loading="loading"
+        :disable="loading"
         :label="submitLabel"
       />
     </div>
@@ -64,7 +65,8 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, watch } from "vue";
+import { watch } from "vue";
+import { useFormPersistence } from "../../composables/useFormPersistence";
 import { useThemeMode } from "../../composables/useThemeMode";
 import type { Congreso, CongresoPayload } from "../../types";
 
@@ -85,7 +87,10 @@ const props = withDefaults(
 const emit = defineEmits<{
   (event: "submit", payload: CongresoPayload): void;
 }>();
-const form = reactive({
+
+type CongresoFormData = CongresoPayload & Record<string, unknown>;
+
+const defaultForm = (): CongresoFormData => ({
   nombre: "",
   eslogan: "",
   ubicacion: "",
@@ -93,22 +98,44 @@ const form = reactive({
   fecha_fin: ""
 });
 
-const toLocalInput = (value: string) => {
-  const date = new Date(value);
-  const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
-  return local.toISOString().slice(0, 16);
+const toDateInput = (value: string) => value.slice(0, 10);
+
+const initialForm = (): CongresoFormData => {
+  if (!props.initialData) return defaultForm();
+
+  return {
+    nombre: props.initialData.nombre,
+    eslogan: props.initialData.eslogan,
+    ubicacion: props.initialData.ubicacion,
+    fecha_inicio: toDateInput(props.initialData.fechaInicio),
+    fecha_fin: toDateInput(props.initialData.fechaFin)
+  };
 };
+
+const { formData: form, hydrateForm, clearForm } =
+  useFormPersistence<CongresoFormData>(
+    props.initialData
+      ? `update-congreso-form-${props.initialData.id}`
+      : "new-congreso-form",
+    initialForm(),
+    props.initialData
+      ? {
+          hydrateOnMounted: false,
+          mergeStrategy: "base-over-saved"
+        }
+      : undefined
+  );
 
 watch(
   () => props.initialData,
   value => {
     if (!value) return;
-    Object.assign(form, {
+    hydrateForm({
       nombre: value.nombre,
       eslogan: value.eslogan,
       ubicacion: value.ubicacion,
-      fecha_inicio: toLocalInput(value.fechaInicio),
-      fecha_fin: toLocalInput(value.fechaFin)
+      fecha_inicio: toDateInput(value.fechaInicio),
+      fecha_fin: toDateInput(value.fechaFin)
     });
   },
   { immediate: true }
@@ -116,16 +143,18 @@ watch(
 
 const required = (value: string) => !!value || "Este campo es obligatorio";
 const validRange = () =>
-  !form.fecha_inicio ||
-  !form.fecha_fin ||
-  new Date(form.fecha_fin) >= new Date(form.fecha_inicio) ||
+  !form.value.fecha_inicio ||
+  !form.value.fecha_fin ||
+  form.value.fecha_fin >= form.value.fecha_inicio ||
   "La fecha final debe ser posterior a la inicial";
 const submit = () =>
   emit("submit", {
-    nombre: form.nombre,
-    eslogan: form.eslogan,
-    ubicacion: form.ubicacion,
-    fecha_inicio: new Date(form.fecha_inicio).toISOString(),
-    fecha_fin: new Date(form.fecha_fin).toISOString()
+    nombre: form.value.nombre,
+    eslogan: form.value.eslogan,
+    ubicacion: form.value.ubicacion,
+    fecha_inicio: `${form.value.fecha_inicio}T00:00:00.000Z`,
+    fecha_fin: `${form.value.fecha_fin}T23:59:59.999Z`
   });
+
+defineExpose({ clearDraft: clearForm });
 </script>

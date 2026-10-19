@@ -3,11 +3,13 @@ import {
   IsInt,
   IsNotEmpty,
   IsString,
+  Max,
   MaxLength,
   Min,
 } from 'class-validator';
+import { POSTGRES_INTEGER_MAX } from '../../common/database/postgres-limits.constant';
 
-function sanitizeString(value: any) {
+function sanitizeString(value: unknown): unknown {
   if (typeof value !== 'string') return value;
 
   let s = value.replace(/<[^>]*>/g, '').trim();
@@ -35,6 +37,9 @@ export class CreateUbicacionDto {
   @Type(() => Number)
   @IsInt({ message: 'El campo "capacidad" debe ser un número entero.' })
   @Min(1, { message: 'El campo "capacidad" debe ser mayor o igual a 1.' })
+  @Max(POSTGRES_INTEGER_MAX, {
+    message: `El campo "capacidad" no puede ser mayor a ${POSTGRES_INTEGER_MAX}.`,
+  })
   @IsNotEmpty({ message: 'El campo "capacidad" es obligatorio.' })
   capacidad!: number;
 }

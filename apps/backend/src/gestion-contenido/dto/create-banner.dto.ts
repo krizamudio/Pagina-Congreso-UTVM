@@ -6,10 +6,12 @@ import {
   IsString,
   IsUrl,
   IsUUID,
+  Max,
   MaxLength,
   Min,
 } from 'class-validator';
 
+import { POSTGRES_INTEGER_MAX } from '../../common/database/postgres-limits.constant';
 import { trimString } from './dto-transformers';
 
 export class CreateBannerDto {
@@ -43,6 +45,7 @@ export class CreateBannerDto {
   @Type(() => Number)
   @IsInt({ message: 'El campo "orden" debe ser un entero.' })
   @Min(0)
+  @Max(POSTGRES_INTEGER_MAX)
   @IsOptional()
   orden?: number;
 }

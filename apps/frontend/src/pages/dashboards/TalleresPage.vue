@@ -24,6 +24,7 @@
       :tallerista-names="talleristaNames"
       :is-refreshing="isRefreshing"
       :error="error"
+      :deleting-id="deletingId"
       @edit="handleEdit"
       @delete="handleDelete"
       @recognitions="handleRecognitions"
@@ -32,7 +33,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useQuasar } from "quasar";
 import TallerList from "../../components/list/TallerList.vue";
@@ -44,6 +45,7 @@ const router = useRouter();
 const $q = useQuasar();
 const { confirmDelete } = useDeleteConfirmation();
 const { data, isRefreshing, error, load, remove } = useTalleresQuery();
+const deletingId = ref<string | null>(null);
 const { useGetPonentes } = usePonente();
 const { data: ponentes, refetch: loadPonentes } = useGetPonentes(50, 0, null);
 
@@ -88,12 +90,15 @@ const notify = (type: "positive" | "negative", message: string) => {
 };
 
 const handleDelete = async (id: string) => {
+  if (deletingId.value) return;
+
   const confirmed = await confirmDelete({
     title: "Eliminar taller",
     message: "¿Seguro que deseas eliminar este taller?"
   });
   if (!confirmed) return;
 
+  deletingId.value = id;
   try {
     await remove(id);
     notify("positive", "Taller eliminado correctamente.");
@@ -101,6 +106,8 @@ const handleDelete = async (id: string) => {
   } catch (err) {
     console.error(err);
     notify("negative", "No se pudo eliminar el taller.");
+  } finally {
+    deletingId.value = null;
   }
 };
 

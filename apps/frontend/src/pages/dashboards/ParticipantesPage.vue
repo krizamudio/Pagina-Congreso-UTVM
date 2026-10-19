@@ -80,6 +80,7 @@
                   round
                   icon="edit"
                   color="primary"
+                  :disable="saving || isRefreshing || qrSendingKey !== null"
                   @click="openEmsDialog(props.row)"
                 />
                 <q-btn
@@ -89,6 +90,7 @@
                   icon="qr_code_2"
                   color="positive"
                   title="Enviar QR"
+                  :disable="saving || isRefreshing || qrSendingKey !== null"
                   :loading="qrSendingKey === `EMS:${props.row.id}`"
                   @click="sendAutomaticQr('EMS', props.row.id)"
                 />
@@ -98,6 +100,8 @@
                   round
                   icon="delete"
                   color="negative"
+                  :disable="saving || isRefreshing || qrSendingKey !== null"
+                  :loading="actionKey === `EMS:delete:${props.row.id}`"
                   @click="deleteEms(props.row.id)"
                 />
               </q-td>
@@ -139,6 +143,7 @@
                   round
                   icon="edit"
                   color="primary"
+                  :disable="saving || isRefreshing || qrSendingKey !== null"
                   @click="openUtvmDialog(props.row)"
                 />
                 <q-btn
@@ -148,6 +153,7 @@
                   icon="qr_code_2"
                   color="positive"
                   title="Enviar QR"
+                  :disable="saving || isRefreshing || qrSendingKey !== null"
                   :loading="qrSendingKey === `UTVM:${props.row.id}`"
                   @click="sendAutomaticQr('UTVM', props.row.id)"
                 />
@@ -157,6 +163,8 @@
                   round
                   icon="delete"
                   color="negative"
+                  :disable="saving || isRefreshing || qrSendingKey !== null"
+                  :loading="actionKey === `UTVM:delete:${props.row.id}`"
                   @click="deleteUtvm(props.row.id)"
                 />
               </q-td>
@@ -237,6 +245,8 @@
                   round
                   icon="check_circle"
                   color="positive"
+                  :disable="isRefreshing || saving"
+                  :loading="actionKey === `NSU:VALIDADO:${props.row.id}`"
                   @click="setNsuStatus(props.row.id, 'VALIDADO')"
                 />
                 <q-btn
@@ -245,6 +255,8 @@
                   round
                   icon="cancel"
                   color="negative"
+                  :disable="isRefreshing || saving"
+                  :loading="actionKey === `NSU:RECHAZADO:${props.row.id}`"
                   @click="setNsuStatus(props.row.id, 'RECHAZADO')"
                 />
                 <q-btn
@@ -253,6 +265,8 @@
                   round
                   icon="delete"
                   color="negative"
+                  :disable="isRefreshing || saving"
+                  :loading="actionKey === `NSU:delete:${props.row.id}`"
                   @click="deleteNsu(props.row.id)"
                 />
               </q-td>
@@ -323,6 +337,7 @@
                   round
                   icon="edit"
                   color="primary"
+                  :disable="saving || isRefreshing || qrSendingKey !== null"
                   @click="openExternoDialog(props.row)"
                 />
                 <q-btn
@@ -331,6 +346,8 @@
                   round
                   icon="check_circle"
                   color="positive"
+                  :disable="saving || isRefreshing || qrSendingKey !== null"
+                  :loading="actionKey === `EXTERNO:validado:${props.row.id}`"
                   @click="setExternoStatus(props.row.id, 'validado')"
                 />
                 <q-btn
@@ -339,6 +356,8 @@
                   round
                   icon="cancel"
                   color="warning"
+                  :disable="saving || isRefreshing || qrSendingKey !== null"
+                  :loading="actionKey === `EXTERNO:rechazado:${props.row.id}`"
                   @click="setExternoStatus(props.row.id, 'rechazado')"
                 />
                 <q-btn
@@ -349,6 +368,9 @@
                   color="positive"
                   title="Enviar QR"
                   :disable="
+                    saving ||
+                    isRefreshing ||
+                    qrSendingKey !== null ||
                     !props.row.correoVerificado ||
                     props.row.status !== 'validado'
                   "
@@ -361,6 +383,8 @@
                   round
                   icon="delete"
                   color="negative"
+                  :disable="saving || isRefreshing || qrSendingKey !== null"
+                  :loading="actionKey === `EXTERNO:delete:${props.row.id}`"
                   @click="deleteExterno(props.row.id)"
                 />
               </q-td>
@@ -371,19 +395,32 @@
     </q-card>
 
     <q-dialog v-model="emsDialogOpen">
-      <q-card class="form-dialog">
-        <q-card-section>
-          <div class="text-h6">{{
-            editingEmsId ? "Editar EMS" : "Nuevo EMS"
-          }}</div>
+      <q-card class="admin-form-dialog">
+        <q-card-section class="admin-form-dialog__header">
+          <q-avatar class="admin-form-dialog__icon" icon="school" />
+          <div>
+            <div class="text-h6 text-weight-bold">{{
+              editingEmsId
+                ? "Editar participante EMS"
+                : "Nuevo participante EMS"
+            }}</div>
+            <div class="admin-form-dialog__subtitle">
+              Actualiza la información académica y de contacto.
+            </div>
+          </div>
         </q-card-section>
-        <q-card-section>
-          <q-form class="row q-col-gutter-md" @submit.prevent="saveEms">
+        <q-separator />
+        <q-card-section class="admin-form-dialog__body">
+          <q-form
+            class="admin-form row q-col-gutter-md"
+            @submit.prevent="saveEms"
+          >
             <q-input
               v-model="emsForm.nombres"
               class="col-12 col-md-6"
               label="Nombres"
               :rules="[requiredRule]"
+              outlined
               dense
             />
             <q-input
@@ -391,12 +428,14 @@
               class="col-12 col-md-6"
               label="Apellido paterno"
               :rules="[requiredRule]"
+              outlined
               dense
             />
             <q-input
               v-model="emsForm.apellidoMaterno"
               class="col-12 col-md-6"
               label="Apellido materno"
+              outlined
               dense
             />
             <q-input
@@ -405,6 +444,7 @@
               label="Correo"
               type="email"
               :rules="[requiredRule]"
+              outlined
               dense
             />
             <q-input
@@ -412,6 +452,7 @@
               class="col-12 col-md-6"
               label="Institución"
               :rules="[requiredRule]"
+              outlined
               dense
             />
             <q-input
@@ -419,6 +460,7 @@
               class="col-12 col-md-6"
               label="Carrera"
               :rules="[requiredRule]"
+              outlined
               dense
             />
             <q-input
@@ -427,15 +469,25 @@
               label="Teléfono"
               mask="###############"
               :rules="[requiredRule]"
+              outlined
               dense
             />
-            <div class="col-12 row justify-end q-gutter-sm">
-              <q-btn flat label="Cancelar" v-close-popup />
+            <div class="admin-form-dialog__actions col-12">
               <q-btn
+                class="admin-form-dialog__cancel"
+                flat
+                label="Cancelar"
+                :disable="saving"
+                v-close-popup
+              />
+              <q-btn
+                class="admin-form-dialog__submit"
                 color="primary"
+                icon="save"
                 label="Guardar"
                 type="submit"
                 :loading="saving"
+                :disable="saving"
               />
             </div>
           </q-form>
@@ -444,19 +496,32 @@
     </q-dialog>
 
     <q-dialog v-model="utvmDialogOpen">
-      <q-card class="form-dialog">
-        <q-card-section>
-          <div class="text-h6">{{
-            editingUtvmId ? "Editar UTVM" : "Nuevo UTVM"
-          }}</div>
+      <q-card class="admin-form-dialog">
+        <q-card-section class="admin-form-dialog__header">
+          <q-avatar class="admin-form-dialog__icon" icon="badge" />
+          <div>
+            <div class="text-h6 text-weight-bold">{{
+              editingUtvmId
+                ? "Editar participante UTVM"
+                : "Nuevo participante UTVM"
+            }}</div>
+            <div class="admin-form-dialog__subtitle">
+              Actualiza la información escolar y de contacto.
+            </div>
+          </div>
         </q-card-section>
-        <q-card-section>
-          <q-form class="row q-col-gutter-md" @submit.prevent="saveUtvm">
+        <q-separator />
+        <q-card-section class="admin-form-dialog__body">
+          <q-form
+            class="admin-form row q-col-gutter-md"
+            @submit.prevent="saveUtvm"
+          >
             <q-input
               v-model="utvmForm.nombres"
               class="col-12 col-md-6"
               label="Nombres"
               :rules="[requiredRule]"
+              outlined
               dense
             />
             <q-input
@@ -464,12 +529,14 @@
               class="col-12 col-md-6"
               label="Apellido paterno"
               :rules="[requiredRule]"
+              outlined
               dense
             />
             <q-input
               v-model="utvmForm.apellidoMaterno"
               class="col-12 col-md-6"
               label="Apellido materno"
+              outlined
               dense
             />
             <q-input
@@ -478,6 +545,7 @@
               label="Correo"
               type="email"
               :rules="[requiredRule]"
+              outlined
               dense
             />
             <q-input
@@ -488,6 +556,7 @@
               min="1"
               max="11"
               :rules="[requiredRule]"
+              outlined
               dense
             />
             <q-input
@@ -495,6 +564,7 @@
               class="col-12 col-md-4"
               label="Grupo"
               :rules="[requiredRule]"
+              outlined
               dense
             />
             <q-input
@@ -503,15 +573,25 @@
               label="Teléfono"
               mask="###############"
               :rules="[requiredRule]"
+              outlined
               dense
             />
-            <div class="col-12 row justify-end q-gutter-sm">
-              <q-btn flat label="Cancelar" v-close-popup />
+            <div class="admin-form-dialog__actions col-12">
               <q-btn
+                class="admin-form-dialog__cancel"
+                flat
+                label="Cancelar"
+                :disable="saving"
+                v-close-popup
+              />
+              <q-btn
+                class="admin-form-dialog__submit"
                 color="primary"
+                icon="save"
                 label="Guardar"
                 type="submit"
                 :loading="saving"
+                :disable="saving"
               />
             </div>
           </q-form>
@@ -520,19 +600,32 @@
     </q-dialog>
 
     <q-dialog v-model="externoDialogOpen">
-      <q-card class="form-dialog">
-        <q-card-section>
-          <div class="text-h6">{{
-            editingExternoId ? "Editar externo" : "Nuevo externo"
-          }}</div>
+      <q-card class="admin-form-dialog">
+        <q-card-section class="admin-form-dialog__header">
+          <q-avatar class="admin-form-dialog__icon" icon="person" />
+          <div>
+            <div class="text-h6 text-weight-bold">{{
+              editingExternoId
+                ? "Editar participante externo"
+                : "Nuevo participante externo"
+            }}</div>
+            <div class="admin-form-dialog__subtitle">
+              Actualiza sus datos, asistencia y estado de validación.
+            </div>
+          </div>
         </q-card-section>
-        <q-card-section>
-          <q-form class="row q-col-gutter-md" @submit.prevent="saveExterno">
+        <q-separator />
+        <q-card-section class="admin-form-dialog__body">
+          <q-form
+            class="admin-form row q-col-gutter-md"
+            @submit.prevent="saveExterno"
+          >
             <q-input
               v-model="externoForm.nombre"
               class="col-12 col-md-6"
               label="Nombre"
               :rules="[requiredRule]"
+              outlined
               dense
             />
             <q-input
@@ -540,12 +633,14 @@
               class="col-12 col-md-6"
               label="Apellido paterno"
               :rules="[requiredRule]"
+              outlined
               dense
             />
             <q-input
               v-model="externoForm.apellidoMaterno"
               class="col-12 col-md-6"
               label="Apellido materno"
+              outlined
               dense
             />
             <q-input
@@ -554,6 +649,7 @@
               label="Correo"
               type="email"
               :rules="[requiredRule]"
+              outlined
               dense
             />
             <q-input
@@ -562,12 +658,14 @@
               label="Teléfono"
               mask="###############"
               :rules="[requiredRule]"
+              outlined
               dense
             />
             <q-input
               v-model="externoForm.institucion"
               class="col-12 col-md-6"
               label="Institución"
+              outlined
               dense
             />
             <q-select
@@ -578,6 +676,7 @@
               multiple
               emit-value
               map-options
+              outlined
               dense
             />
             <q-input
@@ -586,6 +685,7 @@
               label="Total"
               type="number"
               min="0"
+              outlined
               dense
             />
             <q-select
@@ -595,6 +695,7 @@
               label="Estatus"
               emit-value
               map-options
+              outlined
               dense
             />
             <q-file
@@ -603,15 +704,25 @@
               class="col-12"
               label="Comprobante"
               accept=".pdf,.jpg,.jpeg,.png"
+              outlined
               dense
             />
-            <div class="col-12 row justify-end q-gutter-sm">
-              <q-btn flat label="Cancelar" v-close-popup />
+            <div class="admin-form-dialog__actions col-12">
               <q-btn
+                class="admin-form-dialog__cancel"
+                flat
+                label="Cancelar"
+                :disable="saving"
+                v-close-popup
+              />
+              <q-btn
+                class="admin-form-dialog__submit"
                 color="primary"
+                icon="save"
                 label="Guardar"
                 type="submit"
                 :loading="saving"
+                :disable="saving"
               />
             </div>
           </q-form>
@@ -655,6 +766,7 @@ const editingUtvmId = ref<number | null>(null);
 const editingExternoId = ref<string | null>(null);
 const externoComprobante = ref<File | null>(null);
 const qrSendingKey = ref<string | null>(null);
+const actionKey = ref<string | null>(null);
 
 const {
   ems,
@@ -889,8 +1001,13 @@ const metrics = computed(() => {
 const requiredRule = (value: unknown) =>
   Boolean(value) || "Este campo es obligatorio";
 
-function notify(type: "positive" | "negative", message: string) {
-  $q.notify({ type, message, position: "top", timeout: 2800 });
+function notify(type: "positive" | "negative" | "warning", message: string) {
+  $q.notify({
+    type,
+    message,
+    textColor: type === "negative" ? "white" : "black",
+    classes: `app-notify app-notify-${type}`
+  });
 }
 
 function resetReactive<T extends object>(target: T, source: T) {
@@ -961,15 +1078,38 @@ function normalizeText(value?: string | null) {
 
 function openEmsDialog(row?: ParticipanteEms) {
   editingEmsId.value = row?.id ?? null;
-  resetReactive(emsForm, row ? { ...row } : emptyEmsForm());
+  resetReactive(
+    emsForm,
+    row
+      ? {
+          nombres: row.nombres,
+          apellidoPaterno: row.apellidoPaterno,
+          apellidoMaterno: row.apellidoMaterno ?? "",
+          correo: row.correo,
+          institucion: row.institucion,
+          carrera: row.carrera,
+          telefono: row.telefono
+        }
+      : emptyEmsForm()
+  );
   emsDialogOpen.value = true;
 }
 
 async function saveEms() {
+  if (saving.value) return;
+
   saving.value = true;
   try {
     if (editingEmsId.value) {
-      await updateEms(editingEmsId.value, { ...emsForm });
+      await updateEms(editingEmsId.value, {
+        nombres: emsForm.nombres.trim(),
+        apellidoPaterno: emsForm.apellidoPaterno.trim(),
+        apellidoMaterno: emsForm.apellidoMaterno?.trim() ?? "",
+        correo: emsForm.correo.trim(),
+        institucion: emsForm.institucion.trim(),
+        carrera: emsForm.carrera.trim(),
+        telefono: emsForm.telefono.trim()
+      });
     } else {
       await createEms({ ...emsForm });
     }
@@ -990,20 +1130,47 @@ async function deleteEms(id: number) {
     message: "¿Seguro que deseas eliminar este participante EMS?"
   });
   if (!confirmed) return;
-  await removeWithReload(() => removeEms(id), "Participante EMS eliminado.");
+  await removeWithReload(
+    () => removeEms(id),
+    "Participante EMS eliminado.",
+    `EMS:delete:${id}`
+  );
 }
 
 function openUtvmDialog(row?: ParticipanteUtvm) {
   editingUtvmId.value = row?.id ?? null;
-  resetReactive(utvmForm, row ? { ...row } : emptyUtvmForm());
+  resetReactive(
+    utvmForm,
+    row
+      ? {
+          nombres: row.nombres,
+          apellidoPaterno: row.apellidoPaterno,
+          apellidoMaterno: row.apellidoMaterno ?? "",
+          correo: row.correo,
+          cuatrimestre: Number(row.cuatrimestre),
+          grupo: row.grupo,
+          telefono: row.telefono
+        }
+      : emptyUtvmForm()
+  );
   utvmDialogOpen.value = true;
 }
 
 async function saveUtvm() {
+  if (saving.value) return;
+
   saving.value = true;
   try {
     if (editingUtvmId.value) {
-      await updateUtvm(editingUtvmId.value, { ...utvmForm });
+      await updateUtvm(editingUtvmId.value, {
+        nombres: utvmForm.nombres.trim(),
+        apellidoPaterno: utvmForm.apellidoPaterno.trim(),
+        apellidoMaterno: utvmForm.apellidoMaterno?.trim() ?? "",
+        correo: utvmForm.correo.trim(),
+        cuatrimestre: Number(utvmForm.cuatrimestre),
+        grupo: utvmForm.grupo.trim(),
+        telefono: utvmForm.telefono.trim()
+      });
     } else {
       await createUtvm({ ...utvmForm });
     }
@@ -1024,7 +1191,11 @@ async function deleteUtvm(id: number) {
     message: "¿Seguro que deseas eliminar este participante UTVM?"
   });
   if (!confirmed) return;
-  await removeWithReload(() => removeUtvm(id), "Participante UTVM eliminado.");
+  await removeWithReload(
+    () => removeUtvm(id),
+    "Participante UTVM eliminado.",
+    `UTVM:delete:${id}`
+  );
 }
 
 function openExternoDialog(row?: ParticipanteExterno) {
@@ -1051,13 +1222,25 @@ function openExternoDialog(row?: ParticipanteExterno) {
 }
 
 async function saveExterno() {
+  if (saving.value) return;
+
   saving.value = true;
   try {
     if (editingExternoId.value) {
-      await updateExterno(editingExternoId.value, { ...externoForm });
+      await updateExterno(editingExternoId.value, {
+        nombre: externoForm.nombre.trim(),
+        apellidoPaterno: externoForm.apellidoPaterno.trim(),
+        apellidoMaterno: externoForm.apellidoMaterno?.trim() || null,
+        correo: externoForm.correo.trim(),
+        telefono: externoForm.telefono.trim(),
+        institucion: externoForm.institucion?.trim() || null,
+        dias: [...externoForm.dias],
+        total: Number(externoForm.total),
+        status: externoForm.status
+      });
     } else {
       if (!externoComprobante.value) {
-        notify("negative", "El comprobante es obligatorio para externos.");
+        notify("warning", "El comprobante es obligatorio para externos.");
         return;
       }
 
@@ -1090,7 +1273,8 @@ async function saveExterno() {
 async function setNsuStatus(id: string, status: RegistroNsu["estado_pago"]) {
   await removeWithReload(
     () => updateNsuStatus(id, status),
-    "Estatus NSU actualizado."
+    "Estatus NSU actualizado.",
+    `NSU:${status}:${id}`
   );
 }
 
@@ -1100,7 +1284,11 @@ async function deleteNsu(id: string) {
     message: "¿Seguro que deseas eliminar este registro NSU?"
   });
   if (!confirmed) return;
-  await removeWithReload(() => removeNsu(id), "Registro NSU eliminado.");
+  await removeWithReload(
+    () => removeNsu(id),
+    "Registro NSU eliminado.",
+    `NSU:delete:${id}`
+  );
 }
 
 async function setExternoStatus(
@@ -1109,7 +1297,8 @@ async function setExternoStatus(
 ) {
   await removeWithReload(
     () => updateExternoStatus(id, status),
-    "Estatus de externo actualizado."
+    "Estatus de externo actualizado.",
+    `EXTERNO:${status}:${id}`
   );
 }
 
@@ -1141,17 +1330,20 @@ async function deleteExterno(id: string) {
   if (!confirmed) return;
   await removeWithReload(
     () => removeExterno(id),
-    "Participante externo eliminado."
+    "Participante externo eliminado.",
+    `EXTERNO:delete:${id}`
   );
 }
 
 async function removeWithReload(
   action: () => Promise<unknown>,
-  successMessage: string
+  successMessage: string,
+  key: string
 ) {
   if (isRefreshing.value || saving.value) return;
 
   saving.value = true;
+  actionKey.value = key;
 
   try {
     await action();
@@ -1162,11 +1354,12 @@ async function removeWithReload(
     notify("negative", "No se pudo completar la acción.");
   } finally {
     saving.value = false;
+    actionKey.value = null;
   }
 }
 
 async function sendAutomaticQr(type: QrParticipantType, id: string | number) {
-  if (qrSendingKey.value) return;
+  if (qrSendingKey.value || saving.value || isRefreshing.value) return;
   qrSendingKey.value = `${type}:${id}`;
   try {
     const response = await qrAccessService.sendAutomatic(type, id);
@@ -1230,10 +1423,6 @@ onMounted(() => {
 .admin-card :deep(.q-tab .q-icon),
 .admin-card :deep(.q-tab__label) {
   color: #ffffff !important;
-}
-
-.form-dialog {
-  width: min(760px, 92vw);
 }
 
 :global(body.theme-light) .participantes-page .metric-card,

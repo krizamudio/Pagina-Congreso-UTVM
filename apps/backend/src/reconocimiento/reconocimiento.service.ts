@@ -10,6 +10,7 @@ import { Repository } from 'typeorm';
 import { FindReconocimientoDto } from './dto/find-reconocimiento.dto';
 import { Reconocimiento } from './entities/reconocimiento.entity';
 import { ReconocimientoEstado } from './enums/reconocimiento-estado.enum';
+import { ReconocimientoTipo } from './enums/reconocimiento-tipo.enum';
 import { ReconocimientoRendererService } from './services/reconocimiento-renderer.service';
 import { ReconocimientoEmisionService } from './services/reconocimiento-emision.service';
 
@@ -19,6 +20,8 @@ export class ReconocimientoService {
     congreso: true,
     taller: true,
     conferencia: true,
+    hackaton: true,
+    hackaton_equipo: true,
     participante: true,
     ponente: true,
   } as const;
@@ -44,6 +47,8 @@ export class ReconocimientoService {
       .leftJoinAndSelect('reconocimiento.congreso', 'congreso')
       .leftJoinAndSelect('reconocimiento.taller', 'taller')
       .leftJoinAndSelect('reconocimiento.conferencia', 'conferencia')
+      .leftJoinAndSelect('reconocimiento.hackaton', 'hackaton')
+      .leftJoinAndSelect('reconocimiento.hackaton_equipo', 'hackaton_equipo')
       .leftJoinAndSelect('reconocimiento.participante', 'participante')
       .leftJoinAndSelect('reconocimiento.ponente', 'ponente')
       .orderBy('reconocimiento.created_at', 'DESC')
@@ -80,6 +85,17 @@ export class ReconocimientoService {
       const pdf = await this.renderer.render(
         reconocimiento.tipo,
         reconocimiento.nombre_destinatario,
+        {
+          equipo: reconocimiento.hackaton_equipo?.nombre,
+          resultado: reconocimiento.hackaton_equipo?.resultado?.replaceAll(
+            '_',
+            ' ',
+          ),
+          participacion:
+            reconocimiento.tipo === ReconocimientoTipo.HACKATON_EVALUADOR
+              ? 'Participación como evaluador del Hackatón'
+              : undefined,
+        },
       );
       const hash = createHash('sha256').update(pdf).digest('hex');
       await this.repository

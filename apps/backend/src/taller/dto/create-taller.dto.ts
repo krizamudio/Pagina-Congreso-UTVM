@@ -6,9 +6,11 @@ import {
   IsString,
   IsUUID,
   Matches,
+  Max,
   MaxLength,
   Min,
 } from 'class-validator';
+import { POSTGRES_INTEGER_MAX } from '../../common/database/postgres-limits.constant';
 
 function sanitizeString(value: unknown): unknown {
   if (typeof value !== 'string') return value;
@@ -43,6 +45,9 @@ export class CreateTallerDto {
   @Type(() => Number)
   @IsInt({ message: 'El campo "cupo_maximo" debe ser un número entero.' })
   @Min(1, { message: 'El campo "cupo_maximo" debe ser mayor o igual a 1.' })
+  @Max(POSTGRES_INTEGER_MAX, {
+    message: `El campo "cupo_maximo" no puede ser mayor a ${POSTGRES_INTEGER_MAX}.`,
+  })
   @IsNotEmpty({ message: 'El campo "cupo_maximo" es obligatorio.' })
   cupo_maximo!: number;
 

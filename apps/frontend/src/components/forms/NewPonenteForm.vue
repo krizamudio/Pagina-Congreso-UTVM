@@ -75,7 +75,6 @@
           dense
           :dark="!isLight"
           @update:model-value="handleImageChange"
-
         >
           <template #prepend>
             <q-icon name="image" />
@@ -156,7 +155,8 @@ const selectedImage = ref<File | null>(null);
 const imagePreviewUrl = ref<string | null>(null);
 const tipoOptions: { label: string; value: PonenteTipo }[] = [
   { label: "Ponente", value: "Ponente" },
-  { label: "Panelista", value: "Panelista" }
+  { label: "Panelista", value: "Panelista" },
+  { label: "Evaluador", value: "Evaluador" }
 ];
 
 const { formData: form } = useFormPersistence<PonentePayload>(

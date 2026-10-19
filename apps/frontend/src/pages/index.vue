@@ -102,10 +102,16 @@ const linksList: EssentialLinkProps[] = [
     link: "/talleres"
   },
   {
-    label: "Ponentes y panelistas",
-    caption: "Gestión de ponentes y panelistas",
+    label: "Ponentes, panelistas y evaluadores",
+    caption: "Gestión de perfiles de actividades",
     icon: "record_voice_over",
     link: "/ponentes"
+  },
+  {
+    label: "Hackatón",
+    caption: "Equipos, resultados y lotes",
+    icon: "emoji_events",
+    link: "/hackatones"
   },
   {
     label: "Reconocimientos",

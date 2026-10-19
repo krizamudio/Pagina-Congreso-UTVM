@@ -387,6 +387,31 @@ body.theme-dark .q-menu .q-item--active {
   color: #1a1200;
 }
 
+/* Quasar Notify defaults make every administrative alert use this system. */
+.q-notification.app-notify.bg-positive,
+.q-notification.app-notify-positive {
+  background: linear-gradient(135deg, #00c853 0%, #00e676 100%) !important;
+  color: #06130f !important;
+}
+
+.q-notification.app-notify.bg-negative,
+.q-notification.app-notify-negative {
+  background: linear-gradient(135deg, #c62828 0%, #ff5252 100%) !important;
+  color: #ffffff !important;
+}
+
+.q-notification.app-notify.bg-warning,
+.q-notification.app-notify-warning {
+  background: linear-gradient(135deg, #ff8f00 0%, #ffb300 100%) !important;
+  color: #1a1200 !important;
+}
+
+.q-notification.app-notify .q-notification__message,
+.q-notification.app-notify .q-notification__caption,
+.q-notification.app-notify .q-icon {
+  color: inherit !important;
+}
+
 body.theme-light {
   color-scheme: light;
   --bg-main: #eef4f2;
@@ -589,4 +614,257 @@ body.theme-light .q-select__dialog,
 body.theme-light .q-virtual-scroll__content {
   background: #ffffff;
   color: #173a33;
+}
+
+/* Administrative forms and Hackatón management */
+.admin-form {
+  color: var(--text-main);
+}
+
+.admin-form-dialog {
+  width: min(760px, 94vw);
+  max-height: 92vh;
+  color: var(--text-main);
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(0, 230, 118, 0.1),
+      transparent 34%
+    ),
+    rgba(9, 30, 26, 0.98);
+  border: 1px solid rgba(0, 230, 118, 0.2);
+  border-radius: 20px;
+  box-shadow: 0 28px 70px rgba(0, 0, 0, 0.42);
+  overflow: hidden;
+}
+
+.admin-form-dialog__header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 20px 24px;
+}
+
+.admin-form-dialog__icon {
+  flex: 0 0 auto;
+  color: #06221a;
+  background: linear-gradient(135deg, #00e676, #00b86b);
+  box-shadow: 0 8px 24px rgba(0, 230, 118, 0.22);
+}
+
+.admin-form-dialog__subtitle {
+  margin-top: 2px;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  line-height: 1.45;
+}
+
+.admin-form-dialog .q-separator {
+  background: var(--surface-border);
+}
+
+.admin-form-dialog__body {
+  padding: 24px;
+}
+
+.admin-form-dialog .q-field__label,
+.admin-form-dialog .q-field__native,
+.admin-form-dialog .q-field__input,
+.admin-form-dialog .q-field__marginal {
+  color: var(--text-main);
+}
+
+.admin-form-dialog .q-field--outlined .q-field__control::before {
+  border-color: rgba(215, 229, 226, 0.3);
+}
+
+.admin-form-dialog
+  .q-field--outlined.q-field--focused
+  .q-field__control::after {
+  border-color: var(--brand-primary);
+}
+
+.admin-form-dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 4px;
+}
+
+.admin-form-dialog__cancel,
+.admin-form-dialog__submit {
+  min-width: 118px;
+  min-height: 42px;
+  border-radius: 10px;
+  font-weight: 700;
+}
+
+.admin-form-dialog__cancel {
+  color: var(--text-soft);
+}
+
+.admin-form-dialog__submit {
+  box-shadow: 0 8px 22px rgba(0, 230, 118, 0.2);
+}
+
+.admin-list {
+  color: var(--text-main);
+  background: rgba(7, 30, 27, 0.62);
+  border-color: var(--surface-border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.admin-list .q-item {
+  color: var(--text-main);
+  border-color: var(--surface-border);
+}
+
+.admin-list .q-item__label--caption {
+  color: var(--text-muted);
+}
+
+.hackaton-page {
+  min-height: calc(100vh - 64px);
+}
+
+.hackaton-sidebar,
+.hackaton-admin-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.hackaton-sidebar .q-separator,
+.hackaton-admin-card .q-separator {
+  background: var(--surface-border);
+}
+
+.hackaton-item-active {
+  color: var(--text-main);
+  background: rgba(0, 230, 118, 0.12);
+}
+
+.hackaton-tabs {
+  color: var(--text-soft);
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.hackaton-panels,
+.hackaton-panels .q-panel,
+.hackaton-panels .q-tab-panel {
+  color: var(--text-main);
+  background: transparent;
+}
+
+.admin-warning {
+  color: var(--text-soft);
+  background: rgba(255, 179, 0, 0.1);
+  border: 1px solid rgba(255, 179, 0, 0.32);
+}
+
+.empty-admin-state {
+  min-height: 360px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-main);
+  text-align: center;
+}
+
+.result-column {
+  width: min(280px, 42vw);
+}
+
+body.theme-light .admin-list {
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.72);
+  border-color: var(--surface-border);
+}
+
+body.theme-light .admin-form-dialog {
+  color: #173a33;
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(0, 168, 107, 0.1),
+      transparent 34%
+    ),
+    rgba(255, 255, 255, 0.99);
+  border-color: rgba(16, 43, 37, 0.14);
+  box-shadow: 0 24px 60px rgba(16, 43, 37, 0.2);
+}
+
+body.theme-light .admin-form-dialog__subtitle {
+  color: #5b7570;
+}
+
+body.theme-light .admin-form-dialog .q-field__label,
+body.theme-light .admin-form-dialog .q-field__native,
+body.theme-light .admin-form-dialog .q-field__input,
+body.theme-light .admin-form-dialog .q-field__marginal,
+body.theme-light .admin-form-dialog__cancel {
+  color: #173a33;
+}
+
+body.theme-light
+  .admin-form-dialog
+  .q-field--outlined
+  .q-field__control::before {
+  border-color: rgba(23, 58, 51, 0.28);
+}
+
+@media (max-width: 599px) {
+  .admin-form-dialog__header,
+  .admin-form-dialog__body {
+    padding: 18px;
+  }
+
+  .admin-form-dialog__actions {
+    flex-direction: column-reverse;
+  }
+
+  .admin-form-dialog__cancel,
+  .admin-form-dialog__submit {
+    width: 100%;
+  }
+}
+
+body.theme-light .admin-list .q-item,
+body.theme-light .admin-list .q-item__label,
+body.theme-light .admin-list .q-icon {
+  color: #173a33;
+}
+
+body.theme-light .admin-list .q-item__label--caption {
+  color: #5b7570;
+}
+
+body.theme-light .hackaton-item-active {
+  background: rgba(0, 168, 107, 0.13);
+}
+
+body.theme-light .hackaton-tabs {
+  color: #2d4741;
+  background: rgba(0, 168, 107, 0.045);
+}
+
+body.theme-light .hackaton-panels,
+body.theme-light .hackaton-panels .q-panel,
+body.theme-light .hackaton-panels .q-tab-panel {
+  color: #173a33;
+  background: transparent;
+}
+
+body.theme-light .admin-warning {
+  color: #5f4300;
+  background: rgba(255, 179, 0, 0.12);
+  border-color: rgba(170, 110, 0, 0.28);
+}
+
+@media (max-width: 600px) {
+  .result-column {
+    width: 48%;
+    min-width: 150px;
+  }
 }
