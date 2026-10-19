@@ -18,7 +18,7 @@
           </span>
 
           <span class="brand-text">
-            Congreso UTVM
+            {{ tituloMenuCongreso }}
           </span>
         </router-link>
 
@@ -89,7 +89,7 @@
     >
       <div class="drawer-header">
         <div>
-          <div class="drawer-title">Congreso UTVM</div>
+          <div class="drawer-title">{{ tituloMenuCongreso }}</div>
           <div class="drawer-subtitle">Menú público</div>
         </div>
 
@@ -240,17 +240,30 @@
 </template>
 
 <script setup lang="ts">
-import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import type { ComponentPublicInstance, CSSProperties } from 'vue';
 import { useQuasar } from 'quasar';
 import { useRoute, useRouter } from 'vue-router';
 import CentroAyuda from '@/components/centroAyuda.vue';
+import { api } from '@/services/api';
 
 interface PublicLink {
   label: string;
   to: string;
   icon: string;
   variant?: 'normal' | 'cta' | 'admin';
+}
+
+interface ApiListResponse<T> {
+  data?: T[];
+}
+
+interface CongresoPublico {
+  id?: string;
+  nombre?: string;
+  titulo?: string;
+  fechaInicio?: string;
+  fecha_inicio?: string;
 }
 
 const route = useRoute();
@@ -261,6 +274,7 @@ const menuOpen = ref(false);
 const sesionActiva = ref(false);
 const confirmLogout = ref(false);
 const mostrarCentroAyuda = ref(false);
+const congresos = ref<CongresoPublico[]>([]);
 
 const navRef = ref<HTMLElement | null>(null);
 const navItems = new Map<string, HTMLElement>();
@@ -271,6 +285,42 @@ const indicatorStyle = ref<CSSProperties>({
   width: '0px',
   transform: 'translate3d(0, 0, 0)',
   opacity: '0',
+});
+
+const congresoActivo = computed<CongresoPublico | null>(() => {
+  if (!Array.isArray(congresos.value) || congresos.value.length === 0) {
+    return null;
+  }
+
+  return [...congresos.value].sort((a, b) => {
+    const fechaA = obtenerFechaInicioCongreso(a);
+    const fechaB = obtenerFechaInicioCongreso(b);
+
+    return new Date(fechaB).getTime() - new Date(fechaA).getTime();
+  })[0];
+});
+
+const anioCongreso = computed(() => {
+  const nombre = obtenerNombreCongreso(congresoActivo.value);
+  const matchNombre = nombre.match(/\d{4}/);
+
+  if (matchNombre) {
+    return matchNombre[0];
+  }
+
+  const fechaInicio = congresoActivo.value
+    ? obtenerFechaInicioCongreso(congresoActivo.value)
+    : '';
+
+  if (fechaInicio) {
+    return String(new Date(fechaInicio).getFullYear());
+  }
+
+  return '2026';
+});
+
+const tituloMenuCongreso = computed(() => {
+  return `Congreso UTVM ${anioCongreso.value}`;
 });
 
 const publicLinks: PublicLink[] = [
@@ -310,27 +360,6 @@ const publicLinks: PublicLink[] = [
     to: '/mi-qr',
     icon: 'qr_code_2',
   },
-  {
-    label: 'Admin',
-    to: '/admin/dashboard',
-    icon: 'admin_panel_settings',
-    variant: 'admin',
-  },
-  {
-    label: 'Registro NSU',
-    to: '/registro_nsu',
-    icon: 'school',
-  },
-  {
-    label: 'Registro EMS',
-    to: '/registro_ems',
-    icon: 'groups_2',
-  },
-  {
-    label: 'Registro UTVM',
-    to: '/registro_utvm',
-    icon: 'account_balance',
-  },
 ];
 
 const handleResize = () => {
@@ -339,6 +368,7 @@ const handleResize = () => {
 
 onMounted(() => {
   cargarSesion();
+  void cargarCongresos();
 
   void nextTick(() => {
     scheduleIndicatorUpdate();
@@ -366,11 +396,41 @@ watch(
   },
 );
 
+async function cargarCongresos() {
+  try {
+    const response = await api.get<CongresoPublico[] | ApiListResponse<CongresoPublico>>('congreso');
+    congresos.value = extraerLista(response.data);
+  } catch (error) {
+    congresos.value = [];
+    console.error('No se pudo cargar el congreso público:', error);
+  }
+}
+
+function extraerLista<T>(respuesta: T[] | ApiListResponse<T>): T[] {
+  if (Array.isArray(respuesta)) {
+    return respuesta;
+  }
+
+  if (Array.isArray(respuesta.data)) {
+    return respuesta.data;
+  }
+
+  return [];
+}
+
 function cargarSesion() {
   const participanteGuardado = localStorage.getItem('participante');
   const tipoGuardado = localStorage.getItem('tipoParticipante');
 
   sesionActiva.value = Boolean(participanteGuardado && tipoGuardado);
+}
+
+function obtenerNombreCongreso(congreso: CongresoPublico | null) {
+  return congreso?.nombre?.trim() || congreso?.titulo?.trim() || 'Congreso UTVM';
+}
+
+function obtenerFechaInicioCongreso(congreso: CongresoPublico) {
+  return congreso.fechaInicio || congreso.fecha_inicio || '';
 }
 
 function abrirCentroAyuda() {

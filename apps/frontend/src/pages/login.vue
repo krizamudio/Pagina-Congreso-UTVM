@@ -1,16 +1,5 @@
 <template>
   <q-page class="login-page">
-    <!-- Botón para regresar -->
-    <button
-      type="button"
-      class="back-button"
-      aria-label="Volver a la página principal"
-      @click="volverInicio"
-    >
-      <q-icon name="arrow_back" size="27px" />
-      <span>Volver a la página principal</span>
-    </button>
-
     <!-- Elementos decorativos -->
     <div class="background-decoration background-decoration-left"></div>
     <div class="background-decoration background-decoration-right"></div>
@@ -85,89 +74,202 @@
         </q-form>
       </section>
     </main>
+
+    <!-- ===================================================== -->
+    <!-- MODAL DE VERIFICACIÓN DEL CÓDIGO -->
+    <!-- ===================================================== -->
+    <q-dialog
+      v-model="mostrarModalCodigo"
+      persistent
+    >
+      <q-card class="codigo-card">
+        <q-card-section class="text-center">
+          <div class="codigo-icon-container">
+            <q-icon
+              name="mark_email_read"
+              size="55px"
+              color="primary"
+            />
+          </div>
+
+          <div class="text-h5 text-weight-bold q-mt-md">
+            Verifica tu identidad
+          </div>
+
+          <div class="text-body1 q-mt-sm text-grey-7">
+            Enviamos un código de 6 dígitos a:
+          </div>
+
+          <div class="text-weight-bold q-mt-xs">
+            {{ email }}
+          </div>
+        </q-card-section>
+
+        <q-card-section>
+          <q-form @submit.prevent="verificarCodigo">
+            <q-input
+              ref="codigoInput"
+              v-model="codigo"
+              outlined
+              autofocus
+              maxlength="6"
+              inputmode="numeric"
+              autocomplete="one-time-code"
+              placeholder="000000"
+              class="codigo-input"
+              :disable="verificandoCodigo"
+              :rules="codigoRules"
+              @update:model-value="filtrarCodigo"
+            />
+
+            <div class="text-caption text-grey-7 text-center q-mt-sm">
+              El código tiene una vigencia de 5 minutos.
+            </div>
+
+            <q-btn
+              type="submit"
+              unelevated
+              no-caps
+              color="primary"
+              label="Verificar código"
+              class="full-width q-mt-lg"
+              :loading="verificandoCodigo"
+              :disable="
+                verificandoCodigo ||
+                codigo.length !== 6
+              "
+            />
+
+            <q-btn
+              flat
+              no-caps
+              color="grey-8"
+              label="Cancelar"
+              class="full-width q-mt-sm"
+              :disable="verificandoCodigo"
+              @click="cerrarModalCodigo"
+            />
+          </q-form>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import { useQuasar, type QForm } from 'quasar';
+import { nextTick, ref } from 'vue';
+import { useQuasar } from 'quasar';
 import { useRouter } from 'vue-router';
-import { AxiosError } from 'axios';
-import { iniciarSesionPorCorreo } from '../services/loginService';
+import { api } from '../services/api';
 
-interface ErrorBackend {
-  message?: string | string[];
+interface ParticipanteLogin {
+  id: string;
+  registroId?: string | null;
+  nombreCompleto: string;
+  correo: string;
+  institucion?: string;
+  carrera?: string;
+  telefono?: string;
+  cuatrimestre?: string | number;
+  grupo?: string;
 }
 
-const router = useRouter();
-const $q = useQuasar();
+interface RespuestaEnvioCodigo {
+  mensaje: string;
+  requiereCodigo: boolean;
+  minutosVigencia?: number;
+}
 
-const loginForm = ref<QForm | null>(null);
+interface RespuestaLogin {
+  mensaje: string;
+  tipo: 'EXTERNO' | 'NSU' | 'EMS' | 'UTVM';
+  participante: ParticipanteLogin;
+}
+
+const $q = useQuasar();
+const router = useRouter();
+
 const email = ref('');
+const codigo = ref('');
+
 const loading = ref(false);
+const verificandoCodigo = ref(false);
+const mostrarModalCodigo = ref(false);
+
+const codigoInput = ref();
 
 const emailRules = [
   (value: string) =>
-    Boolean(value) || 'El correo electrónico es obligatorio',
+    !!value || 'El correo electrónico es obligatorio.',
 
   (value: string) =>
     /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) ||
-    'Ingresa un correo electrónico válido',
+    'Ingresa un correo electrónico válido.',
 ];
 
-const volverInicio = async (): Promise<void> => {
-  await router.push('/');
-};
+const codigoRules = [
+  (value: string) =>
+    !!value || 'Ingresa el código de verificación.',
 
-const enviarCorreo = async (): Promise<void> => {
-  const formularioValido = await loginForm.value?.validate();
+  (value: string) =>
+    /^\d{6}$/.test(value) ||
+    'El código debe contener exactamente 6 dígitos.',
+];
 
-  if (!formularioValido) {
+/*
+ * ============================================================
+ * PASO 1
+ * ============================================================
+ *
+ * Envía el correo al backend.
+ *
+ * El backend:
+ * - busca al participante
+ * - valida sus requisitos
+ * - genera el OTP
+ * - guarda el OTP
+ * - envía el correo
+ */
+async function enviarCorreo() {
+  if (!email.value) {
     return;
   }
 
   loading.value = true;
 
   try {
-    const respuesta = await iniciarSesionPorCorreo(email.value);
-
-    localStorage.setItem(
-      'participante',
-      JSON.stringify(respuesta.participante),
+    const response = await api.post<RespuestaEnvioCodigo>(
+      '/login',
+      {
+        correo: email.value,
+      },
     );
 
-    localStorage.setItem(
-      'tipoParticipante',
-      respuesta.tipo,
-    );
+    if (response.data.requiereCodigo) {
+      codigo.value = '';
+      mostrarModalCodigo.value = true;
 
-    localStorage.setItem(
-      'correoParticipante',
-      respuesta.participante.correo,
-    );
+      $q.notify({
+        type: 'positive',
+        message:
+          response.data.mensaje ||
+          'Código de verificación enviado.',
+        position: 'top',
+      });
 
-    $q.notify({
-      type: 'positive',
-      message: `Bienvenido, ${respuesta.participante.nombreCompleto}.`,
-      position: 'top',
-    });
+      /*
+       * Esperamos a que el modal sea renderizado
+       * para enfocar el campo del código.
+       */
+      await nextTick();
 
-    await router.push('/');
-  } catch (error: unknown) {
-    console.error('Error al iniciar sesión:', error);
-
-    let mensaje = 'No fue posible iniciar sesión.';
-
-    if (error instanceof AxiosError) {
-      const data = error.response?.data as ErrorBackend | undefined;
-      const mensajeBackend = data?.message;
-
-      if (Array.isArray(mensajeBackend)) {
-        mensaje = mensajeBackend.join(', ');
-      } else if (typeof mensajeBackend === 'string') {
-        mensaje = mensajeBackend;
-      }
+      codigoInput.value?.focus();
     }
+  } catch (error: any) {
+    const mensaje =
+      error?.response?.data?.message ||
+      error?.response?.data?.mensaje ||
+      'No fue posible iniciar sesión.';
 
     $q.notify({
       type: 'negative',
@@ -177,7 +279,130 @@ const enviarCorreo = async (): Promise<void> => {
   } finally {
     loading.value = false;
   }
-};
+}
+
+/*
+ * ============================================================
+ * FILTRO DEL OTP
+ * ============================================================
+ *
+ * Solamente permite números y máximo 6 caracteres.
+ */
+function filtrarCodigo(value: string | number | null) {
+  codigo.value = String(value ?? '')
+    .replace(/\D/g, '')
+    .slice(0, 6);
+}
+
+/*
+ * ============================================================
+ * PASO 2
+ * ============================================================
+ *
+ * Envía:
+ *
+ * correo + código
+ *
+ * al endpoint:
+ *
+ * POST /login/verificar-codigo
+ */
+async function verificarCodigo() {
+  if (!/^\d{6}$/.test(codigo.value)) {
+    $q.notify({
+      type: 'warning',
+      message: 'Ingresa los 6 dígitos del código.',
+      position: 'top',
+    });
+
+    return;
+  }
+
+  verificandoCodigo.value = true;
+
+  try {
+    const response = await api.post<RespuestaLogin>(
+      '/login/verificar-codigo',
+      {
+        correo: email.value,
+        codigo: codigo.value,
+      },
+    );
+
+    /*
+     * ==========================================================
+     * LOGIN CORRECTO
+     * ==========================================================
+     */
+
+    const datosLogin = response.data;
+
+    /*
+     * Temporalmente guardamos la información del participante
+     * para mantener la sesión del frontend.
+     *
+     * Después podemos adaptarlo a Pinia si tu proyecto ya
+     * utiliza un store para el participante.
+     */
+    localStorage.setItem(
+      'participante',
+      JSON.stringify(datosLogin.participante),
+    );
+
+    localStorage.setItem(
+      'tipoParticipante',
+      datosLogin.tipo,
+    );
+
+    $q.notify({
+      type: 'positive',
+      message: `Bienvenido, ${datosLogin.participante.nombreCompleto}`,
+      position: 'top',
+    });
+
+    mostrarModalCodigo.value = false;
+    codigo.value = '';
+
+    /*
+     * Redirección después del login.
+     *
+     * Si tu sistema utiliza otra ruta después de iniciar sesión,
+     * solamente cambia '/' por esa ruta.
+     */
+    await router.push('/');
+  } catch (error: any) {
+  console.log('ERROR COMPLETO:', error);
+  console.log('RESPUESTA BACKEND:', error?.response?.data);
+
+  const mensaje =
+    error?.response?.data?.message ||
+    error?.response?.data?.mensaje ||
+    'El código de verificación no es válido.';
+
+  $q.notify({
+    type: 'negative',
+    message: mensaje,
+    position: 'top',
+  });
+
+  codigo.value = '';
+
+  await nextTick();
+  codigoInput.value?.focus();
+} finally {
+    verificandoCodigo.value = false;
+  }
+}
+
+/*
+ * ============================================================
+ * CANCELAR VERIFICACIÓN
+ * ============================================================
+ */
+function cerrarModalCodigo() {
+  mostrarModalCodigo.value = false;
+  codigo.value = '';
+}
 </script>
 
 <style lang="scss">

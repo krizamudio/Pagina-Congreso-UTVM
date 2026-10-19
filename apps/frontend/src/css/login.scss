@@ -543,6 +543,114 @@
     display: none;
   }
 }
+/* ============================================================
+   MODAL DE VERIFICACIÓN DE CÓDIGO
+   ============================================================ */
+
+.codigo-card {
+  width: 420px;
+  max-width: 92vw;
+
+  padding: 22px;
+
+  border: 1px solid rgba(63, 134, 255, 0.55);
+  border-radius: 20px;
+
+  background: #062b27;
+  color: var(--color-white);
+
+  box-shadow:
+    0 22px 55px rgba(0, 0, 0, 0.42),
+    0 0 28px rgba(63, 134, 255, 0.08);
+}
+
+.codigo-icon-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 76px;
+  height: 76px;
+
+  margin: 0 auto;
+
+  border: 1px solid rgba(0, 224, 164, 0.35);
+  border-radius: 50%;
+
+  background: rgba(0, 224, 164, 0.08);
+}
+
+.codigo-card .text-h5,
+.codigo-card .text-h6 {
+  color: var(--color-white);
+}
+
+.codigo-card .text-body1,
+.codigo-card .text-body2 {
+  color: var(--color-text-soft) !important;
+}
+
+.codigo-input {
+  margin-top: 10px;
+}
+
+.codigo-input.q-field--outlined {
+  .q-field__control {
+    min-height: 66px;
+
+    background: #0b3154 !important;
+    border-radius: 12px;
+
+    color: #ffffff;
+  }
+
+  .q-field__control::before {
+    border: 1px solid #3f86ff !important;
+    border-radius: 12px;
+  }
+
+  .q-field__control::after {
+    display: none !important;
+  }
+
+  .q-field__native,
+  .q-field__input {
+    min-height: 66px;
+
+    color: #ffffff !important;
+
+    text-align: center;
+
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: 12px;
+  }
+
+  .q-field__native::placeholder,
+  .q-field__input::placeholder {
+    color: rgba(255, 255, 255, 0.42) !important;
+    opacity: 1;
+  }
+
+  &.q-field--focused {
+    .q-field__control::before {
+      border-color: #5b8cff !important;
+    }
+  }
+
+  &.q-field--error {
+    .q-field__control::before {
+      border-color: #ff4f87 !important;
+    }
+
+    .q-field__bottom {
+      color: #ff4f87;
+
+      font-size: 13px;
+      font-weight: 600;
+    }
+  }
+}
 
 @media (max-width: 420px) {
   .back-button {
@@ -577,5 +685,17 @@
 
   .login-form {
     gap: 24px;
+  }
+  .codigo-card {
+    width: 94vw;
+    padding: 18px;
+  }
+
+  .codigo-input.q-field--outlined {
+    .q-field__native,
+    .q-field__input {
+      font-size: 26px;
+      letter-spacing: 9px;
+    }
   }
 }

@@ -243,7 +243,7 @@
           />
         </q-card-section>
 
-        
+
           <q-card-actions align="right" class="modal-actions">
             <q-btn
               flat
@@ -260,7 +260,7 @@
               @click="guardarParticipantes"
             />
           </q-card-actions>
-        
+
       </q-card>
     </q-dialog>
   </div>
@@ -306,7 +306,7 @@ const diasOptions = [
   { label: "Día 3", value: "Día 3" },
 ];
 
-const costoPorDia = 100;
+const costoPorDia = 250;
 
 const montoParticipanteActual = computed(() => {
   return form.value.dias.length * costoPorDia;

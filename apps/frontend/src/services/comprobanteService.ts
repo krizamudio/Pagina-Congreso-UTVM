@@ -1,4 +1,6 @@
-import { apiBaseUrl } from './api';
+const apiBaseUrl = (
+  import.meta.env.VITE_API_URL || '/api'
+).replace(/\/$/, '');
 
 export function abrirComprobante(id: string): void {
   window.open(

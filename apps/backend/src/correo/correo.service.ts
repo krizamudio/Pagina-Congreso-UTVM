@@ -18,7 +18,9 @@ export class CorreoService {
   constructor(
     @Inject(NODEMAILER_TRANSPORT)
     private readonly transporter: Transporter,
+
     private readonly templates: PlantillaCorreoService,
+
     private readonly config: ConfigService,
   ) {}
 
@@ -44,10 +46,43 @@ export class CorreoService {
           },
         ],
       });
-    } catch {
-      this.logger.error('Fallo el envio del correo de acceso QR');
+    } catch (error) {
+      this.logger.error(
+        'Fallo el envio del correo de acceso QR',
+        error instanceof Error ? error.stack : undefined,
+      );
+
       throw new ServiceUnavailableException(
         'No fue posible enviar el correo de acceso',
+      );
+    }
+  }
+
+  async enviarCodigoLogin(
+    destinatario: string,
+    codigo: string,
+    minutosVigencia = 5,
+  ): Promise<void> {
+    const html = this.templates.renderCodigoLogin({
+      codigo,
+      minutosVigencia,
+    });
+
+    try {
+      await this.transporter.sendMail({
+        from: this.config.getOrThrow<string>('MAIL_FROM'),
+        to: destinatario,
+        subject: 'Código de acceso - Congreso UTVM',
+        html,
+      });
+    } catch (error) {
+      this.logger.error(
+        'Fallo el envio del codigo de acceso',
+        error instanceof Error ? error.stack : undefined,
+      );
+
+      throw new ServiceUnavailableException(
+        'No fue posible enviar el código de acceso',
       );
     }
   }

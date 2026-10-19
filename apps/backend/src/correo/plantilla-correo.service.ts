@@ -12,11 +12,29 @@ export class PlantillaCorreoService {
     accessUrl: string;
   }>;
 
+  private readonly codigoLoginTemplate: Handlebars.TemplateDelegate<{
+    codigo: string;
+    minutosVigencia: number;
+  }>;
+
   constructor() {
-    const path = join(__dirname, 'templates', 'qr-acceso.hbs');
-    this.qrAccesoTemplate = Handlebars.compile(readFileSync(path, 'utf8'), {
-      strict: true,
-    });
+    const qrAccesoPath = join(__dirname, 'templates', 'qr-acceso.hbs');
+
+    this.qrAccesoTemplate = Handlebars.compile(
+      readFileSync(qrAccesoPath, 'utf8'),
+      {
+        strict: true,
+      },
+    );
+
+    const codigoLoginPath = join(__dirname, 'templates', 'codigo-login.hbs');
+
+    this.codigoLoginTemplate = Handlebars.compile(
+      readFileSync(codigoLoginPath, 'utf8'),
+      {
+        strict: true,
+      },
+    );
   }
 
   renderQrAcceso(data: {
@@ -25,5 +43,9 @@ export class PlantillaCorreoService {
     accessUrl: string;
   }): string {
     return this.qrAccesoTemplate(data);
+  }
+
+  renderCodigoLogin(data: { codigo: string; minutosVigencia: number }): string {
+    return this.codigoLoginTemplate(data);
   }
 }

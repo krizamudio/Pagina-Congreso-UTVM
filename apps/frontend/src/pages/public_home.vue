@@ -1,6 +1,5 @@
 <template>
   <q-page class="public-home-page">
-    <!-- Fondo tecnológico premium optimizado -->
     <div class="tech-bg" aria-hidden="true">
       <div class="tech-grid"></div>
       <div class="tech-gradient tech-gradient-a"></div>
@@ -24,32 +23,27 @@
       <span class="link link-6"></span>
     </div>
 
-    <!-- HERO -->
     <section class="hero-section">
       <div class="hero-copy">
         <div class="hero-eyebrow">
           <q-icon name="auto_awesome" />
-          <span>Congreso UTVM</span>
+          <span>{{ tituloMenuCongreso }}</span>
         </div>
 
-        <h1 class="hero-title">
-          <span>Congreso</span>
-          <span>UTVM</span>
-          <span>{{ anioCongreso }}</span>
+        <h1
+          class="hero-title"
+          :style="heroTitleStyle"
+        >
+          <span
+            v-for="linea in tituloGrandeLineas"
+            :key="linea"
+          >
+            {{ linea }}
+          </span>
         </h1>
 
-        <p
-          v-if="nombreCongresoLargo"
-          class="hero-event-name"
-        >
-          {{ nombreCongresoLargo }}
-        </p>
-
         <p class="hero-description">
-          {{
-            congresoActivo?.eslogan ||
-            'Vive una experiencia académica con conferencias, talleres, panelistas y actividades diseñadas para impulsar el talento universitario, la innovación y la tecnología.'
-          }}
+          {{ esloganCongreso }}
         </p>
 
         <div class="hero-meta">
@@ -60,7 +54,7 @@
 
           <div class="hero-meta-item">
             <q-icon name="place" />
-            <span>{{ congresoActivo?.ubicacion || 'UTVM' }}</span>
+            <span>{{ ubicacionCongreso }}</span>
           </div>
         </div>
 
@@ -95,20 +89,20 @@
       <aside class="hero-preview-card">
         <div class="preview-badge">Evento académico</div>
 
-        <h2 class="preview-title">
-          <span>UTVM</span>
-          <span>{{ anioCongreso }}</span>
+        <h2
+          class="preview-title"
+          :style="previewTitleStyle"
+        >
+          <span
+            v-for="linea in previewTituloLineas"
+            :key="`preview-${linea}`"
+          >
+            {{ linea }}
+          </span>
         </h2>
 
-        <p
-          v-if="nombreCongresoLargo"
-          class="preview-event-name"
-        >
-          {{ nombreCongresoLargo }}
-        </p>
-
         <p class="preview-text">
-          Consulta conferencias, talleres, panelistas y actividades del congreso.
+          Consulta conferencias, talleres, ponentes, panelistas y actividades del congreso.
         </p>
 
         <div class="preview-stats">
@@ -128,16 +122,15 @@
       </aside>
     </section>
 
-    <!-- NUMERALIA -->
     <section class="metrics-section">
       <div class="section-heading">
         <div class="section-badge">Numeralia</div>
 
         <h2>Todo lo que encontrarás en el congreso</h2>
 
-<p>
-  Conoce de forma rápida las actividades, espacios y experiencias que forman parte del Congreso UTVM.
-</p>
+        <p>
+          Conoce de forma rápida las actividades, espacios y experiencias que forman parte de {{ tituloMenuCongreso }}.
+        </p>
       </div>
 
       <div class="metrics-grid">
@@ -157,7 +150,6 @@
       </div>
     </section>
 
-    <!-- PANELISTAS DESTACADOS -->
     <section
       v-if="panelistasDestacados.length > 0"
       class="home-panelists-section"
@@ -165,14 +157,14 @@
       <div class="panelists-heading">
         <div class="panelists-kicker">
           <q-icon name="groups" />
-          <span>Panelistas destacados</span>
+          <span>Ponentes y panelistas destacados</span>
         </div>
 
         <h2>Voces que inspiran el congreso</h2>
 
         <p>
-          Conoce a algunos de los panelistas registrados que compartirán
-          experiencias, ideas y conocimiento en el Congreso UTVM.
+          Conoce a algunos de los ponentes y panelistas registrados que compartirán
+          experiencias, ideas y conocimiento en {{ tituloMenuCongreso }}.
         </p>
       </div>
 
@@ -209,7 +201,7 @@
             <h3>{{ panelista.nombre }}</h3>
 
             <span>
-              {{ panelista.tema || panelista.institucion || 'Panelista invitado' }}
+              {{ panelista.tema || panelista.institucion || 'Invitado del congreso' }}
             </span>
 
             <p>
@@ -228,14 +220,13 @@
           no-caps
           unelevated
           class="panelists-main-btn"
-          label="Ver todos los panelistas"
+          label="Ver todos"
           icon-right="arrow_forward"
           to="/panelistas_u"
         />
       </div>
     </section>
 
-    <!-- ACCESOS -->
     <section class="home-section">
       <div class="section-heading">
         <div class="section-badge">Explora el congreso</div>
@@ -243,7 +234,7 @@
         <h2>Todo lo que necesitas en un solo lugar</h2>
 
         <p>
-          Accede rápidamente a la agenda, conferencias, talleres y panelistas.
+          Accede rápidamente a la agenda, conferencias, talleres, ponentes y panelistas.
         </p>
       </div>
 
@@ -269,7 +260,6 @@
       </div>
     </section>
 
-    <!-- CONFERENCIAS Y TALLERES -->
     <section class="home-section home-split">
       <div class="home-preview-card">
         <div class="section-heading compact">
@@ -354,10 +344,9 @@
       </div>
     </section>
 
-    <!-- CTA -->
     <section class="home-cta">
       <div>
-        <span>Participa en el Congreso UTVM</span>
+        <span>Participa en {{ tituloMenuCongreso }}</span>
         <h2>Regístrate y forma parte de esta experiencia académica.</h2>
       </div>
 
@@ -370,17 +359,61 @@
         to="/registro-externo"
       />
     </section>
+
+    <section
+      v-if="forosEmpresarialesVisibles.length > 0"
+      class="business-forums-section"
+    >
+      <div class="business-forums-heading">
+        <span>Aliados estratégicos</span>
+
+        <h2>Foros empresariales</h2>
+
+        <p>
+          Empresas, instituciones y espacios participantes que forman parte de
+          {{ tituloMenuCongreso }}.
+        </p>
+      </div>
+
+      <div class="business-forums-grid">
+        <article
+          v-for="foro in forosEmpresarialesVisibles"
+          :key="foro.id"
+          class="business-forum-card"
+        >
+          <img
+            v-if="obtenerLogoForo(foro)"
+            :src="obtenerLogoForo(foro)"
+            :alt="`Logo de ${foro.nombre}`"
+          />
+
+          <div
+            v-else
+            class="business-forum-placeholder"
+          >
+            {{ obtenerIniciales(foro.nombre) }}
+          </div>
+        </article>
+      </div>
+    </section>
   </q-page>
 </template>
 
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref } from 'vue';
+import type { CSSProperties } from 'vue';
 import { api } from '@/services/api';
+
+interface ApiListResponse<T> {
+  data?: T[];
+}
 
 interface Congreso {
   id: string;
-  nombre: string;
+  nombre?: string;
+  titulo?: string;
   eslogan?: string;
+  slogan?: string;
   ubicacion?: string;
   fechaInicio?: string;
   fechaFin?: string;
@@ -423,6 +456,7 @@ interface Ponente {
   institucion?: string;
   semblanza?: string;
   tema?: string;
+  tipo?: string;
   visiblePublico?: boolean;
   visible_publico?: boolean;
   foto?: {
@@ -432,16 +466,31 @@ interface Ponente {
   } | null;
 }
 
-interface Ubicacion {
+interface ForoEmpresarial {
   id: string;
   nombre: string;
+  direccion?: string;
+  resena?: string;
+  logo?: {
+    id?: string;
+    url?: string;
+    ruta_archivo?: string;
+  } | null;
+  congreso?: {
+    id: string;
+    nombre?: string;
+  } | null;
+  ubicacion?: {
+    id: string;
+    nombre?: string;
+  } | null;
 }
 
 const congresos = ref<Congreso[]>([]);
 const conferencias = ref<Conferencia[]>([]);
 const talleres = ref<Taller[]>([]);
 const ponentes = ref<Ponente[]>([]);
-const ubicaciones = ref<Ubicacion[]>([]);
+const forosEmpresariales = ref<ForoEmpresarial[]>([]);
 
 const reduceMotion = ref(false);
 
@@ -461,8 +510,16 @@ const congresoActivo = computed(() => {
   );
 });
 
+const tituloCongresoCompleto = computed(() => {
+  return obtenerNombreCongreso(congresoActivo.value);
+});
+
+const tituloGrandeCongreso = computed(() => {
+  return limitarPalabras(tituloCongresoCompleto.value, 150);
+});
+
 const anioCongreso = computed(() => {
-  const nombre = congresoActivo.value?.nombre || '';
+  const nombre = tituloCongresoCompleto.value;
   const matchNombre = nombre.match(/\d{4}/);
 
   if (matchNombre) {
@@ -480,24 +537,52 @@ const anioCongreso = computed(() => {
   return '2026';
 });
 
-const nombreCongresoLargo = computed(() => {
-  const nombre = congresoActivo.value?.nombre?.trim() || '';
+const tituloMenuCongreso = computed(() => {
+  return `Congreso UTVM ${anioCongreso.value}`;
+});
 
-  if (!nombre) {
-    return '';
-  }
+const palabrasTituloGrande = computed(() => {
+  return tituloGrandeCongreso.value.trim().split(/\s+/).filter(Boolean).length;
+});
 
-  const nombreSinAnio = nombre
-    .replace(/\d{4}/g, '')
-    .replace(/congreso/gi, '')
-    .replace(/utvm/gi, '')
-    .trim();
+const tituloGrandeLineas = computed(() => {
+  return dividirTitulo(
+    tituloGrandeCongreso.value,
+    obtenerPalabrasPorLinea(palabrasTituloGrande.value),
+  );
+});
 
-  if (!nombreSinAnio) {
-    return '';
-  }
+const previewTituloLineas = computed(() => {
+  return dividirTitulo(
+    limitarPalabras(tituloCongresoCompleto.value, 50),
+    obtenerPalabrasPorLineaPreview(palabrasTituloGrande.value),
+  );
+});
 
-  return nombreSinAnio;
+const heroTitleStyle = computed<CSSProperties>(() => {
+  return {
+    fontSize: obtenerTamanoTituloHero(palabrasTituloGrande.value),
+    lineHeight: obtenerLineHeightTitulo(palabrasTituloGrande.value),
+  };
+});
+
+const previewTitleStyle = computed<CSSProperties>(() => {
+  return {
+    fontSize: obtenerTamanoTituloPreview(palabrasTituloGrande.value),
+    lineHeight: obtenerLineHeightTitulo(palabrasTituloGrande.value),
+  };
+});
+
+const esloganCongreso = computed(() => {
+  return (
+    congresoActivo.value?.eslogan?.trim() ||
+    congresoActivo.value?.slogan?.trim() ||
+    'Vive una experiencia académica con conferencias, talleres, ponentes, panelistas y actividades diseñadas para impulsar el talento universitario, la innovación y la tecnología.'
+  );
+});
+
+const ubicacionCongreso = computed(() => {
+  return congresoActivo.value?.ubicacion?.trim() || 'UTVM';
 });
 
 const conferenciasVisibles = computed(() => {
@@ -517,10 +602,15 @@ const ponentesVisibles = computed(() => {
   });
 });
 
+const forosEmpresarialesVisibles = computed(() => {
+  return filtrarPorCongreso(forosEmpresariales.value).filter((foro) =>
+    Boolean(foro.nombre),
+  );
+});
+
 const totalConferencias = computed(() => conferenciasVisibles.value.length);
 const totalTalleres = computed(() => talleresVisibles.value.length);
 const totalPonentes = computed(() => ponentesVisibles.value.length);
-const totalUbicaciones = computed(() => ubicaciones.value.length);
 
 const totalDias = computed(() => {
   if (!congresoActivo.value) {
@@ -563,7 +653,7 @@ const stats = computed(() => [
   },
   {
     value: totalPonentes.value,
-    label: 'Ponentes',
+    label: 'Invitados',
   },
 ]);
 
@@ -585,7 +675,7 @@ const statsDetailed = computed(() => [
   {
     icon: 'record_voice_over',
     value: totalPonentes.value,
-    title: 'Ponentes',
+    title: 'Ponentes y panelistas',
     description:
       'Conoce a personas invitadas que compartirán su experiencia, conocimiento y visión profesional.',
   },
@@ -627,8 +717,13 @@ const rangoFechas = computed(() => {
     return 'Fechas por confirmar';
   }
 
-  const inicio = formatearFechaCorta(obtenerFechaInicioCongreso(congresoActivo.value));
-  const fin = formatearFechaCorta(obtenerFechaFinCongreso(congresoActivo.value));
+  const inicio = formatearFechaCorta(
+    obtenerFechaInicioCongreso(congresoActivo.value),
+  );
+
+  const fin = formatearFechaCorta(
+    obtenerFechaFinCongreso(congresoActivo.value),
+  );
 
   return `${inicio} - ${fin}`;
 });
@@ -653,8 +748,8 @@ const accesos = [
     to: '/talleres_u',
   },
   {
-    titulo: 'Panelistas',
-    descripcion: 'Conoce a los ponentes y especialistas invitados.',
+    titulo: 'Ponentes y panelistas',
+    descripcion: 'Conoce a los ponentes, panelistas y especialistas invitados.',
     icon: 'groups',
     to: '/panelistas_u',
   },
@@ -684,34 +779,50 @@ async function cargarInicio() {
     conferenciasRes,
     talleresRes,
     ponentesRes,
-    ubicacionesRes,
+    forosRes,
   ] = await Promise.allSettled([
-    api.get<Congreso[]>('congreso'),
-    api.get<Conferencia[]>('conferencias'),
-    api.get<Taller[]>('taller'),
-    api.get<Ponente[]>('ponente'),
-    api.get<Ubicacion[]>('ubicacion'),
+    api.get<Congreso[] | ApiListResponse<Congreso>>('congreso'),
+    api.get<Conferencia[] | ApiListResponse<Conferencia>>('conferencias'),
+    api.get<Taller[] | ApiListResponse<Taller>>('taller'),
+    api.get<Ponente[] | ApiListResponse<Ponente>>('ponente'),
+    api.get<ForoEmpresarial[] | ApiListResponse<ForoEmpresarial>>('foro-empresarial'),
   ]);
 
   if (congresosRes.status === 'fulfilled') {
-    congresos.value = congresosRes.value.data;
+    congresos.value = extraerLista(congresosRes.value.data);
   }
 
   if (conferenciasRes.status === 'fulfilled') {
-    conferencias.value = conferenciasRes.value.data;
+    conferencias.value = extraerLista(conferenciasRes.value.data);
   }
 
   if (talleresRes.status === 'fulfilled') {
-    talleres.value = talleresRes.value.data;
+    talleres.value = extraerLista(talleresRes.value.data);
   }
 
   if (ponentesRes.status === 'fulfilled') {
-    ponentes.value = ponentesRes.value.data;
+    ponentes.value = extraerLista(ponentesRes.value.data);
   }
 
-  if (ubicacionesRes.status === 'fulfilled') {
-    ubicaciones.value = ubicacionesRes.value.data;
+  if (forosRes.status === 'fulfilled') {
+    forosEmpresariales.value = extraerLista(forosRes.value.data);
   }
+}
+
+function extraerLista<T>(respuesta: T[] | ApiListResponse<T>): T[] {
+  if (Array.isArray(respuesta)) {
+    return respuesta;
+  }
+
+  if (Array.isArray(respuesta.data)) {
+    return respuesta.data;
+  }
+
+  return [];
+}
+
+function obtenerNombreCongreso(congreso: Congreso | null) {
+  return congreso?.nombre?.trim() || congreso?.titulo?.trim() || 'Congreso UTVM';
 }
 
 function obtenerFechaInicioCongreso(congreso: Congreso) {
@@ -728,6 +839,10 @@ function filtrarPorCongreso<
     congreso?: { id: string } | null;
   },
 >(lista: T[]) {
+  if (!Array.isArray(lista)) {
+    return [];
+  }
+
   if (!congresoActivo.value) {
     return lista;
   }
@@ -747,8 +862,75 @@ function filtrarPorCongreso<
   });
 }
 
+function limitarPalabras(texto: string, maxPalabras = 150) {
+  const palabras = texto.trim().split(/\s+/).filter(Boolean);
+
+  if (palabras.length <= maxPalabras) {
+    return palabras.join(' ');
+  }
+
+  return `${palabras.slice(0, maxPalabras).join(' ')}...`;
+}
+
+function dividirTitulo(texto: string, palabrasPorLinea = 3) {
+  const palabras = texto.trim().split(/\s+/).filter(Boolean);
+  const lineas: string[] = [];
+
+  for (let i = 0; i < palabras.length; i += palabrasPorLinea) {
+    lineas.push(palabras.slice(i, i + palabrasPorLinea).join(' '));
+  }
+
+  return lineas;
+}
+
+function obtenerPalabrasPorLinea(totalPalabras: number) {
+  if (totalPalabras <= 4) return 2;
+  if (totalPalabras <= 10) return 4;
+  if (totalPalabras <= 18) return 5;
+  if (totalPalabras <= 32) return 6;
+  return 7;
+}
+
+function obtenerPalabrasPorLineaPreview(totalPalabras: number) {
+  if (totalPalabras <= 6) return 2;
+  if (totalPalabras <= 12) return 3;
+  if (totalPalabras <= 24) return 4;
+  return 5;
+}
+
+function obtenerTamanoTituloHero(totalPalabras: number) {
+  if (totalPalabras <= 3) return 'clamp(3.9rem, 7.5vw, 6.4rem)';
+  if (totalPalabras <= 6) return 'clamp(3.4rem, 6.2vw, 5.4rem)';
+  if (totalPalabras <= 10) return 'clamp(2.9rem, 5.1vw, 4.4rem)';
+  if (totalPalabras <= 18) return 'clamp(2.4rem, 4.2vw, 3.6rem)';
+  if (totalPalabras <= 32) return 'clamp(2rem, 3.4vw, 2.9rem)';
+
+  return 'clamp(1.7rem, 2.8vw, 2.4rem)';
+}
+
+function obtenerTamanoTituloPreview(totalPalabras: number) {
+  if (totalPalabras <= 3) return 'clamp(2.4rem, 4vw, 3.5rem)';
+  if (totalPalabras <= 6) return 'clamp(2.1rem, 3.5vw, 3rem)';
+  if (totalPalabras <= 10) return 'clamp(1.8rem, 3vw, 2.45rem)';
+  if (totalPalabras <= 18) return 'clamp(1.55rem, 2.5vw, 2rem)';
+  if (totalPalabras <= 32) return 'clamp(1.35rem, 2vw, 1.7rem)';
+
+  return 'clamp(1.2rem, 1.7vw, 1.45rem)';
+}
+
+function obtenerLineHeightTitulo(totalPalabras: number) {
+  if (totalPalabras <= 6) return '0.98';
+  if (totalPalabras <= 18) return '1.04';
+
+  return '1.1';
+}
+
 function obtenerFotoPonente(ponente: Ponente) {
   return ponente.foto?.url || ponente.foto?.ruta_archivo || '';
+}
+
+function obtenerLogoForo(foro: ForoEmpresarial) {
+  return foro.logo?.url || foro.logo?.ruta_archivo || '';
 }
 
 function obtenerIniciales(nombre: string) {
@@ -765,7 +947,7 @@ function obtenerDescripcionPonente(ponente: Ponente) {
     ponente.semblanza ||
     ponente.tema ||
     ponente.institucion ||
-    'Panelista invitado del Congreso UTVM.';
+    `Invitado de ${tituloMenuCongreso.value}.`;
 
   if (texto.length <= 120) {
     return texto;
@@ -840,6 +1022,8 @@ function prepararAnimaciones() {
       '.home-preview-card',
       '.home-activity',
       '.home-cta',
+      '.business-forums-section',
+      '.business-forum-card',
     ].join(','),
   );
 
